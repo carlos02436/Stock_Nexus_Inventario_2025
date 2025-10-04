@@ -1,7 +1,7 @@
 <?php
 // Ajusta estas credenciales según tu entorno local
 $host = '127.0.0.1';
-$db   = 'Stock_Nexus';
+$db   = 'stock_nexus';
 $user = 'root';
 $pass = '';
 $charset = 'utf8mb4';
