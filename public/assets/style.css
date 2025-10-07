@@ -1,8 +1,7 @@
  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap');
 
  body {
-     background-image: url(../img/fondo_body.jpg);
-     /* Reemplaza con tu URL */
+     background-image: url(../img/fondo_body.jpg); /* Reemplaza con tu URL */
      min-height: 100vh;
      background-size: cover;
      background-position: center;

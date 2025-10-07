@@ -3,7 +3,8 @@
 $finanzaController = new FinanzaController($db);
 $pagos = $finanzaController->listarPagos();
 ?>
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"
+     style="margin-top:120px;">
     <h1 class="h2"><i class="fas fa-money-bill-wave me-2"></i>Registro de Pagos</h1>
     <div class="btn-toolbar mb-2 mb-md-0">
         <div class="btn-group me-2">

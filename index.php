@@ -122,7 +122,7 @@ switch ($page) {
 
     // ==================== DASHBOARD ====================
     case 'dashboard':
-        include __DIR__ . '/app/views/dashboard/dashboard.php';
+        include __DIR__ . '/app/views/Dashboard/dashboard.php';
         break;
 
     // ==================== INVENTARIO ====================

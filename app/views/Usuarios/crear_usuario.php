@@ -5,7 +5,8 @@ if ($_SESSION['usuario_rol'] !== 'Administrador') {
     exit;
 }
 ?>
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"
+     style="margin-top:120px;">
     <h1 class="h2"><i class="fas fa-plus me-2"></i>Crear Nuevo Usuario</h1>
     <div class="btn-toolbar mb-2 mb-md-0">
         <a href="index.php?page=usuarios" class="btn btn-secondary">
