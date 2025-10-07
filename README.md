@@ -2,6 +2,87 @@
 
 Entrega completa: estructura MVC (models, views, controllers), front controller (`public/index.php`), helpers (Mailer, PdfGenerator), `config/database.php` y script SQL para crear la base de datos y datos iniciales.
 
+Estructura del proyecto:
+
+app/
+├── controllers/
+│   ├── UsuarioController.php
+│   ├── ProductoController.php
+│   ├── CategoriaController.php
+│   ├── ProveedorController.php
+│   ├── CompraController.php
+│   ├── VentaController.php
+│   ├── ClienteController.php
+│   ├── InventarioController.php
+│   ├── FinanzaController.php
+│   ├── ReporteController.php
+│   └── DashboardController.php
+├── models/
+│   ├── Usuario.php
+│   ├── Producto.php
+│   ├── Categoria.php
+│   ├── Proveedor.php
+│   ├── Compra.php
+│   ├── Venta.php
+│   ├── Cliente.php
+│   ├── MovimientoBodega.php
+│   ├── Pago.php
+│   ├── BalanceGeneral.php
+│   └── Dashboard.php
+├── views/
+│   ├── auth/
+│   │   ├── login.php
+│   │   ├── forgot_password.php
+│   │   └── reset_password.php
+│   ├── dashboard/
+│   │   └── dashboard.php
+│   ├── productos/
+│   │   ├── productos.php
+│   │   ├── crear_producto.php
+│   │   └── editar_producto.php
+│   ├── categorias/
+│   │   ├── categorias.php
+│   │   └── crear_categoria.php
+│   ├── proveedores/
+│   │   ├── proveedores.php
+│   │   └── crear_proveedor.php
+│   ├── compras/
+│   │   ├── compras.php
+│   │   ├── crear_compra.php
+│   │   └── detalle_compra.php
+│   ├── ventas/
+│   │   ├── ventas.php
+│   │   ├── crear_venta.php
+│   │   └── detalle_venta.php
+│   ├── clientes/
+│   │   ├── clientes.php
+│   │   └── crear_cliente.php
+│   ├── movimientos/
+│   │   ├── movimientos.php
+│   │   └── crear_movimiento.php
+│   ├── finanzas/
+│   │   ├── finanzas.php
+│   │   ├── pagos.php
+│   │   ├── crear_pago.php
+│   │   └── balance.php
+│   ├── reportes/
+│   │   ├── reportes.php
+│   │   ├── reporte_ventas.php
+│   │   ├── reporte_inventario.php
+│   │   ├── reporte_finanzas.php
+│   │   ├── reporte_compras.php
+│   │   ├── generar_pdf.php
+│   │   └── generar_excel.php
+│   ├── usuarios/
+│   │   ├── usuarios.php
+│   │   ├── crear_usuario.php
+│   │   └── editar_usuario.php
+│   └── configuracion/
+│       ├── configuracion.php
+│       └── perfil.php
+└── config/
+    └── database.php
+
 **Instrucciones rápidas**
 1. Copia la carpeta `Stock_Nexus_Inventario_2025_complete` a tu `htdocs` o la carpeta pública de tu servidor (XAMPP, Laragon, etc.).
 2. Ajusta `config/database.php` con tus credenciales MySQL.

@@ -1,2 +1,577 @@
-body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
-.container { max-width: 1200px; }
+ @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap');
+
+ body {
+     background-image: url(../img/fondo_body.jpg);
+     /* Reemplaza con tu URL */
+     min-height: 100vh;
+     background-size: cover;
+     background-position: center;
+     background-repeat: no-repeat;
+     background-attachment: fixed; /* Hace efecto parallax suave en desktop */
+     position: relative;
+     font-family: 'Roboto', sans-serif;
+     background-color: #000;
+     color: #fff;
+     margin: 0;
+     padding: 0;
+     width: 100%;
+     align-items: center;
+     justify-content: center;
+ }
+
+ body::before {
+     content: '';
+     position: fixed;
+     top: 0;
+     left: 0;
+     width: 100%;
+     height: 100%;
+     background-color: rgba(0, 0, 0, 0.5);
+     /* Cambia 0.5 según qué tan oscura la quieres */
+     z-index: -1;
+ }
+
+ section {
+    scroll-margin-top: 80px;
+ }
+
+ html {
+     scroll-behavior: smooth;
+     width: 100%;
+ }
+ 
+ .navbar {
+     background-color: rgba(0, 0, 0, 0.8) !important;
+     backdrop-filter: blur(10px);
+ }
+
+ .navbar-brand {
+     font-family: 'Orbitron', sans-serif;
+     display: flex;
+     align-items: center;
+ }
+
+ .navbar-brand:hover {
+     text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00;
+     transition: all 0.3s ease;
+ }
+
+ .navbar-brand img {
+     width: 40px;
+     height: 40px;
+     margin-right: 10px;
+ }
+
+ .navbar-nav .nav-link {
+     position: relative;
+     padding-bottom: 5px
+ }
+
+ .navbar-nav .nav-link:hover {
+     text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00;
+     color: white;
+     /* Agrega el color blanco al pasar el mouse */
+     transition: all 0.3s ease;
+ }
+
+ .navbar-toggler {
+     border-color: white;
+     /* Borde blanco del botón */
+ }
+
+ .navbar-toggler-icon {
+     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='white' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+ }
+
+ .hero {
+     position: relative;
+     height: 100vh;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     text-align: center;
+     overflow: hidden;
+ }
+
+ .hero-background {
+     position: absolute;
+     top: 0;
+     left: 0;
+     width: 100%;
+     height: 100%;
+     background-size: cover;
+     background-position: center;
+     transition: opacity 1s ease-in-out;
+ }
+
+ .hero .container {
+     position: relative;
+     z-index: 1;
+ }
+
+ .hero h1,
+ .hero p.lead {
+     font-family: 'Orbitron', sans-serif;
+ }
+
+ .hero h1 {
+     font-size: 4.3rem;
+     margin-bottom: 20px;
+     text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00;
+ }
+
+ .hero p.lead {
+     font-size: 1.5rem;
+     margin-bottom: 30px;
+ }
+
+ .btn-neon {
+     color: #00ff00;
+     border: 2px solid #00ff00;
+     background-color: transparent;
+     box-shadow: 0 0 10px #00ff00;
+     transition: all 0.3s ease;
+ }
+
+ .btn-neon:hover {
+     background-color: #00ff00;
+     color: #000;
+     box-shadow: 0 0 20px #00ff00;
+ }
+
+ .card {
+     width: 100%;
+     background-color: rgba(255, 255, 255, 0.1);
+     border: 1px solid #00ff00;
+     transition: transform 0.3s, box-shadow 0.3s;
+     border-radius: 25px;
+ }
+
+ .card:hover {
+     transform: translateY(-10px);
+ }
+
+ #galeria {
+     display: flex;
+     flex-wrap: wrap;
+     justify-content: center;
+     gap: 20px;
+     /* O el número que quieras */
+ }
+
+ #galeria img {
+     width: 100px;
+     /* O el tamaño que prefieras */
+     height: 100px;
+     object-fit: cover;
+     border-radius: 25px;
+     filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.5));
+     transition: transform 0.3s ease, box-shadow 0.3s;
+ }
+
+ #galeria img:hover {
+     transform: scale(1.06);
+ }
+
+
+ .section-title {
+     position: relative;
+     display: inline-block;
+     padding-bottom: 10px;
+     margin-bottom: 30px;
+ }
+
+ .section-title::after {
+     content: '';
+     position: absolute;
+     left: 0;
+     bottom: 0;
+     width: 100%;
+     height: 2px;
+     background: linear-gradient(90deg, transparent, #00ff00, transparent);
+ }
+
+ #contacto {
+     background-color: rgba(0, 255, 0, 0.1);
+ }
+
+ #videos .embed-responsive {
+     display: flex;
+     border: 2px solid #00ff00;
+     transition: transform 0.3s, box-shadow 0.3s;
+     border-radius: 25px;
+     height: 100%;
+     width: 100%;
+     max-height: 30rem;
+     padding: 10px;
+     justify-content: center;
+ }
+
+ #videos .embed-responsive:hover {
+     transform: scale(1.05);
+ }
+
+ #videos h5 {
+     color: #00ff00;
+     text-shadow: 0 0 5px #00ff00;
+ }
+
+.footer {
+    background-image: url(../img/misión.jpg);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    position: relative;
+    font-family: 'Roboto', sans-serif;
+    color: #fff;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px; /* Mejor min-height para adaptarse a contenido */
+    z-index: 1;
+}
+
+/* Overlay oscuro sobre la imagen */
+.footer::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6); /* Oscuridad ajustable */
+    z-index: 0;
+}
+
+/* Asegurar que el contenido esté sobre la sombra */
+.footer * {
+    position: relative;
+    z-index: 1;
+}
+
+ .social-icons {
+  display: flex;
+  gap: 20px; /* Espacio entre íconos */
+  justify-content: flex-start; /* Alinea a la izquierda */
+  align-items: center;
+  margin-top: 15px;
+}
+
+.social-icons a {
+  font-size: 28px; /* Tamaño de los íconos */
+  color: #fff; /* Color de los íconos */
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.social-icons a:hover {
+  transform: scale(1.2); /* Aumenta tamaño al pasar el mouse */
+  text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00;
+}
+
+ .fade-in-section {
+     opacity: 0;
+     transform: translateY(20px);
+     transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+ }
+
+ .fade-in-section.is-visible {
+     opacity: 1;
+     transform: translateY(0);
+ }
+
+ img {
+     height: 80%;
+     width: 80%;
+     transition: transform 0.3s ease;
+     /* Suaviza el cambio */
+ }
+
+ img:hover {
+     transform: scale(1.1);
+     /* Aumenta el tamaño de la imagen un 10% */
+ }
+
+
+ .video-hover {
+     transition: transform 0.3s ease, box-shadow 0.3s ease, border 0.3s ease;
+     border-radius: 35px;
+     border: 3px solid transparent;
+ }
+
+ .video-hover:hover {
+     transform: scale(1.05);
+     border: 3px solid #00ff00;
+     transform: scale(1.1);
+ }
+
+ blockquote {
+     font-style: italic;
+     background-color: transparent;
+     border-left: 5px solid #ffffff;
+     padding: 10px 20px;
+     margin: 10px 0;
+     border-radius: 35px;
+     border: 5px solid #00ff00;
+     transition: all 0.3s ease;
+ }
+
+ blockquote:hover {
+     background-color: transparent;
+     transform: scale(1.05);
+     /* Aumentar tamaño */
+ }
+
+ /* Efecto hover del boton de scroll */
+ #scrollToTopBtn {
+     background: #424242;
+     color: white;
+     border: 2px solid black;
+ }
+
+ #scrollToTopBtn:hover {
+     background: black;
+     border: 2px solid #424242;
+ }
+
+ /* Sección Responsive de la página web para todos los dispositivos menores a 768px */
+ @media screen and (max-width: 768px) {
+
+     html,
+     body {
+         margin-top: auto !important;
+         padding: 0 !important;
+         width: 100% !important;
+         text-align: justify !important;
+     }
+
+     header {
+         display: flex !important;
+         justify-content: center !important;
+         align-items: center !important;
+         margin-top: 7rem !important;
+     }
+
+     iframe {
+         width: 100% !important;
+         height: 20rem !important;
+         margin: 0 auto;
+         display: flex;
+         justify-content: center !important;
+         align-items: center !important;
+         display: block;
+         margin-left: auto;
+         margin-right: auto;
+     }
+
+     #videos {
+         width: 100%;
+         margin: 0 auto;
+     }
+
+     /* Contenedor responsive para YouTube */
+     .video-wrapper {
+         max-width: 30rem;
+         /* ajusta este valor según el tamaño que desees */
+         margin: auto;
+         /* centra horizontalmente */
+         padding: 10px;
+         /* ajusta este valor según el espacio interno que desees para el padding */
+         align-items: center !important;
+         border-radius: 15px;
+         border: 2px solid #00ff00 !important;
+         max-height: 60rem;
+     }
+
+     .video-wrapper iframe {
+         width: 100%;
+         border-radius: 15px;
+         aspect-ratio: 16 / 9;
+         /* Controla el aspecto o el cómo se ve el video responsive */
+     }
+
+
+     /* TikTok responsive embed */
+     .tiktok-embed {
+         width: 100% !important;
+         aspect-ratio: 9 / 16;
+         /* ✅ Mantiene el formato vertical típico de TikTok */
+         height: auto !important;
+         /* ✅ Deja que se ajuste automáticamente */
+         border: 2px solid #00ff00 !important;
+         border-radius: 25px !important;
+         margin: auto;
+         overflow: hidden;
+         /* ✅ Oculta scroll interno */
+     }
+
+     .tiktok-embed iframe {
+         height: 100% !important;
+         width: 100% !important;
+         border: none !important;
+         overflow: hidden !important;
+     }
+
+     .navbar-brand strong {
+         font-size: 14px !important;
+     }
+
+     .navbar-brand img {
+         width: 50px !important;
+         height: auto !important;
+     }
+
+     .navbar-toggler {
+         display: block;
+         margin-top: 0 !important;
+     }
+
+     .hero {
+         height: auto !important;
+         padding: 40px 15px !important;
+         text-align: center;
+     }
+
+     .hero h1 {
+         font-size: 2rem !important;
+     }
+
+     .hero p.lead {
+         font-size: 1rem !important;
+     }
+
+     .btn-neon {
+         font-size: 0.9rem !important;
+     }
+ }
+
+ /* Estilos específicos para pantallas muy pequeñas (como 320px) */
+ @media screen and (max-width: 360px) {
+
+     html,
+     body {
+         margin-top: auto !important;
+         padding: 0 !important;
+         width: 100% !important;
+         text-align: justify !important;
+     }
+
+     header {
+         display: flex !important;
+         justify-content: center !important;
+         align-items: center !important;
+         margin-top: 7rem !important;
+     }
+
+     iframe {
+         width: 100% !important;
+         height: 20rem !important;
+         margin: 0 auto;
+         display: flex;
+         justify-content: center !important;
+         align-items: center !important;
+         display: block;
+         margin-left: auto;
+         margin-right: auto;
+     }
+
+     #videos {
+         width: 100%;
+         margin: 0 auto;
+     }
+
+     /* Contenedor responsive para YouTube */
+     .video-wrapper {
+         max-width: 30rem;
+         /* ajusta este valor según el tamaño que desees */
+         margin: auto;
+         /* centra horizontalmente */
+         padding: 10px;
+         /* ajusta este valor según el espacio interno que desees para el padding */
+         align-items: center !important;
+         border-radius: 15px;
+         border: 2px solid #00ff00 !important;
+         max-height: 60rem;
+     }
+
+     .video-wrapper iframe {
+         width: 100%;
+         border-radius: 15px;
+         aspect-ratio: 16 / 9;
+         /* Controla el aspecto o el cómo se ve el video responsive */
+     }
+
+
+     /* TikTok responsive embed */
+     .tiktok-embed {
+         width: 100% !important;
+         aspect-ratio: 9 / 16;
+         /* ✅ Mantiene el formato vertical típico de TikTok */
+         height: auto !important;
+         /* ✅ Deja que se ajuste automáticamente */
+         border: 2px solid #00ff00 !important;
+         border-radius: 25px !important;
+         margin: auto;
+         overflow: hidden;
+         /* ✅ Oculta scroll interno */
+     }
+
+     .tiktok-embed iframe {
+         height: 100% !important;
+         width: 100% !important;
+         border: none !important;
+         overflow: hidden !important;
+     }
+
+     .navbar-brand strong {
+         font-size: 14px !important;
+     }
+
+     .navbar-brand img {
+         width: 50px !important;
+         height: auto !important;
+     }
+
+     .navbar-toggler {
+         display: block;
+         margin-top: 0 !important;
+     }
+
+     .hero {
+         height: auto !important;
+         padding: 40px 15px !important;
+         text-align: center;
+     }
+
+     .hero h1 {
+         font-size: 2rem !important;
+     }
+
+     .hero p.lead {
+         font-size: 1rem !important;
+     }
+
+     .btn-neon {
+         font-size: 0.9rem !important;
+     }
+
+     .navbar-brand strong {
+         font-size: 11px !important;
+         /* Puedes ajustar a 11px si aún es grande */
+         white-space: nowrap;
+         /* Opcional: evita salto de línea */
+     }
+
+     .navbar-brand {
+         gap: 0.5rem !important;
+         /* Espacio menor entre el logo y el texto */
+     }
+
+     .navbar-brand img {
+         width: 40px !important;
+         /* Reduce el logo también si es necesario */
+     }
+ }
