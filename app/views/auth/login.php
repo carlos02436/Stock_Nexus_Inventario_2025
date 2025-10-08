@@ -15,8 +15,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['contrasena'] ?? '';
 
     try {
-        // Incluir la configuración de la base de datos con ruta ABSOLUTA
-        require_once __DIR__ . '/../../../../config/database.php';
+        // CORREGIR: Usar la ruta correcta para database.php
+        // Desde app/views/auth/login.php, la ruta correcta es:
+        require_once __DIR__ . '/../../../config/database.php';
 
         // Verificar credenciales directamente en la base de datos
         $stmt = $db->prepare("SELECT * FROM usuarios WHERE usuario = :usuario AND estado = 'Activo' LIMIT 1");
@@ -39,9 +40,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = 'Usuario o contraseña incorrectos';
         }
     } catch (PDOException $e) {
-        $error = 'Error al conectar con la base de datos';
+        $error = 'Error al conectar con la base de datos: ' . $e->getMessage();
     } catch (Exception $e) {
-        $error = 'Error del sistema';
+        $error = 'Error del sistema: ' . $e->getMessage();
     }
 }
 ?>
@@ -50,20 +51,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>Login | Stock Nexus</title>
+    <link rel="icon" href="public/img/StockNexus.png">
+    <link rel="stylesheet" href="public/assets/style.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 </head>
-<body class="bg-dark d-flex justify-content-center align-items-center vh-100">
-    <div class="card p-4 shadow-lg" style="width: 25rem; border-radius: 1rem;">
-        <div class="text-center mb-4">
-            <i class="bi bi-warehouse text-primary" style="font-size: 3rem;"></i>
-            <h3 class="mt-3 text-primary">Stock Nexus</h3>
-            <p class="text-muted">Sistema de Inventario</p>
+<body class="d-flex justify-content-center align-items-center vh-100">
+    <div class="card p-4 shadow-lg" style="width: 25rem; border-radius: 1rem;
+         background: rgba(255, 255, 255, 0.1); box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.18);">
+        <div class="d-flex align-items-center justify-content-center mb-4">
+            <img src="public/img/StockNexus.png" alt="Stock Nexus Logo" style="width: 60px; height: 60px; margin-right: 15px;">
+            <div class="text-start">
+                <h3 class="text-white mb-1">Stock Nexus</h3>
+                <p class="text-white mb-0">Sistema de Inventario</p>
+            </div>
         </div>
         
         <?php if(!empty($error)): ?>
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="bi bi-exclamation-triangle me-2"></i><?= $error ?>
+                <i class="bi bi-exclamation-triangle me-2"></i><?= htmlspecialchars($error) ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         <?php endif; ?>        
@@ -71,20 +77,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <form method="POST" action="">
             <!-- Usuario -->
             <div class="mb-3">
-                <label class="form-label">Usuario</label>
+                <label class="form-label text-white">Usuario</label>
                 <div class="input-group">
                     <span class="input-group-text">
                         <i class="bi bi-person"></i>
                     </span>
                     <input type="text" name="usuario" class="form-control" 
-                           value="<?= $_POST['usuario'] ?? '' ?>" 
+                           value="<?= htmlspecialchars($_POST['usuario'] ?? '') ?>" 
                            placeholder="Ingresa tu usuario" required>
                 </div>
             </div>
 
             <!-- Contraseña con ojo -->
             <div class="mb-3">
-                <label class="form-label">Contraseña</label>
+                <label class="form-label text-white">Contraseña</label>
                 <div class="input-group">
                     <span class="input-group-text">
                         <i class="bi bi-lock"></i>
@@ -100,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <!-- Recuérdame y Olvidaste contraseña -->
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <div class="form-check">
+                <div class="form-check text-white">
                     <input class="form-check-input" type="checkbox" name="remember" id="remember">
                     <label class="form-check-label" for="remember">Recuérdame</label>
                 </div>
@@ -116,8 +122,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
 
         <div class="text-center mt-4">
-            <small class="text-muted">
-                &copy; 2024 Stock Nexus. Todos los derechos reservados.
+            <small class="text-white">
+                &copy; 2025 Stock Nexus. Todos los derechos reservados.
             </small>
         </div>
     </div>

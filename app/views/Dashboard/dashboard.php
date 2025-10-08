@@ -1,22 +1,66 @@
 <?php
 // app/views/dashboard/dashboard.php
+
+// Inicializar variables primero
+$filtro = $_GET['filtro'] ?? 'mes';
+$fechaInicio = '';
+$fechaFin = '';
+
+// Calcular fechas según el filtro seleccionado
+switch($filtro) {
+    case 'hoy':
+        $fechaInicio = date('Y-m-d');
+        $fechaFin = date('Y-m-d');
+        break;
+    case 'semana':
+        $fechaInicio = date('Y-m-d', strtotime('monday this week'));
+        $fechaFin = date('Y-m-d');
+        break;
+    case 'mes':
+    default:
+        $fechaInicio = date('Y-m-01');
+        $fechaFin = date('Y-m-d');
+        break;
+}
+
+// Inicializar el modelo y obtener datos
 $dashboardModel = new Dashboard($db);
-$estadisticas = $dashboardModel->obtenerEstadisticasGenerales();
-$ventasRecientes = $dashboardModel->obtenerVentasRecientes(5);
+$estadisticas = $dashboardModel->obtenerEstadisticasGenerales($fechaInicio, $fechaFin);
+$ventasRecientes = $dashboardModel->obtenerVentasRecientes(5, $fechaInicio, $fechaFin);
 $alertasStock = $dashboardModel->obtenerAlertasStock();
-$productosMasVendidos = $dashboardModel->obtenerProductosMasVendidos(5);
+$productosMasVendidos = $dashboardModel->obtenerProductosMasVendidos(5, $fechaInicio, $fechaFin);
+
+// Si hay error en ventasRecientes, inicializar como array vacío
+if (!isset($ventasRecientes) || $ventasRecientes === null) {
+    $ventasRecientes = [];
+}
+
+// DEPURACIÓN
+echo "<!-- ===== DEBUG ===== -->";
+echo "<!-- Filtro: $filtro -->";
+echo "<!-- Fecha Inicio: $fechaInicio -->";
+echo "<!-- Fecha Fin: $fechaFin -->";
+echo "<!-- Ventas Recientes count: " . count($ventasRecientes) . " -->";
+echo "<!-- Ingresos: " . ($estadisticas['ingresos_ventas_mes'] ?? 0) . " -->";
+echo "<!-- ================= -->";
 ?>
 
 <div class="container-fluid px-4 pb-5">
-
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"
         style="margin-top:120px;">
-        <h1 class="h2"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</h1>
+        <h1 class="h2"><i class="fas fa-tachometer-alt me-2"></i>Dashboard 
+            <small class="text-muted fs-6">
+                <?= htmlspecialchars($filtro == 'hoy' ? '(Hoy)' : ($filtro == 'semana' ? '(Esta semana)' : '(Este mes)')) ?>
+            </small>
+        </h1>
         <div class="btn-toolbar mb-2 mb-md-0">
             <div class="btn-group me-2">
-                <button type="button" class="btn btn-sm btn-outline-secondary">Hoy</button>
-                <button type="button" class="btn btn-sm btn-outline-secondary">Esta semana</button>
-                <button type="button" class="btn btn-sm btn-outline-secondary">Este mes</button>
+                <a href="index.php?page=dashboard&filtro=hoy" 
+                   class="btn btn-sm <?= ($filtro == 'hoy') ? 'btn-primary' : 'btn-outline-secondary' ?>">Hoy</a>
+                <a href="index.php?page=dashboard&filtro=semana" 
+                   class="btn btn-sm <?= ($filtro == 'semana') ? 'btn-primary' : 'btn-outline-secondary' ?>">Esta semana</a>
+                <a href="index.php?page=dashboard&filtro=mes" 
+                   class="btn btn-sm <?= ($filtro == 'mes') ? 'btn-primary' : 'btn-outline-secondary' ?>">Este mes</a>
             </div>
         </div>
     </div>
@@ -30,7 +74,7 @@ $productosMasVendidos = $dashboardModel->obtenerProductosMasVendidos(5);
                         <div class="col">
                             <div class="text-xs font-weight-bold text-white text-uppercase mb-1">Productos Activos</div>
                             <div class="h5 mb-0 font-weight-bold text-white">
-                                <?= $estadisticas['total_productos'] ?? 0 ?>
+                                <?= htmlspecialchars($estadisticas['total_productos'] ?? 0) ?>
                             </div>
                         </div>
                         <div class="col-auto">
@@ -46,10 +90,26 @@ $productosMasVendidos = $dashboardModel->obtenerProductosMasVendidos(5);
                 <div class="card-body">
                     <div class="row align-items-center">
                         <div class="col">
-                            <div class="text-xs font-weight-bold text-white text-uppercase mb-1">Ventas del Mes</div>
+                            <div class="text-xs font-weight-bold text-white text-uppercase mb-1">
+                                <?php 
+                                if ($filtro == 'hoy') {
+                                    echo 'Ventas de Hoy';
+                                } elseif ($filtro == 'semana') {
+                                    echo 'Ventas de la Semana';
+                                } else {
+                                    echo 'Ventas del Mes';
+                                }
+                                ?>
+                            </div>
                             <div class="h5 mb-0 font-weight-bold text-white">
                                 $<?= number_format($estadisticas['ingresos_ventas_mes'] ?? 0, 2) ?>
                             </div>
+                            <small class="text-white-50">
+                                <?= $estadisticas['cantidad_ventas'] ?? 0 ?> ventas
+                                <?php if (($estadisticas['ventas_pagadas'] ?? 0) > 0): ?>
+                                    <br><?= $estadisticas['cantidad_pagadas'] ?? 0 ?> pagadas
+                                <?php endif; ?>
+                            </small>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-dollar-sign fa-2x text-white"></i>
@@ -66,7 +126,7 @@ $productosMasVendidos = $dashboardModel->obtenerProductosMasVendidos(5);
                         <div class="col">
                             <div class="text-xs font-weight-bold text-white text-uppercase mb-1">Clientes Registrados</div>
                             <div class="h5 mb-0 font-weight-bold text-white">
-                                <?= $estadisticas['total_clientes'] ?? 0 ?>
+                                <?= htmlspecialchars($estadisticas['total_clientes'] ?? 0) ?>
                             </div>
                         </div>
                         <div class="col-auto">
@@ -118,18 +178,26 @@ $productosMasVendidos = $dashboardModel->obtenerProductosMasVendidos(5);
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($ventasRecientes as $venta): ?>
-                                <tr>
-                                    <td><?= $venta['codigo_venta'] ?></td>
-                                    <td><?= $venta['nombre_cliente'] ?: 'Cliente General' ?></td>
-                                    <td>$<?= number_format($venta['total_venta'], 2) ?></td>
-                                    <td>
-                                        <span class="badge bg-<?= $venta['estado'] == 'Pagada' ? 'success' : 'warning' ?>">
-                                            <?= $venta['estado'] ?>
-                                        </span>
-                                    </td>
-                                </tr>
-                                <?php endforeach; ?>
+                                <?php if (!empty($ventasRecientes)): ?>
+                                    <?php foreach ($ventasRecientes as $venta): ?>
+                                    <tr>
+                                        <td><?= htmlspecialchars($venta['codigo_venta'] ?? '') ?></td>
+                                        <td><?= htmlspecialchars($venta['nombre_cliente'] ?? 'Cliente General') ?></td>
+                                        <td>$<?= number_format($venta['total_venta'] ?? 0, 2) ?></td>
+                                        <td>
+                                            <span class="badge bg-<?= ($venta['estado'] ?? '') == 'Pagada' ? 'success' : 'warning' ?>">
+                                                <?= htmlspecialchars($venta['estado'] ?? '') ?>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted py-3">
+                                            No hay ventas recientes
+                                        </td>
+                                    </tr>
+                                <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
@@ -161,10 +229,10 @@ $productosMasVendidos = $dashboardModel->obtenerProductosMasVendidos(5);
                                 <tbody>
                                     <?php foreach ($alertasStock as $producto): ?>
                                     <tr>
-                                        <td><?= $producto['nombre_producto'] ?></td>
-                                        <td><?= $producto['stock_actual'] ?></td>
-                                        <td><?= $producto['stock_minimo'] ?></td>
-                                        <td><span class="badge bg-danger"><?= $producto['diferencia'] ?></span></td>
+                                        <td><?= htmlspecialchars($producto['nombre_producto'] ?? '') ?></td>
+                                        <td><?= htmlspecialchars($producto['stock_actual'] ?? 0) ?></td>
+                                        <td><?= htmlspecialchars($producto['stock_minimo'] ?? 0) ?></td>
+                                        <td><span class="badge bg-danger"><?= htmlspecialchars($producto['diferencia'] ?? 0) ?></span></td>
                                     </tr>
                                     <?php endforeach; ?>
                                 </tbody>
@@ -203,14 +271,22 @@ $productosMasVendidos = $dashboardModel->obtenerProductosMasVendidos(5);
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($productosMasVendidos as $producto): ?>
-                                <tr>
-                                    <td><?= $producto['nombre_producto'] ?></td>
-                                    <td><?= $producto['codigo_producto'] ?></td>
-                                    <td><?= $producto['total_vendido'] ?></td>
-                                    <td>$<?= number_format($producto['ingresos_generados'], 2) ?></td>
-                                </tr>
-                                <?php endforeach; ?>
+                                <?php if (!empty($productosMasVendidos)): ?>
+                                    <?php foreach ($productosMasVendidos as $producto): ?>
+                                    <tr>
+                                        <td><?= htmlspecialchars($producto['nombre_producto'] ?? '') ?></td>
+                                        <td><?= htmlspecialchars($producto['codigo_producto'] ?? '') ?></td>
+                                        <td><?= htmlspecialchars($producto['total_vendido'] ?? 0) ?></td>
+                                        <td>$<?= number_format($producto['ingresos_generados'] ?? 0, 2) ?></td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted py-3">
+                                            No hay datos de productos vendidos
+                                        </td>
+                                    </tr>
+                                <?php endif; ?>
                             </tbody>
                         </table>
                     </div>

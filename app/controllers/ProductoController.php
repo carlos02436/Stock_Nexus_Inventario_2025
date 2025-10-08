@@ -97,14 +97,64 @@ class ProductoController {
         }
     }
 
-    public function eliminar($id) {
+    public function eliminar($id, $eliminacionFisica = false) {
         try {
-            $stmt = $this->db->prepare("DELETE FROM productos WHERE id_producto = :id");
-            $stmt->bindParam(':id', $id);
-            return $stmt->execute();
+            // Verificar si el producto existe
+            $sql = "SELECT * FROM productos WHERE id_producto = ?";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([$id]);
+            
+            $producto = $stmt->fetch();
+            if (!$producto) {
+                throw new Exception('El producto no existe');
+            }
+
+            if ($eliminacionFisica) {
+                // ELIMINACIÓN FÍSICA - Eliminar completamente de la base de datos
+                
+                // Primero eliminar registros relacionados en otras tablas
+                // (Ajusta estas consultas según tu estructura de base de datos)
+                
+                // 1. Eliminar movimientos relacionados
+                try {
+                    $sqlMovimientos = "DELETE FROM movimientos WHERE id_producto = ?";
+                    $stmtMovimientos = $this->db->prepare($sqlMovimientos);
+                    $stmtMovimientos->execute([$id]);
+                } catch (Exception $e) {
+                    // Si no existe la tabla movimientos, continuar
+                }
+                
+                // 2. Eliminar detalles de ventas relacionados
+                try {
+                    $sqlDetalles = "DELETE FROM detalle_ventas WHERE id_producto = ?";
+                    $stmtDetalles = $this->db->prepare($sqlDetalles);
+                    $stmtDetalles->execute([$id]);
+                } catch (Exception $e) {
+                    // Si no existe la tabla detalle_ventas, continuar
+                }
+                
+                // Finalmente eliminar el producto
+                $sql = "DELETE FROM productos WHERE id_producto = ?";
+                $stmt = $this->db->prepare($sql);
+                $stmt->execute([$id]);
+
+            } else {
+                // ELIMINACIÓN LÓGICA - Cambiar estado a Inactivo
+                $sql = "UPDATE productos SET estado = 'Inactivo' WHERE id_producto = ?";
+                $stmt = $this->db->prepare($sql);
+                $stmt->execute([$id]);
+            }
+
+            return $stmt->rowCount() > 0;
+
         } catch (PDOException $e) {
-            error_log("Error en eliminar producto: " . $e->getMessage());
-            return false;
+            error_log("Error al eliminar producto: " . $e->getMessage());
+            
+            if ($e->getCode() == '23000') {
+                throw new Exception('No se puede eliminar el producto porque tiene registros relacionados en el sistema');
+            }
+            
+            throw new Exception('Error al eliminar el producto: ' . $e->getMessage());
         }
     }
 
@@ -121,6 +171,36 @@ class ProductoController {
         } catch (PDOException $e) {
             error_log("Error en actualizarStock: " . $e->getMessage());
             return false;
+        }
+    }
+
+    // En tu ProductoController
+    public function obtenerUltimosCodigosPorCategoria() {
+        try {
+            $sql = "
+                SELECT 
+                    id_categoria,
+                    MAX(codigo_producto) as ultimo_codigo
+                FROM productos 
+                WHERE id_categoria IS NOT NULL 
+                AND codigo_producto REGEXP '^[A-Z]{3}[0-9]{3}$'
+                GROUP BY id_categoria
+            ";
+            
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute();
+            $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            $ultimosCodigos = [];
+            foreach ($resultados as $fila) {
+                $ultimosCodigos[$fila['id_categoria']] = $fila['ultimo_codigo'];
+            }
+            
+            return $ultimosCodigos;
+            
+        } catch (PDOException $e) {
+            error_log("Error en obtenerUltimosCodigosPorCategoria: " . $e->getMessage());
+            return [];
         }
     }
 }

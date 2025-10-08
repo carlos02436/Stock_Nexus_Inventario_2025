@@ -184,6 +184,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <button type="button" id="agregar-producto" class="btn btn-neon btn-sm mt-2">
                     <i class="fas fa-plus"></i> Agregar Producto
                 </button>
+                <button type="button" id="agregar-producto" class="btn btn-danger btn-sm mt-2">
+                    Limpiar
+                </button>
             </div>
 
             <div class="mt-4 p-2 bg-light text-dark rounded-3 shadow-sm">
