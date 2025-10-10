@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <div class="container-fluid px-4 pb-5">
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"
-         style="margin-top:120px;">
+         style="margin-top:180px;">
         <h1 class="h2"><i class="fas fa-edit me-2"></i>Editar Producto</h1>
         <div class="btn-toolbar mb-2 mb-md-0">
             <a href="index.php?page=productos" class="btn btn-secondary">

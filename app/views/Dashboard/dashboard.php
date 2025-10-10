@@ -47,7 +47,7 @@ echo "<!-- ================= -->";
 
 <div class="container-fluid px-4 pb-5">
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"
-        style="margin-top:120px;">
+        style="margin-top:180px;">
         <h1 class="h2"><i class="fas fa-tachometer-alt me-2"></i>Dashboard 
             <small class="text-muted fs-6">
                 <?= htmlspecialchars($filtro == 'hoy' ? '(Hoy)' : ($filtro == 'semana' ? '(Esta semana)' : '(Este mes)')) ?>

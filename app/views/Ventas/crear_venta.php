@@ -38,6 +38,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $totalLimpio = floatval($totalLimpio);
     }
     
+    // Procesar descuento si aplica
+    $descuentoAplicado = 0;
+    $porcentajeDescuento = 0;
+    
+    if (isset($_POST['aplicar_descuento']) && $_POST['aplicar_descuento'] === 'on') {
+        $porcentajeDescuento = floatval($_POST['porcentaje_descuento'] ?? 0);
+        if ($porcentajeDescuento > 0 && $porcentajeDescuento <= 100) {
+            $descuentoAplicado = ($totalLimpio * $porcentajeDescuento) / 100;
+            $totalLimpio = $totalLimpio - $descuentoAplicado;
+        }
+    }
+    
     // Validar que el total sea un número válido
     if ($totalLimpio <= 0) {
         $error = "El total de la venta debe ser mayor a cero";
@@ -75,6 +87,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'id_usuario' => $_SESSION['id_usuario'] ?? 1,
                 'metodo_pago' => $_POST['metodo_pago'],
                 'total_venta' => $totalLimpio,
+                'descuento_aplicado' => $descuentoAplicado,
+                'porcentaje_descuento' => $porcentajeDescuento,
                 'estado' => 'Pendiente',
                 'productos' => $productosVenta
             ];
@@ -82,7 +96,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $ventaGuardada = $ventaController->crear($datos);
 
             if ($ventaGuardada) {
-                $_SESSION['mensaje'] = "Venta registrada correctamente. Total: $" . number_format($totalLimpio, 2, ',', '.');
+                $mensajeTotal = "Venta registrada correctamente. Total: $" . number_format($totalLimpio, 2, ',', '.');
+                if ($descuentoAplicado > 0) {
+                    $mensajeTotal .= " (Descuento aplicado: " . number_format($porcentajeDescuento, 2, ',', '.') . "%)";
+                }
+                $_SESSION['mensaje'] = $mensajeTotal;
                 $_SESSION['tipo_mensaje'] = "success";
                 header("Location: index.php?page=ventas");
                 exit;
@@ -184,20 +202,59 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <button type="button" id="agregar-producto" class="btn btn-neon btn-sm mt-2">
                     <i class="fas fa-plus"></i> Agregar Producto
                 </button>
-                <button type="button" id="agregar-producto" class="btn btn-danger btn-sm mt-2">
-                    Limpiar
+                <button type="button" id="limpiar-formulario" class="btn btn-danger btn-sm mt-2">
+                    <i class="fas fa-broom"></i> Limpiar
                 </button>
+            </div>
+
+            <!-- SECCIÓN DE DESCUENTO -->
+            <div class="mt-4 p-2 bg-light text-dark rounded-3 shadow-sm">
+                <div class="col-md-12">
+                    <div>
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="aplicar_descuento" name="aplicar_descuento">
+                                        <label class="form-check-label fw-bold" for="aplicar_descuento">
+                                            <i class="fas fa-tag me-2 text-warning"></i>Aplicar Descuento
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold">Porcentaje de Descuento</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="porcentaje_descuento" name="porcentaje_descuento" 
+                                               min="0" max="100" step="0.01" placeholder="0.00" disabled>
+                                        <span class="input-group-text">%</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-5">
+                                    <label class="form-label fw-bold">Valor del Descuento</label>
+                                    <input type="text" class="form-control" id="valor_descuento" readonly value="$0,00">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="mt-4 p-2 bg-light text-dark rounded-3 shadow-sm">
                 <div class="row align-items-center">
-                    <div class="col-md-6">
-                        <h5 class="fw-bold text-dark">Total Venta:</h5>
+                    <div class="col-md-4">
+                        <h5 class="fw-bold text-dark mb-0">Subtotal:</h5>
+                        <input type="text" id="subtotal_venta" class="form-control text-end fw-bold" readonly value="$0,00">
                     </div>
-                    <div class="col-md-6">
-                        <input type="text" id="total_venta" name="total_venta" class="form-control text-end fw-bold fs-5"
+                    <div class="col-md-4">
+                        <h5 class="fw-bold text-dark mb-0">Descuento:</h5>
+                        <input type="text" id="descuento_aplicado_display" class="form-control text-end fw-bold text-danger" readonly value="$0,00">
+                    </div>
+                    <div class="col-md-4">
+                        <h5 class="fw-bold text-dark mb-0">Total Venta:</h5>
+                        <input type="text" id="total_venta" name="total_venta" class="form-control text-end fw-bold fs-5 text-success"
                                readonly value="$0,00">
                         <input type="hidden" id="total_venta_limpio" name="total_venta_limpio" value="0">
+                        <input type="hidden" id="descuento_aplicado" name="descuento_aplicado" value="0">
                     </div>
                 </div>
             </div>
@@ -215,9 +272,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 document.addEventListener("DOMContentLoaded", () => {
     const contenedor = document.getElementById("productos-container");
     const btnAgregar = document.getElementById("agregar-producto");
+    const btnLimpiar = document.getElementById("limpiar-formulario");
     const totalVentaInput = document.getElementById("total_venta");
     const totalVentaLimpioInput = document.getElementById("total_venta_limpio");
+    const subtotalVentaInput = document.getElementById("subtotal_venta");
+    const descuentoAplicadoInput = document.getElementById("descuento_aplicado");
+    const descuentoAplicadoDisplay = document.getElementById("descuento_aplicado_display");
     const formVenta = document.getElementById("formVenta");
+    const aplicarDescuentoCheckbox = document.getElementById("aplicar_descuento");
+    const porcentajeDescuentoInput = document.getElementById("porcentaje_descuento");
+    const valorDescuentoInput = document.getElementById("valor_descuento");
 
     // Formato COP
     function formatoCOP(valor) {
@@ -235,24 +299,98 @@ document.addEventListener("DOMContentLoaded", () => {
         return parseFloat(tmp) || 0;
     }
 
-    // Limpiar formato para enviar
-    function limpiarFormatoCOP(str) {
-        if (!str) return '0';
-        return str.replace(/\$/g, '').replace(/\./g, '').replace(',', '.');
-    }
-
-    // Calcular totales
+    // Calcular totales con descuento
     function actualizarTotales() {
-        let total = 0;
+        let subtotal = 0;
         contenedor.querySelectorAll(".producto-item").forEach(item => {
             const cantidad = parseFloat(item.querySelector(".cantidad").value) || 0;
             const precio = parseFloat(item.querySelector(".precio").value) || 0;
-            const subtotal = cantidad * precio;
-            item.querySelector(".subtotal").value = formatoCOP(subtotal);
-            total += subtotal;
+            const subtotalProducto = cantidad * precio;
+            item.querySelector(".subtotal").value = formatoCOP(subtotalProducto);
+            subtotal += subtotalProducto;
         });
+        
+        subtotalVentaInput.value = formatoCOP(subtotal);
+        
+        // Calcular descuento si está activo
+        let descuento = 0;
+        let total = subtotal;
+        
+        if (aplicarDescuentoCheckbox.checked && porcentajeDescuentoInput.value) {
+            const porcentaje = parseFloat(porcentajeDescuentoInput.value) || 0;
+            if (porcentaje > 0 && porcentaje <= 100) {
+                descuento = (subtotal * porcentaje) / 100;
+                total = subtotal - descuento;
+            }
+        }
+        
+        descuentoAplicadoInput.value = descuento.toFixed(2);
+        descuentoAplicadoDisplay.value = formatoCOP(descuento);
+        valorDescuentoInput.value = formatoCOP(descuento);
         totalVentaInput.value = formatoCOP(total);
-        totalVentaLimpioInput.value = total.toFixed(2); // Guardar el valor limpio
+        totalVentaLimpioInput.value = total.toFixed(2);
+    }
+
+    // Habilitar/deshabilitar campo de porcentaje de descuento
+    aplicarDescuentoCheckbox.addEventListener("change", function() {
+        porcentajeDescuentoInput.disabled = !this.checked;
+        if (!this.checked) {
+            porcentajeDescuentoInput.value = "";
+            valorDescuentoInput.value = "$0,00";
+        }
+        actualizarTotales();
+    });
+
+    // Calcular descuento cuando cambia el porcentaje
+    porcentajeDescuentoInput.addEventListener("input", function() {
+        const valor = parseFloat(this.value) || 0;
+        if (valor < 0) {
+            this.value = 0;
+        } else if (valor > 100) {
+            this.value = 100;
+        }
+        actualizarTotales();
+    });
+
+    // Función para limpiar el formulario
+    function limpiarFormulario() {
+        // Confirmar con el usuario
+        if (!confirm("¿Está seguro de que desea limpiar el formulario? Se perderán todos los datos ingresados.")) {
+            return;
+        }
+        
+        // Limpiar campos del cliente y método de pago
+        document.querySelector('select[name="id_cliente"]').selectedIndex = 0;
+        document.querySelector('select[name="metodo_pago"]').selectedIndex = 0;
+        
+        // Limpiar descuento
+        aplicarDescuentoCheckbox.checked = false;
+        porcentajeDescuentoInput.value = "";
+        porcentajeDescuentoInput.disabled = true;
+        valorDescuentoInput.value = "$0,00";
+        
+        // Limpiar todos los productos excepto el primero
+        const productosItems = contenedor.querySelectorAll(".producto-item");
+        productosItems.forEach((item, index) => {
+            if (index === 0) {
+                // Primer producto: resetear valores
+                item.querySelector(".producto-select").selectedIndex = 0;
+                item.querySelector(".cantidad").value = "";
+                item.querySelector(".precio").value = "";
+                item.querySelector(".precio_display").value = "";
+                item.querySelector(".subtotal").value = "";
+            } else {
+                // Eliminar productos adicionales
+                item.remove();
+            }
+        });
+        
+        // Resetear totales
+        subtotalVentaInput.value = "$0,00";
+        descuentoAplicadoDisplay.value = "$0,00";
+        totalVentaInput.value = "$0,00";
+        totalVentaLimpioInput.value = "0";
+        descuentoAplicadoInput.value = "0";
     }
 
     // Seleccionar producto
@@ -324,6 +462,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    // Limpiar formulario
+    btnLimpiar.addEventListener("click", limpiarFormulario);
+
     // IMPORTANTE: Limpiar el formato antes de enviar el formulario
     formVenta.addEventListener('submit', function(e) {
         // Usar el valor limpio en el campo principal
@@ -364,6 +505,16 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!stockValido) {
             e.preventDefault();
             return;
+        }
+        
+        // Validar descuento si está activo
+        if (aplicarDescuentoCheckbox.checked) {
+            const porcentaje = parseFloat(porcentajeDescuentoInput.value) || 0;
+            if (porcentaje <= 0 || porcentaje > 100) {
+                e.preventDefault();
+                alert("El porcentaje de descuento debe estar entre 0.01% y 100%");
+                return;
+            }
         }
         
         // El formulario se enviará con los valores limpios

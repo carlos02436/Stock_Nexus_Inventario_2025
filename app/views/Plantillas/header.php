@@ -31,7 +31,7 @@ ob_start();
         <div class="container-fluid">
             <a class="navbar-brand">
                 <img src="public/img/StockNexus.png" alt="Logo StockNexus" class="img-fluid" style="height: 50px; width: 50px;">
-                <strong class="text-white">StockNexus</strong>
+                <strong class="text-white">Stock Nexus</strong>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
                 aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,14 +45,41 @@ ob_start();
                     <li class="nav-item me-4"><a class="nav-link text-white" href="index.php?page=proveedores">Proveedores</a></li>
                     <li class="nav-item me-4"><a class="nav-link text-white" href="index.php?page=reportes">Reportes</a></li>
                     <li class="nav-item dropdown me-4">
-                        <a class="nav-link dropdown-toggle text-white" role="button" data-bs-toggle="dropdown" aria-expanded="false">Configuración</a>
+                        <a class="nav-link dropdown-toggle text-white" role="button" data-bs-toggle="dropdown" aria-expanded="false">Más</a>
                         <ul class="dropdown-menu dropdown-menu-start bg-dark ms-n2">
+                            <li><a class="dropdown-item text-white bg-dark" href="index.php?page=compras">Compras</a></li>
+                            <li><a class="dropdown-item text-white bg-dark" href="index.php?page=clientes">Clientes</a></li>
                             <li><a class="dropdown-item text-white bg-dark" href="index.php?page=usuarios">Usuarios</a></li>
                             <li><a class="dropdown-item text-white bg-dark" href="index.php?page=roles">Roles</a></li>
+                            <li><a class="dropdown-item text-white bg-dark" href="index.php?page=categorias">Categorías</a></li>
+                            <li><a class="dropdown-item text-white bg-dark" href="index.php?page=permisos">Permisos</a></li>
                             <li><a class="dropdown-item text-white bg-dark" href="index.php?page=parametros">Parámetros</a></li>
                         </ul>
                     </li>
-                    <li class="nav-item me-4"><a class="nav-link text-white" href="index.php?page=logout">Salir</a></li>
+                    <li class="nav-item dropdown me-4">
+                        <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user me-2"></i>
+                            <?= htmlspecialchars($_SESSION['usuario_nombre'] ?? 'Usuario') ?>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <div class="dropdown-header text-dark">
+                                    <strong><?= htmlspecialchars($_SESSION['usuario_nombre'] ?? 'Usuario') ?></strong>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="dropdown-header text-muted small">
+                                    Rol: <?= htmlspecialchars($_SESSION['usuario_rol'] ?? 'Usuario') ?>
+                                </div>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item text-danger" href="index.php?page=logout">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
                 </ul>
             </div>
         </div>

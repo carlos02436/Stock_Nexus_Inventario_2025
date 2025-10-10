@@ -32,11 +32,12 @@ class Categoria {
         }
     }
 
+    // función contarProductos
     public function contarProductos($id_categoria) {
         try {
             $stmt = $this->db->prepare("
                 SELECT COUNT(*) as total FROM productos 
-                WHERE id_categoria = :id AND estado = 'Activo'
+                WHERE id_categoria = :id
             ");
             $stmt->bindParam(':id', $id_categoria);
             $stmt->execute();

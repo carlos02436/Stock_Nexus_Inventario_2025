@@ -6,7 +6,7 @@ $productos = $productoController->listar();
 
 <div class="container-fluid px-4 pb-5">
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"
-         style="margin-top:120px;">
+         style="margin-top:180px;">
         <h1 class="h2"><i class="fas fa-plus me-2"></i>Registrar Movimiento</h1>
         <div class="btn-toolbar mb-2 mb-md-0">
             <a href="index.php?page=movimientos" class="btn btn-secondary">
@@ -65,10 +65,10 @@ $productos = $productoController->listar();
                         <input type="hidden" name="id_usuario" value="<?= $_SESSION['usuario_id'] ?>">
 
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <button type="submit" class="btn btn-success">
+                            <button type="submit" class="btn btn-neon">
                                 <i class="fas fa-save me-2"></i>Registrar Movimiento
                             </button>
-                            <a href="index.php?page=movimientos" class="btn btn-secondary">Cancelar</a>
+                            <a href="index.php?page=movimientos" class="btn btn-danger">Cancelar</a>
                         </div>
                     </form>
                 </div>

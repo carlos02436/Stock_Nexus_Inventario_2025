@@ -165,18 +165,19 @@ switch ($page) {
 
     // ==================== CATEGORÍAS ====================
     case 'categorias':
-        include __DIR__ . '/app/views/categorias/categorias.php';
+        include __DIR__ . '/app/views/categorias/categoria.php';
         break;
 
     case 'crear_categoria':
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $categoriaController = new CategoriaController($db);
-            $categoriaController->crear($_POST);
-            header('Location: index.php?page=categorias');
-            exit();
-        } else {
-            include __DIR__ . '/app/views/categorias/crear_categoria.php';
-        }
+        include __DIR__ . '/app/views/categorias/crear_categoria.php';
+        break;
+
+    case 'editar_categoria':
+        include __DIR__ . '/app/views/categorias/editar_categoria.php';
+        break;
+
+    case 'eliminar_categoria':
+        include __DIR__ . '/app/views/categorias/eliminar_categoria.php';
         break;
 
     // ==================== PROVEEDORES ====================
@@ -185,14 +186,15 @@ switch ($page) {
         break;
 
     case 'crear_proveedor':
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $proveedorController = new ProveedorController($db);
-            $proveedorController->crear($_POST);
-            header('Location: index.php?page=proveedores');
-            exit();
-        } else {
-            include __DIR__ . '/app/views/proveedores/crear_proveedor.php';
-        }
+        include __DIR__ . '/app/views/Proveedores/crear_proveedor.php';
+        break;
+
+    case 'editar_proveedor':
+        include __DIR__ . '/app/views/Proveedores/editar_proveedor.php';
+        break;
+
+    case 'eliminar_proveedor':
+        include __DIR__ . '/app/views/Proveedores/eliminar_proveedor.php';
         break;
 
     // ==================== COMPRAS ====================
@@ -377,7 +379,17 @@ switch ($page) {
 
     case 'perfil':
         include __DIR__ . '/app/views/configuracion/perfil.php';
+        break;
+
+    // ==================== HELPERS ====================
+    case 'Mailer':
+        include __DIR__ . '/app/helpers/Mailer.php';
+        break;
+
+    case 'PdfGenerator':
+        include __DIR__ . '/app/helpers/PdfGenerator.php';
         break;     
+
 
     default:
         echo "<section class='container py-5 text-center' style='margin-top:100px;'>

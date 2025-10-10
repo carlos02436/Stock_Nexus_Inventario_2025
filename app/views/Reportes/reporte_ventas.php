@@ -9,7 +9,7 @@ $estadisticas = $reporteController->getEstadisticasVentas(30);
 $productosMasVendidos = $reporteController->getProductosMasVendidos(10);
 ?>
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"
-     style="margin-top:120px;">
+     style="margin-top:180px;">
     <h1 class="h2"><i class="fas fa-shopping-cart me-2"></i>Reporte de Ventas</h1>
     <div class="btn-toolbar mb-2 mb-md-0">
         <a href="index.php?page=generar_pdf&tipo=ventas&fecha_inicio=<?= $fecha_inicio ?>&fecha_fin=<?= $fecha_fin ?>" 

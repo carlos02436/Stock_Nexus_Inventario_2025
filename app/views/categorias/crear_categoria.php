@@ -1,48 +1,102 @@
 <?php
 // app/views/categorias/crear_categoria.php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+$categoriaController = new CategoriaController($db);
+
+// Procesar formulario
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $datos = [
+        'nombre_categoria' => trim($_POST['nombre_categoria']),
+        'descripcion' => trim($_POST['descripcion']),
+        'estado' => $_POST['estado']
+    ];
+
+    // Validaciones básicas
+    if (empty($datos['nombre_categoria'])) {
+        $error = "El nombre de la categoría es obligatorio";
+    } else {
+        $creado = $categoriaController->crear($datos);
+        
+        if ($creado) {
+            $_SESSION['mensaje'] = "Categoría creada correctamente";
+            $_SESSION['tipo_mensaje'] = "success";
+            header("Location: index.php?page=categorias");
+            exit;
+        } else {
+            $error = "Error al crear la categoría. Verifique los datos e intente nuevamente.";
+        }
+    }
+}
 ?>
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"
-     style="margin-top:120px;">
-    <h1 class="h2"><i class="fas fa-plus me-2"></i>Crear Nueva Categoría</h1>
-    <div class="btn-toolbar mb-2 mb-md-0">
-        <a href="index.php?page=categorias" class="btn btn-secondary">
-            <i class="fas fa-arrow-left me-2"></i>Volver
-        </a>
+<div class="container-fluid px-4 pb-5" style="margin-top:180px;">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2"><i class="fas fa-plus-circle me-2 text-success"></i>Crear Nueva Categoría</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <a href="index.php?page=categorias" class="btn btn-secondary rounded-3 px-3 py-2">
+                <i class="fas fa-arrow-left me-2"></i>Volver a Categorías
+            </a>
+        </div>
     </div>
-</div>
 
-<div class="card">
-    <div class="card-body">
-        <form method="POST" action="index.php?page=crear_categoria">
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label for="nombre_categoria" class="form-label">Nombre de la Categoría *</label>
-                        <input type="text" class="form-control" id="nombre_categoria" name="nombre_categoria" required>
-                    </div>
+    <!-- Mostrar mensajes de error -->
+    <?php if (isset($error)): ?>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i><?= htmlspecialchars($error) ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <?php endif; ?>
+
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-8 col-xl-6">
+            <div class="card shadow-sm">
+                <div class="card-header text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Información de la Categoría
+                    </h5>
                 </div>
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label for="estado" class="form-label">Estado</label>
-                        <select class="form-select" id="estado" name="estado">
-                            <option value="Activo" selected>Activo</option>
-                            <option value="Inactivo">Inactivo</option>
-                        </select>
-                    </div>
+                <div class="card-body p-4">
+                    <form method="POST" action="">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <label for="nombre_categoria" class="form-label fw-bold text-white">Nombre de la Categoría *</label>
+                                    <input type="text" class="form-control" id="nombre_categoria" name="nombre_categoria" 
+                                           value="<?= htmlspecialchars($_POST['nombre_categoria'] ?? '') ?>" 
+                                           required maxlength="100" placeholder="Ingrese el nombre de la categoría">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="estado" class="form-label fw-bold text-white">Estado</label>
+                                    <select class="form-select" id="estado" name="estado">
+                                        <option value="Activo" <?= ($_POST['estado'] ?? 'Activo') === 'Activo' ? 'selected' : '' ?>>Activo</option>
+                                        <option value="Inactivo" <?= ($_POST['estado'] ?? '') === 'Inactivo' ? 'selected' : '' ?>>Inactivo</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="descripcion" class="form-label fw-bold text-white">Descripción</label>
+                            <textarea class="form-control" id="descripcion" name="descripcion" rows="3" 
+                                      maxlength="500" placeholder="Descripción de la categoría"><?= htmlspecialchars($_POST['descripcion'] ?? '') ?></textarea>
+                            <div class="form-text">Máximo 500 caracteres</div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4 pt-3 border-top">
+                            <button type="submit" class="btn btn-neon px-4">
+                                <i class="fas fa-save me-2"></i>Guardar Categoría
+                            </button>
+                            <a href="index.php?page=categorias" class="btn btn-danger me-2 px-4">
+                                <i class="fas fa-times me-2"></i>Cancelar
+                            </a>
+                        </div>
+                    </form>
                 </div>
             </div>
-
-            <div class="mb-3">
-                <label for="descripcion" class="form-label">Descripción</label>
-                <textarea class="form-control" id="descripcion" name="descripcion" rows="3"></textarea>
-            </div>
-
-            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                <button type="submit" class="btn btn-success">
-                    <i class="fas fa-save me-2"></i>Guardar Categoría
-                </button>
-                <a href="index.php?page=categorias" class="btn btn-secondary">Cancelar</a>
-            </div>
-        </form>
+        </div>
     </div>
 </div>

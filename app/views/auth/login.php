@@ -1,6 +1,11 @@
 <?php
 // app/views/auth/login.php
 
+// Headers para prevenir cache en la página de login
+header("Cache-Control: no-cache, no-store, must-revalidate");
+header("Pragma: no-cache");
+header("Expires: 0");
+
 // NO iniciar sesión aquí - ya se inicia en index.php
 // Solo verificar si ya está logueado para redirigir
 if (isset($_SESSION['usuario_logged_in']) && $_SESSION['usuario_logged_in'] === true) {
@@ -16,7 +21,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         // CORREGIR: Usar la ruta correcta para database.php
-        // Desde app/views/auth/login.php, la ruta correcta es:
         require_once __DIR__ . '/../../../config/database.php';
 
         // Verificar credenciales directamente en la base de datos
@@ -26,7 +30,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = $stmt->fetch();
 
         // En producción, usar password_hash y password_verify
-        // Por ahora, comparación directa ya que en tu BD las contraseñas están en texto plano
         if ($user && $password === $user['contrasena']) {
             $_SESSION['usuario_logged_in'] = true;
             $_SESSION['usuario_id'] = $user['id_usuario'];
@@ -51,12 +54,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>Login | Stock Nexus</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <link rel="icon" href="public/img/StockNexus.png">
     <link rel="stylesheet" href="public/assets/style.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 </head>
 <body class="d-flex justify-content-center align-items-center vh-100">
+    <!-- ... resto del código HTML igual ... -->
     <div class="card p-4 shadow-lg" style="width: 25rem; border-radius: 1rem;
          background: rgba(255, 255, 255, 0.1); box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.18);">
         <div class="d-flex align-items-center justify-content-center mb-4">
@@ -110,7 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <input class="form-check-input" type="checkbox" name="remember" id="remember">
                     <label class="form-check-label" for="remember">Recuérdame</label>
                 </div>
-                <a href="index.php?page=forgot_password" class="text-decoration-none small">
+                <a href="index.php?page=forgot_password" class="text-decoration-none small text-white">
                     ¿Olvidaste tu contraseña?
                 </a>
             </div>
@@ -123,7 +130,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <div class="text-center mt-4">
             <small class="text-white">
-                &copy; 2025 Stock Nexus. Todos los derechos reservados.
+                &copy; 2025 Stock Nexus | Todos los derechos reservados
             </small>
         </div>
     </div>
@@ -154,3 +161,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
+<script>
+// Prevenir que el usuario regrese con el botón "atrás" del navegador
+if (performance.navigation.type === 2) {
+    // Navigation type 2 significa que llegó aquí desde cache (botón atrás)
+    window.location.reload(true); // Forzar recarga desde el servidor
+}
+
+// Limpiar el cache al cargar la página
+window.onpageshow = function(event) {
+    if (event.persisted) {
+        window.location.reload();
+    }
+};
+</script>

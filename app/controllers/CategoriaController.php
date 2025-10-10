@@ -68,7 +68,7 @@ class CategoriaController {
 
     public function eliminar($id) {
         try {
-            // Verificar si hay productos usando esta categoría
+            // Verificar si hay productos usando esta categoría (sin filtrar por estado)
             $stmt = $this->db->prepare("SELECT COUNT(*) as total FROM productos WHERE id_categoria = :id");
             $stmt->bindParam(':id', $id);
             $stmt->execute();

@@ -108,5 +108,21 @@ class BalanceGeneral {
             return ['total_ingresos' => 0, 'total_egresos' => 0, 'utilidad' => 0];
         }
     }
+
+    public function obtenerAniosDisponibles() {
+        try {
+            $stmt = $this->db->prepare("
+                SELECT DISTINCT YEAR(fecha_balance) as anio 
+                FROM balance_general 
+                ORDER BY anio DESC
+            ");
+            $stmt->execute();
+            $anios = $stmt->fetchAll(PDO::FETCH_COLUMN);
+            return $anios ?: [date('Y')];
+        } catch (PDOException $e) {
+            error_log("Error en obtenerAniosDisponibles: " . $e->getMessage());
+            return [date('Y')];
+        }
+    }
 }
 ?>
