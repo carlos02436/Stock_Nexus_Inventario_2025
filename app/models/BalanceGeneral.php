@@ -124,5 +124,22 @@ class BalanceGeneral {
             return [date('Y')];
         }
     }
+
+    // Total de ingresos y egresos y utilidad neta
+    public function obtenerTotales() {
+        try {
+            $stmt = $this->db->query("
+                SELECT 
+                    COALESCE(SUM(total_ingresos), 0) as total_ingresos,
+                    COALESCE(SUM(total_egresos), 0) as total_egresos,
+                    COALESCE(SUM(utilidad), 0) as utilidad_neta
+                FROM balance_general
+            ");
+            return $stmt->fetch();
+        } catch (PDOException $e) {
+            error_log("Error en obtenerTotales: " . $e->getMessage());
+            return ['total_ingresos' => 0, 'total_egresos' => 0, 'utilidad_neta' => 0];
+        }
+    }
 }
 ?>
