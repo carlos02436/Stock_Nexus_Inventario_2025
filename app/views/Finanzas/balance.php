@@ -38,9 +38,9 @@ $balanceActual = $balanceModel->obtenerBalanceActual();
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom no-print">
         <h1 class="h2"><i class="fas fa-balance-scale me-2"></i>Balance General</h1>
         <div class="btn-toolbar mb-2 mb-md-0">
-            <button class="btn btn-neon" onclick="imprimirReporte()">
-                <i class="fas fa-print me-2"></i>Imprimir
-            </button>
+            <a href="index.php?page=generar_pdf_balance" target="_blank" class="btn btn-neon">
+            <i class="fas fa-file-pdf me-2"></i>Descargar PDF
+            </a>
         </div>
     </div>
 
@@ -48,7 +48,7 @@ $balanceActual = $balanceModel->obtenerBalanceActual();
     <!-- Balance actual - solo pantalla -->
     <div class="d-flex row mb-4 mx-2 no-print">
         <div class="col-md-4 mb-3">
-            <div class="card text-white h-100" style="background: linear-gradient(45deg, #4e73df, #224abe);">
+            <div class="card text-white h-100">
                 <div class="card-body">
                     <div class="text-center">
                         <h5>Total Ingresos</h5>
@@ -58,7 +58,7 @@ $balanceActual = $balanceModel->obtenerBalanceActual();
             </div>
         </div>
         <div class="col-md-4 mb-3">
-            <div class="card text-white h-100" style="background: linear-gradient(45deg, #e74a3b, #be2617);">
+            <div class="card text-white h-100">
                 <div class="card-body">
                     <div class="text-center">
                         <h5>Total Egresos</h5>
@@ -68,7 +68,7 @@ $balanceActual = $balanceModel->obtenerBalanceActual();
             </div>
         </div>
         <div class="col-md-4 mb-3">
-            <div class="card text-white h-100" style="background: linear-gradient(45deg, #1cc88a, #13855c);">
+            <div class="card text-white h-100">
                 <div class="card-body">
                     <div class="text-center">
                         <h5>Utilidad Neta</h5>
@@ -84,9 +84,14 @@ $balanceActual = $balanceModel->obtenerBalanceActual();
     <div class="row mx-2 mb-4 no-print">
         <div class="col-12">
             <div class="card shadow-sm">
+                <div class="card-header text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-filter me-2"></i>Filtros de Búsqueda
+                    </h5>
+                </div>
                 <div class="card-body">
-                    <div class="row g-3 align-items-end justify-content-center">
-                        <div class="col-md-4">
+                    <div class="row g-3 align-items-end justify-content-center text-center">
+                        <div class="col-md-3">
                             <label class="form-label text-white">Filtrar por Año:</label>
                             <select class="form-select" id="filtroAnio">
                                 <option value="todos">Todos los años</option>
@@ -95,135 +100,14 @@ $balanceActual = $balanceModel->obtenerBalanceActual();
                                 <?php endforeach; ?>
                             </select>
                         </div>
-                        <div class="col-md-5">
+                        <div class="col-md-4">
                             <label class="form-label text-white">Buscar por mes:</label>
                             <input type="text" class="form-control" id="filtroMes" placeholder="Ej: Enero, Febrero, Marzo...">
                         </div>
-                        <div class="col-md-3">
-                            <button class="btn btn-danger w-80" onclick="limpiarFiltros()">
-                                <i class="fas fa-undo me-1"></i>Limpiar Filtros
+                        <div class="col-md-2">
+                            <button class="btn btn-danger w-100 mt-4" onclick="limpiarFiltros()">
+                                <i class="fas fa-undo me-1"></i>Limpiar
                             </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- SECCIÓN 1 PARA IMPRESIÓN: Balance Actual + Tabla -->
-    <div class="print-section" id="seccionTabla">
-        <div class="container-fluid">
-            <!-- Header para impresión -->
-            <div class="text-center mb-4">
-                <h2>Stock Nexus - Balance General</h2>
-                <h4>Resumen Financiero</h4>
-                <p class="text-muted">Fecha de reporte: <?= date('d/m/Y') ?></p>
-                <hr>
-            </div>
-
-            <!-- Balance actual para impresión -->
-            <?php if ($balanceActual): ?>
-            <div class="row mb-4">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-header bg-dark text-white">
-                            <h4 class="card-title mb-0 text-center">Resumen Balance Actual</h4>
-                        </div>
-                        <div class="card-body">
-                            <div class="row text-center">
-                                <div class="col-md-4">
-                                    <h5>Total Ingresos</h5>
-                                    <h3 class="text-success">$<?= number_format($balanceActual['total_ingresos'], 2) ?></h3>
-                                </div>
-                                <div class="col-md-4">
-                                    <h5>Total Egresos</h5>
-                                    <h3 class="text-danger">$<?= number_format($balanceActual['total_egresos'], 2) ?></h3>
-                                </div>
-                                <div class="col-md-4">
-                                    <h5>Utilidad Neta</h5>
-                                    <h3 class="text-primary">$<?= number_format($balanceActual['utilidad'], 2) ?></h3>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <?php endif; ?>
-
-            <!-- Tabla para impresión -->
-            <div class="row">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-header bg-secondary text-white">
-                            <h5 class="card-title mb-0">
-                                <i class="fas fa-chart-bar me-2"></i>Historial de Balances (Últimos 12 meses)
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-bordered table-hover">
-                                    <thead class="table-dark">
-                                        <tr>
-                                            <th>Fecha</th>
-                                            <th>Ingresos</th>
-                                            <th>Egresos</th>
-                                            <th>Utilidad</th>
-                                            <th>Margen</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach ($balances as $balance): ?>
-                                        <?php 
-                                        $margen = $balance['total_ingresos'] > 0 ? 
-                                            ($balance['utilidad'] / $balance['total_ingresos']) * 100 : 0;
-                                        $fecha = date('m/Y', strtotime($balance['fecha_balance']));
-                                        ?>
-                                        <tr>
-                                            <td class="fw-bold"><?= $fecha ?></td>
-                                            <td class="text-success fw-bold">$<?= number_format($balance['total_ingresos'], 2) ?></td>
-                                            <td class="text-danger fw-bold">$<?= number_format($balance['total_egresos'], 2) ?></td>
-                                            <td class="text-primary fw-bold">$<?= number_format($balance['utilidad'], 2) ?></td>
-                                            <td>
-                                                <span class="badge bg-<?= $margen >= 20 ? 'success' : ($margen >= 10 ? 'warning' : 'danger') ?>">
-                                                    <?= number_format($margen, 1) ?>%
-                                                </span>
-                                            </td>
-                                        </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- SECCIÓN 2 PARA IMPRESIÓN: Gráfico -->
-    <div class="print-section" id="seccionGrafico">
-        <div class="container-fluid">
-            <!-- Header para impresión -->
-            <div class="text-center mb-4">
-                <h2>Stock Nexus - Balance General</h2>
-                <h4>Gráfico de Tendencia</h4>
-                <p class="text-muted">Fecha de reporte: <?= date('d/m/Y') ?></p>
-                <hr>
-            </div>
-
-            <!-- Gráfico para impresión -->
-            <div class="row">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-header bg-secondary text-white">
-                            <h5 class="card-title mb-0">
-                                <i class="fas fa-chart-line me-2"></i>Evolución Financiera (Últimos 12 meses)
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <div style="position: relative; height: 500px;">
-                                <canvas id="balanceChartPrint"></canvas>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -323,152 +207,17 @@ function obtenerMesEspanol($mesIngles) {
 }
 ?>
 
-<!-- Estilos para impresión -->
-<style>
-/* Ocultar secciones de impresión en pantalla */
-.print-section {
-    display: none;
-}
-
-/* Estilos para impresión */
-@media print {
-    /* Ocultar todo por defecto */
-    body * {
-        visibility: hidden;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-    
-    /* Mostrar solo secciones de impresión */
-    .print-section {
-        display: block !important;
-        visibility: visible !important;
-        position: relative !important;
-        page-break-after: always;
-        width: 100% !important;
-        height: auto !important;
-    }
-    
-    /* No mostrar la última página en blanco */
-    .print-section:last-child {
-        page-break-after: auto;
-    }
-    
-    /* Ocultar elementos no imprimibles */
-    .no-print {
-        display: none !important;
-    }
-    
-    /* Estilos generales para impresión */
-    body {
-        background: white !important;
-        color: black !important;
-        font-size: 12pt;
-        font-family: Arial, sans-serif;
-    }
-    
-    .container-fluid {
-        width: 100% !important;
-        max-width: 100% !important;
-        padding: 10px !important;
-        margin: 0 !important;
-    }
-    
-    .card {
-        border: 1px solid #000 !important;
-        background: white !important;
-        color: black !important;
-        box-shadow: none !important;
-        margin-bottom: 15px !important;
-    }
-    
-    .card-header {
-        background: #343a40 !important;
-        color: white !important;
-        border-bottom: 2px solid #000 !important;
-        padding: 10px !important;
-    }
-    
-    .card-body {
-        padding: 15px !important;
-    }
-    
-    .table {
-        color: black !important;
-        font-size: 10pt;
-        width: 100% !important;
-    }
-    
-    .table-bordered {
-        border: 1px solid #000 !important;
-    }
-    
-    .table-bordered th,
-    .table-bordered td {
-        border: 1px solid #000 !important;
-        padding: 6px !important;
-    }
-    
-    .table-dark {
-        background: #343a40 !important;
-        color: white !important;
-    }
-    
-    .text-success { color: #198754 !important; }
-    .text-danger { color: #dc3545 !important; }
-    .text-primary { color: #0d6efd !important; }
-    
-    .bg-success { 
-        background-color: #198754 !important; 
-        color: white !important;
-    }
-    .bg-warning { 
-        background-color: #ffc107 !important; 
-        color: black !important;
-    }
-    .bg-danger { 
-        background-color: #dc3545 !important; 
-        color: white !important;
-    }
-    
-    /* Asegurar que el gráfico se imprima */
-    canvas {
-        max-width: 100% !important;
-        height: 400px !important;
-        display: block !important;
-    }
-    
-    /* Mejorar espaciado */
-    h1, h2, h3, h4, h5 {
-        color: black !important;
-        margin: 10px 0 !important;
-    }
-    
-    hr {
-        border-color: #000 !important;
-        margin: 15px 0 !important;
-    }
-    
-    .text-muted {
-        color: #6c757d !important;
-    }
-}
-
-/* Estilo para elementos que no se imprimen */
-.no-print {
-    display: block;
-}
-</style>
-
+<!-- Incluir las librerías necesarias para PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
 // Variables globales para los gráficos
 let balanceChart;
-let balanceChartPrint;
 
 document.addEventListener('DOMContentLoaded', function() {
     inicializarGrafico();
-    inicializarGraficoImpresion();
     inicializarFiltros();
 });
 
@@ -478,15 +227,6 @@ function inicializarGrafico() {
         type: 'line',
         data: getChartData(),
         options: getChartOptions('white')
-    });
-}
-
-function inicializarGraficoImpresion() {
-    const ctx = document.getElementById('balanceChartPrint').getContext('2d');
-    balanceChartPrint = new Chart(ctx, {
-        type: 'line',
-        data: getChartData(),
-        options: getChartOptions('black')
     });
 }
 
@@ -595,6 +335,13 @@ function filtrarTabla() {
     const filtroAnio = document.getElementById('filtroAnio').value;
     const filtroMes = document.getElementById('filtroMes').value.toLowerCase();
     const filas = document.querySelectorAll('#tablaBalances tbody tr');
+    const tbody = document.querySelector('#tablaBalances tbody');
+    
+    // Remover mensaje anterior si existe
+    const mensajeAnterior = document.getElementById('mensajeNoResultados');
+    if (mensajeAnterior) {
+        mensajeAnterior.remove();
+    }
     
     let filasVisibles = 0;
     
@@ -617,20 +364,16 @@ function filtrarTabla() {
         }
     });
     
-    const mensajeNoResultados = document.getElementById('mensajeNoResultados');
+    // Mostrar mensaje si no hay resultados
     if (filasVisibles === 0) {
-        if (!mensajeNoResultados) {
-            const mensaje = document.createElement('tr');
-            mensaje.id = 'mensajeNoResultados';
-            mensaje.innerHTML = `
-                <td colspan="5" class="text-center py-4 text-muted">
-                    <i class="fas fa-search me-2"></i>No se encontraron resultados para los filtros aplicados
-                </td>
-            `;
-            document.querySelector('#tablaBalances tbody').appendChild(mensaje);
-        }
-    } else if (mensajeNoResultados) {
-        mensajeNoResultados.remove();
+        const mensaje = document.createElement('tr');
+        mensaje.id = 'mensajeNoResultados';
+        mensaje.innerHTML = `
+            <td colspan="5" class="text-center py-4 text-muted">
+                <i class="fas fa-search me-2"></i>No se encontraron resultados para los filtros aplicados
+            </td>
+        `;
+        tbody.appendChild(mensaje);
     }
 }
 
@@ -640,25 +383,192 @@ function limpiarFiltros() {
     filtrarTabla();
 }
 
-function imprimirReporte() {
-    // Limpiar filtros temporalmente para imprimir todo
-    const filtroAnio = document.getElementById('filtroAnio').value;
-    const filtroMes = document.getElementById('filtroMes').value;
-    
-    document.getElementById('filtroAnio').value = 'todos';
-    document.getElementById('filtroMes').value = '';
-    filtrarTabla();
-    
-    // Esperar un momento para que se actualice la tabla
-    setTimeout(() => {
-        window.print();
+async function generarPDF() {
+    // Mostrar loading
+    const btnOriginal = document.querySelector('.btn-neon');
+    const originalHTML = btnOriginal.innerHTML;
+    btnOriginal.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Generando PDF...';
+    btnOriginal.disabled = true;
+
+    try {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'mm', 'a4');
         
-        // Restaurar filtros después de imprimir
-        setTimeout(() => {
-            document.getElementById('filtroAnio').value = filtroAnio;
-            document.getElementById('filtroMes').value = filtroMes;
-            filtrarTabla();
-        }, 100);
-    }, 100);
+        // Página 1: Resumen y tabla
+        await agregarPaginaResumen(pdf);
+        
+        // Página 2: Gráfico
+        await agregarPaginaGrafico(pdf);
+        
+        // Descargar el PDF
+        pdf.save(`Balance_General_StockNexus_${new Date().toISOString().split('T')[0]}.pdf`);
+        
+    } catch (error) {
+        console.error('Error generando PDF:', error);
+        alert('Error al generar el PDF. Por favor, intente nuevamente.');
+    } finally {
+        // Restaurar botón
+        btnOriginal.innerHTML = originalHTML;
+        btnOriginal.disabled = false;
+    }
+}
+
+async function agregarPaginaResumen(pdf) {
+    // Título
+    pdf.setFontSize(20);
+    pdf.setTextColor(0, 0, 0);
+    pdf.text('Stock Nexus - Balance General', 105, 20, { align: 'center' });
+    
+    pdf.setFontSize(14);
+    pdf.text('Resumen Financiero', 105, 30, { align: 'center' });
+    
+    pdf.setFontSize(10);
+    pdf.setTextColor(128, 128, 128);
+    pdf.text(`Fecha de reporte: ${new Date().toLocaleDateString()}`, 105, 37, { align: 'center' });
+    
+    // Línea separadora
+    pdf.setDrawColor(0, 0, 0);
+    pdf.line(20, 42, 190, 42);
+    
+    // Resumen de balance actual
+    if (<?= $balanceActual ? 'true' : 'false' ?>) {
+        pdf.setFontSize(12);
+        pdf.setTextColor(0, 0, 0);
+        pdf.text('RESUMEN BALANCE ACTUAL', 20, 55);
+        
+        // Cuadro de resumen
+        pdf.setFillColor(240, 240, 240);
+        pdf.rect(20, 60, 170, 25, 'F');
+        pdf.setDrawColor(0, 0, 0);
+        pdf.rect(20, 60, 170, 25);
+        
+        // Datos del resumen
+        const ingresos = <?= $balanceActual['total_ingresos'] ?? 0 ?>;
+        const egresos = <?= $balanceActual['total_egresos'] ?? 0 ?>;
+        const utilidad = <?= $balanceActual['utilidad'] ?? 0 ?>;
+        
+        pdf.setFontSize(10);
+        pdf.text('Total Ingresos:', 30, 70);
+        pdf.setTextColor(0, 128, 0);
+        pdf.text(`$${ingresos.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`, 70, 70);
+        
+        pdf.setTextColor(0, 0, 0);
+        pdf.text('Total Egresos:', 30, 77);
+        pdf.setTextColor(255, 0, 0);
+        pdf.text(`$${egresos.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`, 70, 77);
+        
+        pdf.setTextColor(0, 0, 0);
+        pdf.text('Utilidad Neta:', 30, 84);
+        pdf.setTextColor(0, 0, 255);
+        pdf.text(`$${utilidad.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`, 70, 84);
+    }
+    
+    // Tabla de historial
+    pdf.setFontSize(12);
+    pdf.setTextColor(0, 0, 0);
+    pdf.text('HISTORIAL DE BALANCES (ÚLTIMOS 12 MESES)', 20, 105);
+    
+    // Encabezados de tabla
+    pdf.setFillColor(52, 58, 64);
+    pdf.rect(20, 110, 170, 8, 'F');
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFontSize(9);
+    pdf.text('Fecha', 25, 116);
+    pdf.text('Ingresos', 60, 116);
+    pdf.text('Egresos', 95, 116);
+    pdf.text('Utilidad', 130, 116);
+    pdf.text('Margen', 165, 116);
+    
+    // Datos de la tabla
+    let yPos = 122;
+    pdf.setTextColor(0, 0, 0);
+    
+    <?php foreach ($balances as $index => $balance): ?>
+    <?php 
+    $margen = $balance['total_ingresos'] > 0 ? 
+        ($balance['utilidad'] / $balance['total_ingresos']) * 100 : 0;
+    $fecha = date('m/Y', strtotime($balance['fecha_balance']));
+    ?>
+    if (yPos > 270) {
+        pdf.addPage();
+        yPos = 20;
+    }
+    
+    pdf.setFontSize(8);
+    pdf.text('<?= $fecha ?>', 25, yPos);
+    pdf.setTextColor(0, 128, 0);
+    pdf.text('$<?= number_format($balance['total_ingresos'], 2) ?>', 60, yPos);
+    pdf.setTextColor(255, 0, 0);
+    pdf.text('$<?= number_format($balance['total_egresos'], 2) ?>', 95, yPos);
+    pdf.setTextColor(0, 0, 255);
+    pdf.text('$<?= number_format($balance['utilidad'], 2) ?>', 130, yPos);
+    pdf.setTextColor(0, 0, 0);
+    pdf.text('<?= number_format($margen, 1) ?>%', 165, yPos);
+    
+    yPos += 6;
+    <?php endforeach; ?>
+}
+
+async function agregarPaginaGrafico(pdf) {
+    pdf.addPage();
+    
+    // Título
+    pdf.setFontSize(20);
+    pdf.setTextColor(0, 0, 0);
+    pdf.text('Stock Nexus - Balance General', 105, 20, { align: 'center' });
+    
+    pdf.setFontSize(14);
+    pdf.text('Gráfico de Tendencia', 105, 30, { align: 'center' });
+    
+    pdf.setFontSize(10);
+    pdf.setTextColor(128, 128, 128);
+    pdf.text(`Fecha de reporte: ${new Date().toLocaleDateString()}`, 105, 37, { align: 'center' });
+    
+    // Línea separadora
+    pdf.setDrawColor(0, 0, 0);
+    pdf.line(20, 42, 190, 42);
+    
+    // Título del gráfico
+    pdf.setFontSize(12);
+    pdf.setTextColor(0, 0, 0);
+    pdf.text('EVOLUCIÓN FINANCIERA (ÚLTIMOS 12 MESES)', 20, 55);
+    
+    // Crear un canvas temporal para el gráfico
+    const canvas = document.createElement('canvas');
+    canvas.width = 800;
+    canvas.height = 400;
+    const ctx = canvas.getContext('2d');
+    
+    // Crear gráfico temporal
+    const tempChart = new Chart(ctx, {
+        type: 'line',
+        data: getChartData(),
+        options: {
+            ...getChartOptions('black'),
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        color: 'black',
+                        font: {
+                            size: 14
+                        }
+                    }
+                }
+            }
+        }
+    });
+    
+    // Esperar a que el gráfico se renderice
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Convertir canvas a imagen
+    const chartImage = canvas.toDataURL('image/png');
+    
+    // Agregar imagen al PDF
+    pdf.addImage(chartImage, 'PNG', 20, 65, 170, 80);
+    
+    // Limpiar
+    tempChart.destroy();
 }
 </script>

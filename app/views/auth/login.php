@@ -123,7 +123,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
 
             <!-- Botón -->
-            <button type="submit" class="btn btn-primary w-100 py-2">
+            <button type="submit" class="btn-neon w-100 py-2 rounded-3">
                 <i class="bi bi-box-arrow-in-right me-2"></i>Ingresar al Sistema
             </button>
         </form>

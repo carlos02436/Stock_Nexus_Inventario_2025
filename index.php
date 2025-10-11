@@ -271,26 +271,31 @@ switch ($page) {
 
     // ==================== FINANZAS ====================
     case 'finanzas':
-        include __DIR__ . '/app/views/finanzas/finanzas.php';
+        include __DIR__ . '/app/views/Finanzas/finanzas.php';
         break;
 
     case 'pagos':
-        include __DIR__ . '/app/views/finanzas/pagos.php';
+        include __DIR__ . '/app/views/Finanzas/pagos.php';
         break;
 
     case 'crear_pago':
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $finanzaController = new FinanzaController($db);
-            $finanzaController->crearPago($_POST);
-            header('Location: index.php?page=pagos');
-            exit();
-        } else {
-            include __DIR__ . '/app/views/finanzas/crear_pago.php';
-        }
+        include __DIR__ . '/app/views/Finanzas/crear_pago.php';
         break;
 
     case 'balance':
-        include __DIR__ . '/app/views/finanzas/balance.php';
+        include __DIR__ . '/app/views/Finanzas/balance.php';
+        break;
+
+    case 'generar_pdf_balance':
+        include __DIR__ . '/app/views/Finanzas/generar_pdf_balance.php';
+        break;
+
+    case 'estado_resultado':
+        include __DIR__ . '/app/views/Finanzas/estado_resultado.php';
+        break;
+
+    case 'generar_pdf_estado_resultado':
+        include __DIR__ . '/app/views/Finanzas/generar_pdf_estado_resultado.php';
         break;
 
     // ==================== REPORTES ====================

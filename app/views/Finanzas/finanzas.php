@@ -107,6 +107,11 @@ $resumen = $finanzaController->getResumenFinanciero();
                                 <i class="fas fa-balance-scale me-2"></i>Ver Balance
                             </a>
                         </div>
+                        <div class="col-md-6 mb-3">
+                            <a href="index.php?page=estado_resultado" class="btn btn-danger w-100">
+                                <i class="fas fa-balance-scale me-2"></i>Ver Estado de Resultados
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
