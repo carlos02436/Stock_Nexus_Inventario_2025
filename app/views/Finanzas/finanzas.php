@@ -6,10 +6,17 @@ $resumen = $finanzaController->getResumenFinanciero();
 <div class="container-fluid px-4 pb-5" style="margin-top:180px;">
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h1 class="h2"><i class="fas fa-chart-line me-2"></i>Panel Financiero</h1>
-        <div class="btn-toolbar mb-2 mb-md-0">
-            <div class="btn-group me-2">
-                <a href="index.php?page=pagos" class="btn btn-neon">Pagos</a>
-                <a href="index.php?page=balance" class="btn btn-neon">Balance</a>
+        <div class="btn-toolbar mb-2 mb-md-2">
+            <div class="d-flex gap-2">
+                <a href="index.php?page=pagos" class="btn btn-warning rounded-3 px-3 py-2 w-60 text-center">
+                    Pagos
+                </a>
+                <a href="index.php?page=estado_resultado" class="btn btn-success rounded-3 px-3 py-2 w-60 text-center">
+                    Estado de Resultados
+                </a>
+                <a href="index.php?page=balance" class="btn btn-danger rounded-3 px-3 py-2 w-60 text-center">
+                    Balance General
+                </a>
             </div>
         </div>
     </div>
@@ -76,55 +83,14 @@ $resumen = $finanzaController->getResumenFinanciero();
             </div>
         </div>
     </div>
-
-    <div class="row">
-        <div class="col-lg-6 mb-4">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h6 class="m-0 font-weight-bold text-white">Acciones Rápidas</h6>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <a href="index.php?page=crear_pago&tipo=Ingreso" class="btn btn-success w-100">
-                                <i class="fas fa-plus-circle me-2"></i>Registrar Ingreso
-                            </a>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <a href="index.php?page=crear_pago&tipo=Egreso" class="btn btn-danger w-100">
-                                <i class="fas fa-minus-circle me-2"></i>Registrar Egreso
-                            </a>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <a href="index.php?page=pagos" class="btn btn-info w-100">
-                                <i class="fas fa-list me-2"></i>Ver Todos los Pagos
-                            </a>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <a href="index.php?page=balance" class="btn btn-warning w-100">
-                                <i class="fas fa-balance-scale me-2"></i>Ver Balance
-                            </a>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <a href="index.php?page=estado_resultado" class="btn btn-danger w-100">
-                                <i class="fas fa-balance-scale me-2"></i>Ver Estado de Resultados
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
         
-        <div class="col-lg-6 mb-4">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h6 class="m-0 font-weight-bold text-white">Resumen por Método de Pago</h6>
-                </div>
-                <div class="card-body d-flex align-items-center justify-content-center text-white">
-                    <canvas id="metodoPagoChart" width="400" height="200"></canvas>
-                </div>
+    <div class="col-lg-8 mb-5 mx-auto">
+        <div class="card h-100 shadow-lg border-0" style="min-height: 500px;">
+            <div class="card-header">
+                <h5 class="text-center m-2 fw-bold text-white py-2">Resumen por Método de Pago</h5>
+            </div>
+            <div class="card-body d-flex align-items-center justify-content-center rounded-3">
+                <canvas id="metodoPagoChart" style="width: 100%; max-width: 850px; height: 420px;"></canvas>
             </div>
         </div>
     </div>

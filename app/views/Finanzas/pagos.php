@@ -10,7 +10,7 @@ $metodosUnicos = array_unique(array_column($pagos, 'metodo_pago'));
 <div class="container-fluid px-4 pb-5" style="margin-top:180px;">
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h1 class="h2"><i class="fas fa-money-bill-wave me-2"></i>Registro de Pagos</h1>
-        <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-toolbar mb-2 mb-md-2">
             <div class="d-flex gap-2">
                 <a href="index.php?page=finanzas" class="btn btn-secondary rounded-3 px-3 py-2">
                     <i class="fas fa-arrow-left me-2"></i>Volver a Finanzas

@@ -3,10 +3,10 @@
 $ventaController = new VentaController($db);
 $ventas = $ventaController->listar();
 ?>
-<div class="container-fluid px-4" style="margin-top:120px;">
+<div class="container-fluid px-4" style="margin-top:180px;">
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h1 class="h2"><i class="fas fa-cash-register me-2"></i>Gestión de Ventas</h1>
-        <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-toolbar mb-2 mb-md-2">
             <a href="index.php?page=crear_venta" class="btn btn-neon">
                 <i class="fas fa-plus me-2"></i>Nueva Venta
             </a>

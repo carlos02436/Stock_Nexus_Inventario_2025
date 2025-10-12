@@ -37,9 +37,12 @@ $balanceActual = $balanceModel->obtenerBalanceActual();
     <!-- Header no imprimible -->
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom no-print">
         <h1 class="h2"><i class="fas fa-balance-scale me-2"></i>Balance General</h1>
-        <div class="btn-toolbar mb-2 mb-md-0">
-            <a href="index.php?page=generar_pdf_balance" target="_blank" class="btn btn-neon">
-            <i class="fas fa-file-pdf me-2"></i>Descargar PDF
+        <div class="btn-toolbar mb-2 mb-md-2 gap-3">
+            <a href="index.php?page=finanzas" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Volver a Finanzas
+            </a>
+            <a href="index.php?page=generar_pdf_balance" class="btn btn-neon">
+                <i class="fas fa-file-pdf me-2"></i>Descargar PDF
             </a>
         </div>
     </div>

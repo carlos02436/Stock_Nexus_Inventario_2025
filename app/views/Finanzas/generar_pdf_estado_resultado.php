@@ -1,101 +1,175 @@
 <?php
-session_start();
-if (!isset($_SESSION['usuario'])) {
-    header("Location: login.php");
-    exit();
-}
+date_default_timezone_set('America/Lima');
 
-require_once 'libs/dompdf/autoload.inc.php';
+require_once __DIR__ . '/../../libs/dompdf/autoload.inc.php';
 use Dompdf\Dompdf;
-use Dompdf\Options;
 
-include 'conexion.php';
+require_once __DIR__ . '/../../../config/database.php';
+require_once __DIR__ . '/../../../app/models/BalanceGeneral.php';
 
-// Obtener datos
-$sql = "SELECT fecha_balance, total_ingresos, total_egresos, utilidad 
-        FROM balance_general 
-        ORDER BY fecha_balance DESC";
-$resultado = $conn->query($sql);
+try {
+    $fechaGeneracion = date('d/m/Y h:i:s a');
+    $balanceModel = new BalanceGeneral($db);
+    $balances = $balanceModel->listarBalances(12);
+    $totalesAcumulados = $balanceModel->obtenerTotalesPorMes($mes);
 
-// Calcular totales
-$sql_total = "SELECT SUM(total_ingresos) as total_ing, 
-                     SUM(total_egresos) as total_egr,
-                     SUM(utilidad) as total_util 
-              FROM balance_general";
-$total = $conn->query($sql_total)->fetch_assoc();
+    $labels = [];
+    $ingresos = [];
+    $egresos = [];
+    $utilidades = [];
 
-// HTML para el PDF
-$html = '
+    foreach (array_reverse($balances) as $balance) {
+        $labels[] = date('m/Y', strtotime($balance['fecha_balance']));
+        $ingresos[] = $balance['total_ingresos'];
+        $egresos[] = $balance['total_egresos'];
+        $utilidades[] = $balance['utilidad'];
+    }
+
+    // --- Gráfico
+    $chartConfig = [
+        "type" => "line",
+        "data" => [
+            "labels" => $labels,
+            "datasets" => [
+                ["label" => "Ingresos", "data" => $ingresos, "borderColor" => "#00ff88", "fill" => false, "tension" => 0.4],
+                ["label" => "Egresos", "data" => $egresos, "borderColor" => "#ff5c5c", "fill" => false, "tension" => 0.4],
+                ["label" => "Utilidad", "data" => $utilidades, "borderColor" => "#4e9bff", "fill" => false, "tension" => 0.4]
+            ]
+        ],
+        "options" => [
+            "plugins" => ["legend" => ["position" => "top"]],
+            "scales" => ["y" => ["beginAtZero" => true]]
+        ]
+    ];
+
+    $chartUrl = "https://quickchart.io/chart?c=" . urlencode(json_encode($chartConfig));
+    $chartData = @file_get_contents($chartUrl);
+    $chartBase64 = $chartData ? 'data:image/png;base64,' . base64_encode($chartData) : '';
+
+    ob_start();
+?>
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Estado de Resultados</title>
-    <style>
-        body { font-family: Arial, sans-serif; }
-        .header { text-align: center; margin-bottom: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        .total { font-weight: bold; background-color: #e9ecef; }
-        .text-right { text-align: right; }
+    <title>Reporte Financiero - Estado de Resultados</title>
+     <style>
+        body { 
+            font-family: DejaVu Sans, sans-serif; 
+            font-size: 12px; 
+            margin: 30px; 
+            color: #000;
+            position: relative;
+            min-height: 100vh;
+            padding-bottom: 60px;
+        }
+        h1, h2, h3 { text-align: center; color: #003366; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #ccc; padding: 6px; text-align: center; }
+        th { background-color: #003366; color: white; font-weight: bold; }
+        .resumen { background: #f4f4f4; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .text-green { color: #28a745; }
+        .text-red { color: #dc3545; }
+        .text-blue { color: #007bff; }
+        .page-break { page-break-before: always; }
+        .total-acumulado { 
+            background: #e8f4fd; 
+            border-left: 4px solid #007bff; 
+            padding: 10px; 
+            margin: 10px 0; 
+        }
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 10px;
+            color: #666;
+            border-top: 1px solid #ddd;
+            background-color: #f9f9f9;
+        }
+        .footer-content {
+            max-width: 100%;
+            margin: 0 auto;
+        }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Estado de Resultados - Stock Nexus</h1>
-        <p>Generado: ' . date('d/m/Y H:i:s') . '</p>
+<div class="container">
+    <h1>Stock Nexus - Estado de Resultados</h1>
+    <h3>Resumen Financiero</h3>
+    <p style="text-align:center;color:gray;">Fecha de reporte: <?= $fechaGeneracion ?></p>
+    <hr>
+
+    <div class="resumen">
+        <div class="total-acumulado">
+            <h3>Balance Total Actual (Últimos 12 meses)</h3>
+            <p><strong>Total Ingresos:</strong> <span class="text-green">$<?= number_format($totalesAcumulados['total_ingresos'], 2) ?></span></p>
+            <p><strong>Total Egresos:</strong> <span class="text-red">$<?= number_format($totalesAcumulados['total_egresos'], 2) ?></span></p>
+            <p><strong>Utilidad Neta:</strong> <span class="text-blue">$<?= number_format($totalesAcumulados['utilidad_neta'], 2) ?></span></p>
+        </div>
     </div>
 
-    <table>
+    <h3>Detalle Mensual</h3>
+    <table class="table">
         <thead>
             <tr>
-                <th>Fecha</th>
+                <th>Mes / Año</th>
                 <th>Total Ingresos</th>
                 <th>Total Egresos</th>
-                <th>Utilidad Neta</th>
+                <th>Utilidad</th>
                 <th>Margen %</th>
             </tr>
         </thead>
-        <tbody>';
-
-while($fila = $resultado->fetch_assoc()) {
-    $margen = ($fila['utilidad'] / $fila['total_ingresos']) * 100;
-    $html .= '
+        <tbody>
+        <?php foreach ($balances as $balance): 
+            $margen = $balance['total_ingresos'] > 0 ? ($balance['utilidad'] / $balance['total_ingresos']) * 100 : 0;
+        ?>
             <tr>
-                <td>' . $fila['fecha_balance'] . '</td>
-                <td class="text-right">$' . number_format($fila['total_ingresos'], 2) . '</td>
-                <td class="text-right">$' . number_format($fila['total_egresos'], 2) . '</td>
-                <td class="text-right">$' . number_format($fila['utilidad'], 2) . '</td>
-                <td class="text-right">' . number_format($margen, 2) . '%</td>
-            </tr>';
-}
-
-$html .= '
+                <td><?= date('m/Y', strtotime($balance['fecha_balance'])) ?></td>
+                <td class="text-green">$<?= number_format($balance['total_ingresos'], 2) ?></td>
+                <td class="text-red">$<?= number_format($balance['total_egresos'], 2) ?></td>
+                <td><strong>$<?= number_format($balance['utilidad'], 2) ?></strong></td>
+                <td><?= number_format($margen, 2) ?>%</td>
+            </tr>
+        <?php endforeach; ?>
         </tbody>
     </table>
+</div>
 
-    <div class="total">
-        <h3>Totales Acumulados:</h3>
-        <p>Total Ingresos: $' . number_format($total['total_ing'], 2) . '</p>
-        <p>Total Egresos: $' . number_format($total['total_egr'], 2) . '</p>
-        <p>Total Utilidad: $' . number_format($total['total_util'], 2) . '</p>
+<div class="page-break"></div>
+
+<div class="container">
+    <div class="grafico">
+        <h2>Evolución Financiera (Últimos 12 Meses)</h2>
+        <?php if (!empty($chartBase64)): ?>
+            <img src="<?= $chartBase64 ?>" style="width:100%; max-width:650px;">
+        <?php else: ?>
+            <p style="color:#dc3545;font-style:italic;">No se pudo generar el gráfico.</p>
+        <?php endif; ?>
     </div>
+</div>
+
+<div class="footer">
+    Stock Nexus © <?= date('Y') ?> — Generado el <?= $fechaGeneracion ?>
+</div>
+
 </body>
-</html>';
+</html>
+<?php
+    $html = ob_get_clean();
 
-// Configurar DomPDF
-$options = new Options();
-$options->set('isHtml5ParserEnabled', true);
-$options->set('isRemoteEnabled', true);
+    $dompdf = new Dompdf();
+    $dompdf->loadHtml($html);
+    $dompdf->setPaper('A4', 'portrait');
+    $dompdf->render();
 
-$dompdf = new Dompdf($options);
-$dompdf->loadHtml($html);
-$dompdf->setPaper('A4', 'portrait');
-$dompdf->render();
+    if (ob_get_length()) ob_clean();
+    $dompdf->stream("Reporte_Estado_Resultados.pdf", ["Attachment" => true]);
+    exit;
 
-// Output del PDF
-$dompdf->stream('estado_resultados.pdf', array('Attachment' => true));
-
-$conn->close();
-?>
+} catch (Exception $e) {
+    die("Error al generar el PDF: " . $e->getMessage());
+}

@@ -9,14 +9,26 @@ require_once __DIR__ . '/../../../config/database.php';
 require_once __DIR__ . '/../../../app/models/BalanceGeneral.php';
 
 try {
+    // --- Capturar fecha y hora EXACTA de generación ---
+    date_default_timezone_set('America/Bogota');
+
+    // --- Capturar fecha y hora EXACTA de generación ---
+    $fechaGeneracion = date('d/m/Y h:i:s A');
+    
     // --- Instanciar modelo ---
     $balanceModel = new BalanceGeneral($db);
 
-    // --- Obtener datos ---
-    $balances = $balanceModel->listarBalances(12);
-    
-    // --- OBTENER TOTALES ACUMULADOS DESDE EL MODELO ---
-    $totalesAcumulados = $balanceModel->obtenerTotales();
+    // --- Obtener datos con filtros ---
+    if (isset($_REQUEST['fecha_inicio']) && isset($_REQUEST['fecha_fin'])) {
+        $fechaInicio = $_REQUEST['fecha_inicio'];
+        $fechaFin = $_REQUEST['fecha_fin'];
+        $balances = $balanceModel->listarPorMes();
+        $totalesAcumulados = $balanceModel->obtenerBalancesMensuales($año);
+    } else {
+        // Por defecto, últimos 12 meses
+        $balances = $balanceModel->listarBalances(12);
+        $totalesAcumulados = $balanceModel->obtenerTotalesPorMes();
+    }
 
     // --- PREPARAR DATOS PARA EL GRÁFICO ---
     $labels = [];
@@ -109,65 +121,72 @@ try {
     </style>
 </head>
 <body>
+<div class="container">
+    <h1>Stock Nexus - Balance General</h1>
+    <h3>Resumen Financiero</h3>
+    <p style="text-align:center;color:gray;">Fecha de reporte: <?= $fechaGeneracion ?></p>
+    <p style="text-align:center;color:gray;">
+        <?php if (isset($fechaInicio) && isset($fechaFin)): ?>
+            Período: <?= date('d/m/Y', strtotime($fechaInicio)) ?> - <?= date('d/m/Y', strtotime($fechaFin)) ?>
+        <?php else: ?>
+            Últimos 12 meses
+        <?php endif; ?>
+    </p>
+    <hr>
 
-<h1>Stock Nexus - Balance General</h1>
-<h3>Resumen Financiero</h3>
-<p style="text-align:center;color:gray;">Fecha de reporte: <?= date('d/m/Y') ?></p>
-<hr>
+    <div class="resumen">
+        <div class="total-acumulado">
+            <h3>Balance Total Actual (<?php echo (isset($fechaInicio) && isset($fechaFin)) ? 'Período Personalizado' : 'Últimos 12 meses'; ?>)</h3>
+            <p><strong>Total Ingresos:</strong> <span class="text-green">$<?= number_format($totalesAcumulados['total_ingresos'], 2) ?></span></p>
+            <p><strong>Total Egresos:</strong> <span class="text-red">$<?= number_format($totalesAcumulados['total_egresos'], 2) ?></span></p>
+            <p><strong>Utilidad Neta:</strong> <span class="text-blue">$<?= number_format($totalesAcumulados['utilidad_neta'], 2) ?></span></p>
+        </div>
+    </div>
 
-<div class="resumen">
-    <div class="total-acumulado">
-        <h3>Balance Total Actual (Últimos 12 meses)</h3>
-        <p><strong>Total Ingresos:</strong> <span class="text-green">$<?= number_format($totalesAcumulados['total_ingresos'], 2) ?></span></p>
-        <p><strong>Total Egresos:</strong> <span class="text-red">$<?= number_format($totalesAcumulados['total_egresos'], 2) ?></span></p>
-        <p><strong>Utilidad Neta:</strong> <span class="text-blue">$<?= number_format($totalesAcumulados['utilidad_neta'], 2) ?></span></p>
+    <h3>Historial de Balances (<?php echo (isset($fechaInicio) && isset($fechaFin)) ? 'Período Personalizado' : 'Últimos 12 meses'; ?>)</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Ingresos</th>
+                <th>Egresos</th>
+                <th>Utilidad</th>
+                <th>Margen</th>
+            </tr>
+        </thead>
+        <tbody>
+        <?php foreach ($balances as $balance): ?>
+            <?php $margen = $balance['total_ingresos'] > 0 ? ($balance['utilidad'] / $balance['total_ingresos']) * 100 : 0; ?>
+            <tr>
+                <td><?= date('m/Y', strtotime($balance['fecha_balance'])) ?></td>
+                <td class="text-green">$<?= number_format($balance['total_ingresos'], 2) ?></td>
+                <td class="text-red">$<?= number_format($balance['total_egresos'], 2) ?></td>
+                <td class="text-blue">$<?= number_format($balance['utilidad'], 2) ?></td>
+                <td><?= number_format($margen, 1) ?>%</td>
+            </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table>
+
+    <div class="page-break"></div>
+
+    <h2>Gráfico de Tendencia</h2>
+    <p style="text-align:center;color:gray;">Evolución Financiera (<?php echo (isset($fechaInicio) && isset($fechaFin)) ? 'Período Personalizado' : 'Últimos 12 meses'; ?>)</p>
+    <div style="text-align:center; margin-top:30px;">
+        <?php if (!empty($chartBase64)): ?>
+            <img src="<?= $chartBase64 ?>" style="width:100%; max-width:650px;">
+        <?php else: ?>
+            <p style="color: #dc3545; font-style: italic;">El gráfico no está disponible temporalmente. Por favor, instale la extensión GD de PHP.</p>
+        <?php endif; ?>
+    </div>
+
+    <!-- Footer profesional -->
+    <div class="footer">
+        <div class="footer-content">
+            Stock Nexus © <?= date('Y') ?> — Generado el <?= $fechaGeneracion ?>
+        </div>
     </div>
 </div>
-
-<h3>Historial de Balances (Últimos 12 meses)</h3>
-<table>
-    <thead>
-        <tr>
-            <th>Fecha</th>
-            <th>Ingresos</th>
-            <th>Egresos</th>
-            <th>Utilidad</th>
-            <th>Margen</th>
-        </tr>
-    </thead>
-    <tbody>
-    <?php foreach ($balances as $balance): ?>
-        <?php $margen = $balance['total_ingresos'] > 0 ? ($balance['utilidad'] / $balance['total_ingresos']) * 100 : 0; ?>
-        <tr>
-            <td><?= date('m/Y', strtotime($balance['fecha_balance'])) ?></td>
-            <td class="text-green">$<?= number_format($balance['total_ingresos'], 2) ?></td>
-            <td class="text-red">$<?= number_format($balance['total_egresos'], 2) ?></td>
-            <td class="text-blue">$<?= number_format($balance['utilidad'], 2) ?></td>
-            <td><?= number_format($margen, 1) ?>%</td>
-        </tr>
-    <?php endforeach; ?>
-    </tbody>
-</table>
-
-<div class="page-break"></div>
-
-<h2>Gráfico de Tendencia</h2>
-<p style="text-align:center;color:gray;">Evolución Financiera (Últimos 12 meses)</p>
-<div style="text-align:center; margin-top:30px;">
-    <?php if (!empty($chartBase64)): ?>
-        <img src="<?= $chartBase64 ?>" style="width:100%; max-width:650px;">
-    <?php else: ?>
-        <p style="color: #dc3545; font-style: italic;">El gráfico no está disponible temporalmente. Por favor, instale la extensión GD de PHP.</p>
-    <?php endif; ?>
-</div>
-
-<!-- Footer profesional -->
-<div class="footer">
-    <div class="footer-content">
-        Stock Nexus - <?= date('d/m/Y H:i:s') ?>
-    </div>
-</div>
-
 </body>
 </html>
 <?php
@@ -184,7 +203,7 @@ try {
     if (ob_get_length()) ob_clean();
     
     // --- Enviar PDF ---
-    $dompdf->stream("reporte_balance_general.pdf", ["Attachment" => true]);
+    $dompdf->stream("Reporte Balance General.pdf", ["Attachment" => true]);
     exit;
 
 } catch (Exception $e) {

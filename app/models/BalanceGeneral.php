@@ -66,7 +66,6 @@ class BalanceGeneral {
 
     public function calcularBalanceDelDia() {
         try {
-            // Calcular ingresos del día
             $stmt = $this->db->query("
                 SELECT COALESCE(SUM(total_venta), 0) as ingresos_ventas
                 FROM ventas 
@@ -74,7 +73,6 @@ class BalanceGeneral {
             ");
             $ingresos_ventas = $stmt->fetch()['ingresos_ventas'];
 
-            // Calcular egresos del día (compras)
             $stmt = $this->db->query("
                 SELECT COALESCE(SUM(total_compra), 0) as egresos_compras
                 FROM compras 
@@ -82,7 +80,6 @@ class BalanceGeneral {
             ");
             $egresos_compras = $stmt->fetch()['egresos_compras'];
 
-            // Calcular otros pagos del día
             $stmt = $this->db->query("
                 SELECT 
                     COALESCE(SUM(CASE WHEN tipo_pago = 'Ingreso' THEN monto ELSE 0 END), 0) as otros_ingresos,
@@ -125,21 +122,42 @@ class BalanceGeneral {
         }
     }
 
-    // Total de ingresos y egresos y utilidad neta
-    public function obtenerTotales() {
-        try {
-            $stmt = $this->db->query("
-                SELECT 
-                    COALESCE(SUM(total_ingresos), 0) as total_ingresos,
-                    COALESCE(SUM(total_egresos), 0) as total_egresos,
-                    COALESCE(SUM(utilidad), 0) as utilidad_neta
-                FROM balance_general
-            ");
-            return $stmt->fetch();
-        } catch (PDOException $e) {
-            error_log("Error en obtenerTotales: " . $e->getMessage());
-            return ['total_ingresos' => 0, 'total_egresos' => 0, 'utilidad_neta' => 0];
+    // Balance_general
+    public function listarPorMes($mes = null) {
+        if (!empty($mes)) {
+            $sql = "SELECT * FROM balance_general 
+                    WHERE DATE_FORMAT(fecha_balance, '%Y-%m') = :mes
+                    ORDER BY fecha_balance ASC";
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':mes', $mes);
+        } else {
+            $sql = "SELECT * FROM balance_general ORDER BY fecha_balance ASC";
+            $stmt = $this->db->prepare($sql);
         }
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    // Balance_general
+    public function obtenerTotalesPorMes($mes = null) {
+        if (!empty($mes)) {
+            $sql = "SELECT 
+                        COALESCE(SUM(total_ingresos), 0) AS total_ingresos,
+                        COALESCE(SUM(total_egresos), 0) AS total_egresos,
+                        COALESCE(SUM(utilidad), 0) AS utilidad_neta
+                    FROM balance_general
+                    WHERE DATE_FORMAT(fecha_balance, '%Y-%m') = :mes";
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':mes', $mes);
+        } else {
+            $sql = "SELECT 
+                        COALESCE(SUM(total_ingresos), 0) AS total_ingresos,
+                        COALESCE(SUM(total_egresos), 0) AS total_egresos,
+                        COALESCE(SUM(utilidad), 0) AS utilidad_neta
+                    FROM balance_general";
+            $stmt = $this->db->prepare($sql);
+        }
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 }
-?>

@@ -10,9 +10,9 @@ $icono = $tipo == 'Ingreso' ? 'plus-circle' : 'minus-circle';
             <i class="fas fa-<?= $icono ?> me-2 text-<?= $color ?>"></i>
             Registrar <?= $tipo ?>
         </h1>
-        <div class="btn-toolbar mb-2 mb-md-0">
-            <a href="index.php?page=pagos" class="btn btn-secondary">
-                <i class="fas fa-arrow-left me-2"></i>Volver
+        <div class="d-flex gap-2 mb-md-2">
+            <a href="index.php?page=pagos" class="btn btn-secondary rounded-3 px-3 py-2">
+                <i class="fas fa-arrow-left me-2"></i>Volver a Pagos
             </a>
         </div>
     </div>
