@@ -217,6 +217,10 @@ switch ($page) {
         include __DIR__ . '/app/views/compras/detalle_compra.php';
         break;
 
+    case 'marcar_compra_pagada':
+        include __DIR__ . '/app/views/compras/marcar_compra_pagada.php';
+        break;
+
     // ==================== VENTAS ====================
     case 'ventas':
         include __DIR__ . '/app/views/ventas/ventas.php';
@@ -235,6 +239,14 @@ switch ($page) {
 
     case 'detalle_venta':
         include __DIR__ . '/app/views/ventas/detalle_venta.php';
+        break;
+
+    case 'marcar_venta_pagada':
+        include __DIR__ . '/app/views/ventas/marcar_venta_pagada.php';
+        break;
+
+    case 'actualizar_estado_venta':
+        include __DIR__ . '/app/views/ventas/actualizar_estado_venta.php';
         break;
 
     // ==================== CLIENTES ====================

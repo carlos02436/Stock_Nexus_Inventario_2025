@@ -76,7 +76,13 @@ class Venta {
         try {
             $this->db->beginTransaction();
 
-            // Insertar la venta principal
+            // 📌 Determinar el estado automáticamente según el método de pago
+            $metodo = strtolower(trim($datos['metodo_pago']));
+            $estadoVenta = in_array($metodo, ['efectivo', 'transferencia', 'tarjeta']) 
+                ? 'Pagada' 
+                : 'Pagada'; // Por defecto 'Pagada' para otros métodos
+
+            // 🧾 Insertar la venta principal
             $sql = "
                 INSERT INTO ventas (codigo_venta, id_cliente, id_usuario, metodo_pago, total_venta, estado)
                 VALUES (:codigo, :cliente, :usuario, :metodo_pago, :total, :estado)
@@ -88,12 +94,12 @@ class Venta {
                 ':usuario' => $datos['id_usuario'],
                 ':metodo_pago' => $datos['metodo_pago'],
                 ':total' => $datos['total_venta'],
-                ':estado' => $datos['estado'] ?? 'Pendiente'
+                ':estado' => $estadoVenta
             ]);
 
             $id_venta = $this->db->lastInsertId();
 
-            // Insertar cada producto vendido
+            // 💾 Insertar cada producto vendido
             foreach ($datos['productos'] as $producto) {
                 // Validar stock
                 $sqlStock = "SELECT stock_actual FROM productos WHERE id_producto = :id";

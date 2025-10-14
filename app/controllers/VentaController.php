@@ -59,7 +59,6 @@ class VentaController {
 
     public function crear($datos = null) {
         try {
-            // Si no se pasaron datos, intentar construirlos desde $_POST
             if ($datos === null) {
                 if (session_status() === PHP_SESSION_NONE) {
                     @session_start();
@@ -91,13 +90,20 @@ class VentaController {
                     }
                 }
 
+                $metodo_pago = $_POST['metodo_pago'] ?? 'Efectivo';
+
+                // 🟢 Estado automático según el tipo de pago
+                $estado_venta = in_array(strtolower($metodo_pago), ['efectivo', 'transferencia', 'tarjeta'])
+                    ? 'Pagada'
+                    : 'Pendiente';
+
                 $datos = [
                     'codigo_venta' => $_POST['codigo_venta'] ?? null,
                     'id_cliente' => !empty($_POST['id_cliente']) ? $_POST['id_cliente'] : null,
                     'id_usuario' => $_POST['id_usuario'] ?? ($_SESSION['id_usuario'] ?? null),
-                    'metodo_pago' => $_POST['metodo_pago'] ?? 'Efectivo',
+                    'metodo_pago' => $metodo_pago,
                     'total_venta' => $total,
-                    'estado' => $_POST['estado'] ?? 'Pendiente',
+                    'estado' => $estado_venta,
                     'productos' => $productos
                 ];
             }
@@ -170,7 +176,6 @@ class VentaController {
                     throw new Exception("Producto inválido en el detalle (id: {$idProd}, cantidad: {$cantidad}).");
                 }
 
-                // Verificar que el producto exista y stock
                 $stmt = $this->db->prepare("SELECT stock_actual, nombre_producto FROM productos WHERE id_producto = :id");
                 $stmt->execute([':id' => $idProd]);
                 $productoInfo = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -222,8 +227,6 @@ class VentaController {
                 $this->db->rollBack();
             }
             error_log("ERROR crear venta: " . $e->getMessage());
-            // Para debugging puedes descomentar la siguiente línea:
-            // echo "DEBUG crear venta: " . htmlspecialchars($e->getMessage());
             return false;
         }
     }

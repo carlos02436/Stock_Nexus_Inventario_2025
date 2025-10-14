@@ -111,11 +111,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
-<div class="container-fluid px-4 pb-5" style="margin-top:120px;">
+<div class="container-fluid px-4 pb-5" style="margin-top:180px;">
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
         <h1 class="h2"><i class="fas fa-plus me-2"></i>Registrar Nueva Venta</h1>
         <div class="btn-toolbar mb-2 mb-md-0">
-            <a href="index.php?page=ventas" class="btn btn-neon">
+            <a href="index.php?page=ventas" class="btn btn-secondary">
                 <i class="fas fa-arrow-left me-2"></i>Volver
             </a>
         </div>

@@ -93,7 +93,7 @@ $balanceActual = $balanceModel->obtenerBalanceActual();
                     </h5>
                 </div>
                 <div class="card-body">
-                    <div class="row g-3 align-items-end justify-content-center text-center">
+                    <div class="row g-3 align-items-end justify-content-center">
                         <div class="col-md-3">
                             <label class="form-label text-white">Filtrar por Año:</label>
                             <select class="form-select" id="filtroAnio">
