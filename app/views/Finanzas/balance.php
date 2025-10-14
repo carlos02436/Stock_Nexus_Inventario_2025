@@ -1,37 +1,149 @@
 <?php
 // app/views/finanzas/balance.php
 
-// Primero cargar el modelo BalanceGeneral
-$balanceModel = new BalanceGeneral($db);
-
-// Verificar si el método existe, si no, crear una solución alternativa
-if (!method_exists($balanceModel, 'obtenerAniosDisponibles')) {
-    // Si el método no existe, obtener los años de los balances disponibles
-    $balances = $balanceModel->listarBalances(60); // Obtener más balances para tener años
-    $aniosDisponibles = [];
-    
-    foreach ($balances as $balance) {
-        $anio = date('Y', strtotime($balance['fecha_balance']));
-        if (!in_array($anio, $aniosDisponibles)) {
-            $aniosDisponibles[] = $anio;
-        }
-    }
+// Calcular balances en tiempo real desde las tablas de ventas, compras y gastos
+try {
+    // Obtener años disponibles de las ventas
+    $queryAnios = "SELECT DISTINCT YEAR(fecha_venta) as anio 
+                   FROM ventas 
+                   WHERE estado = 'Pagada'
+                   UNION
+                   SELECT DISTINCT YEAR(fecha_compra) as anio 
+                   FROM compras 
+                   WHERE estado = 'Pagada'
+                   UNION
+                   SELECT DISTINCT YEAR(fecha) as anio 
+                   FROM gastos_operativos
+                   ORDER BY anio DESC";
+    $stmtAnios = $db->prepare($queryAnios);
+    $stmtAnios->execute();
+    $aniosDisponibles = $stmtAnios->fetchAll(PDO::FETCH_COLUMN, 0);
     
     // Si no hay años, usar el año actual
     if (empty($aniosDisponibles)) {
         $aniosDisponibles = [date('Y')];
     }
     
-    // Ordenar años descendente
-    rsort($aniosDisponibles);
+    // Calcular balances mensuales reales - CONSULTA MEJORADA
+    $queryBalances = "
+        SELECT 
+            meses.fecha_balance,
+            COALESCE(ingresos.total_ingresos, 0) as total_ingresos,
+            COALESCE(compras.total_compras, 0) + COALESCE(gastos.total_gastos, 0) as total_egresos,
+            COALESCE(ingresos.total_ingresos, 0) - (COALESCE(compras.total_compras, 0) + COALESCE(gastos.total_gastos, 0)) as utilidad
+        FROM (
+            -- Generar los últimos 12 meses completos
+            SELECT DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL n MONTH), '%Y-%m-01') as fecha_balance
+            FROM (
+                SELECT 0 as n UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 
+                UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 
+                UNION SELECT 9 UNION SELECT 10 UNION SELECT 11
+            ) numeros
+        ) meses
+        LEFT JOIN (
+            -- Ingresos por mes (ventas pagadas + otros ingresos)
+            SELECT 
+                DATE_FORMAT(fecha_venta, '%Y-%m-01') as mes,
+                SUM(total_venta) as total_ingresos
+            FROM ventas 
+            WHERE estado = 'Pagada'
+            GROUP BY DATE_FORMAT(fecha_venta, '%Y-%m-01')
+        ) ingresos ON meses.fecha_balance = ingresos.mes
+        LEFT JOIN (
+            -- Compras por mes (compras pagadas)
+            SELECT 
+                DATE_FORMAT(fecha_compra, '%Y-%m-01') as mes,
+                SUM(total_compra) as total_compras
+            FROM compras 
+            WHERE estado = 'Pagada'
+            GROUP BY DATE_FORMAT(fecha_compra, '%Y-%m-01')
+        ) compras ON meses.fecha_balance = compras.mes
+        LEFT JOIN (
+            -- Gastos por mes
+            SELECT 
+                DATE_FORMAT(fecha, '%Y-%m-01') as mes,
+                SUM(valor) as total_gastos
+            FROM gastos_operativos 
+            GROUP BY DATE_FORMAT(fecha, '%Y-%m-01')
+        ) gastos ON meses.fecha_balance = gastos.mes
+        ORDER BY meses.fecha_balance DESC
+        LIMIT 12
+    ";
     
-} else {
-    // Si el método existe, usarlo normalmente
-    $balances = $balanceModel->listarBalances(12);
-    $aniosDisponibles = $balanceModel->obtenerAniosDisponibles();
+    $stmtBalances = $db->prepare($queryBalances);
+    $stmtBalances->execute();
+    $balances = $stmtBalances->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Calcular balance actual (mes actual)
+    $queryBalanceActual = "
+        SELECT 
+            'Balance Actual' as periodo,
+            COALESCE((
+                SELECT SUM(total_venta) 
+                FROM ventas 
+                WHERE estado = 'Pagada' 
+                AND fecha_venta >= DATE_FORMAT(CURDATE(), '%Y-%m-01')
+                AND fecha_venta <= CURDATE()
+            ), 0) as total_ingresos,
+            COALESCE((
+                SELECT SUM(total_compra) 
+                FROM compras 
+                WHERE estado = 'Pagada'
+                AND fecha_compra >= DATE_FORMAT(CURDATE(), '%Y-%m-01')
+                AND fecha_compra <= CURDATE()
+            ), 0) + COALESCE((
+                SELECT SUM(valor) 
+                FROM gastos_operativos 
+                WHERE fecha >= DATE_FORMAT(CURDATE(), '%Y-%m-01')
+                AND fecha <= CURDATE()
+            ), 0) as total_egresos,
+            COALESCE((
+                SELECT SUM(total_venta) 
+                FROM ventas 
+                WHERE estado = 'Pagada' 
+                AND fecha_venta >= DATE_FORMAT(CURDATE(), '%Y-%m-01')
+                AND fecha_venta <= CURDATE()
+            ), 0) - (
+                COALESCE((
+                    SELECT SUM(total_compra) 
+                    FROM compras 
+                    WHERE estado = 'Pagada'
+                    AND fecha_compra >= DATE_FORMAT(CURDATE(), '%Y-%m-01')
+                    AND fecha_compra <= CURDATE()
+                ), 0) + COALESCE((
+                    SELECT SUM(valor) 
+                    FROM gastos_operativos 
+                    WHERE fecha >= DATE_FORMAT(CURDATE(), '%Y-%m-01')
+                    AND fecha <= CURDATE()
+                ), 0)
+            ) as utilidad
+    ";
+    
+    $stmtBalanceActual = $db->prepare($queryBalanceActual);
+    $stmtBalanceActual->execute();
+    $balanceActual = $stmtBalanceActual->fetch(PDO::FETCH_ASSOC);
+    
+    // Calcular totales acumulados para el PDF
+    $queryTotalesAcumulados = "
+        SELECT 
+            COALESCE(SUM(total_ingresos), 0) as total_ingresos,
+            COALESCE(SUM(total_egresos), 0) as total_egresos,
+            COALESCE(SUM(utilidad), 0) as utilidad_neta
+        FROM ($queryBalances) as balances_totales
+    ";
+    
+    $stmtTotales = $db->prepare($queryTotalesAcumulados);
+    $stmtTotales->execute();
+    $totalesAcumulados = $stmtTotales->fetch(PDO::FETCH_ASSOC);
+    
+} catch (PDOException $e) {
+    // En caso de error, inicializar variables vacías
+    $aniosDisponibles = [date('Y')];
+    $balances = [];
+    $balanceActual = null;
+    $totalesAcumulados = ['total_ingresos' => 0, 'total_egresos' => 0, 'utilidad_neta' => 0];
+    error_log("Error en balance.php: " . $e->getMessage());
 }
-
-$balanceActual = $balanceModel->obtenerBalanceActual();
 ?>
 <div class="container-fluid px-4" style="margin-top: 180px; padding-bottom: 100px;">
     <!-- Header no imprimible -->
@@ -47,7 +159,7 @@ $balanceActual = $balanceModel->obtenerBalanceActual();
         </div>
     </div>
 
-    <?php if ($balanceActual): ?>
+    <?php if ($balanceActual && ($balanceActual['total_ingresos'] > 0 || $balanceActual['total_egresos'] > 0)): ?>
     <!-- Balance actual - solo pantalla -->
     <div class="d-flex row mb-4 mx-2 no-print">
         <div class="col-md-4 mb-3">
@@ -56,6 +168,7 @@ $balanceActual = $balanceModel->obtenerBalanceActual();
                     <div class="text-center">
                         <h5>Total Ingresos</h5>
                         <h3>$<?= number_format($balanceActual['total_ingresos'], 2) ?></h3>
+                        <small>Mes Actual (<?= date('F Y') ?>)</small>
                     </div>
                 </div>
             </div>
@@ -66,6 +179,7 @@ $balanceActual = $balanceModel->obtenerBalanceActual();
                     <div class="text-center">
                         <h5>Total Egresos</h5>
                         <h3>$<?= number_format($balanceActual['total_egresos'], 2) ?></h3>
+                        <small>Mes Actual (<?= date('F Y') ?>)</small>
                     </div>
                 </div>
             </div>
@@ -76,6 +190,7 @@ $balanceActual = $balanceModel->obtenerBalanceActual();
                     <div class="text-center">
                         <h5>Utilidad Neta</h5>
                         <h3>$<?= number_format($balanceActual['utilidad'], 2) ?></h3>
+                        <small>Mes Actual (<?= date('F Y') ?>)</small>
                     </div>
                 </div>
             </div>
@@ -125,7 +240,7 @@ $balanceActual = $balanceModel->obtenerBalanceActual();
                 <div class="card shadow-sm mb-4">
                     <div class="card-header text-white">
                         <h5 class="card-title mb-0">
-                            <i class="fas fa-chart-bar me-2"></i>Historial de Balances
+                            <i class="fas fa-chart-bar me-2"></i>Historial de Balances (Últimos 12 Meses)
                         </h5>
                     </div>
                     <div class="card-body">
@@ -133,7 +248,7 @@ $balanceActual = $balanceModel->obtenerBalanceActual();
                             <table class="table table-striped table-hover" id="tablaBalances">
                                 <thead class="table-dark">
                                     <tr>
-                                        <th>Fecha</th>
+                                        <th>Periodo</th>
                                         <th>Ingresos</th>
                                         <th>Egresos</th>
                                         <th>Utilidad</th>
@@ -141,27 +256,35 @@ $balanceActual = $balanceModel->obtenerBalanceActual();
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php foreach ($balances as $balance): ?>
-                                    <?php 
-                                    $margen = $balance['total_ingresos'] > 0 ? 
-                                        ($balance['utilidad'] / $balance['total_ingresos']) * 100 : 0;
-                                    $fecha = date('m/Y', strtotime($balance['fecha_balance']));
-                                    $anio = date('Y', strtotime($balance['fecha_balance']));
-                                    $mes = date('F', strtotime($balance['fecha_balance']));
-                                    $mesEspanol = obtenerMesEspanol($mes);
-                                    ?>
-                                    <tr data-anio="<?= $anio ?>" data-mes="<?= $mes ?>" data-mes-es="<?= $mesEspanol ?>">
-                                        <td class="fw-bold"><?= $fecha ?></td>
-                                        <td class="text-success fw-bold">$<?= number_format($balance['total_ingresos'], 2) ?></td>
-                                        <td class="text-danger fw-bold">$<?= number_format($balance['total_egresos'], 2) ?></td>
-                                        <td class="text-primary fw-bold">$<?= number_format($balance['utilidad'], 2) ?></td>
-                                        <td>
-                                            <span class="badge bg-<?= $margen >= 20 ? 'success' : ($margen >= 10 ? 'warning' : 'danger') ?> fs-6">
-                                                <?= number_format($margen, 1) ?>%
-                                            </span>
-                                        </td>
-                                    </tr>
-                                    <?php endforeach; ?>
+                                    <?php if (!empty($balances)): ?>
+                                        <?php foreach ($balances as $balance): ?>
+                                        <?php 
+                                        $margen = $balance['total_ingresos'] > 0 ? 
+                                            ($balance['utilidad'] / $balance['total_ingresos']) * 100 : 0;
+                                        $fecha = date('M/Y', strtotime($balance['fecha_balance']));
+                                        $anio = date('Y', strtotime($balance['fecha_balance']));
+                                        $mes = date('F', strtotime($balance['fecha_balance']));
+                                        $mesEspanol = obtenerMesEspanol($mes);
+                                        ?>
+                                        <tr data-anio="<?= $anio ?>" data-mes="<?= $mes ?>" data-mes-es="<?= $mesEspanol ?>">
+                                            <td class="fw-bold"><?= $fecha ?></td>
+                                            <td class="text-success fw-bold">$<?= number_format($balance['total_ingresos'], 2) ?></td>
+                                            <td class="text-danger fw-bold">$<?= number_format($balance['total_egresos'], 2) ?></td>
+                                            <td class="text-primary fw-bold">$<?= number_format($balance['utilidad'], 2) ?></td>
+                                            <td>
+                                                <span class="badge bg-<?= $margen >= 20 ? 'success' : ($margen >= 10 ? 'warning' : 'danger') ?> fs-6">
+                                                    <?= number_format($margen, 1) ?>%
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <tr>
+                                            <td colspan="5" class="text-center py-4 text-muted">
+                                                <i class="fas fa-info-circle me-2"></i>No hay datos de balances disponibles
+                                            </td>
+                                        </tr>
+                                    <?php endif; ?>
                                 </tbody>
                             </table>
                         </div>
@@ -170,6 +293,7 @@ $balanceActual = $balanceModel->obtenerBalanceActual();
             </div>
         </div>
 
+        <?php if (!empty($balances)): ?>
         <div class="row mx-2">
             <div class="col-12">
                 <div class="card shadow-sm">
@@ -178,7 +302,7 @@ $balanceActual = $balanceModel->obtenerBalanceActual();
                             <i class="fas fa-chart-line me-2"></i>Gráfico de Tendencia
                         </h5>
                     </div>
-                    <div class="card-body text-white" style="background: rgba(0,0,0,0.5);">
+                    <div class="card-body" style="background: rgba(0,0,0,0.05);">
                         <div class="chart-container" style="position: relative; height: 400px;">
                             <canvas id="balanceChart"></canvas>
                         </div>
@@ -186,12 +310,13 @@ $balanceActual = $balanceModel->obtenerBalanceActual();
                 </div>
             </div>
         </div>
+        <?php endif; ?>
     </div>
 </div>
 
 <?php
 // Función para obtener el nombre del mes en español
-function obtenerMesEspanol($mesIngles) {
+function obtenerMesEspanol($mesEspañol) {
     $meses = [
         'January' => 'Enero',
         'February' => 'Febrero',
@@ -206,13 +331,10 @@ function obtenerMesEspanol($mesIngles) {
         'November' => 'Noviembre',
         'December' => 'Diciembre'
     ];
-    return $meses[$mesIngles] ?? $mesIngles;
+    return $meses[$mesEspañol] ?? $mesEspañol;
 }
 ?>
 
-<!-- Incluir las librerías necesarias para PDF -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
@@ -220,23 +342,26 @@ function obtenerMesEspanol($mesIngles) {
 let balanceChart;
 
 document.addEventListener('DOMContentLoaded', function() {
+    <?php if (!empty($balances)): ?>
     inicializarGrafico();
+    <?php endif; ?>
     inicializarFiltros();
 });
 
+<?php if (!empty($balances)): ?>
 function inicializarGrafico() {
     const ctx = document.getElementById('balanceChart').getContext('2d');
     balanceChart = new Chart(ctx, {
         type: 'line',
         data: getChartData(),
-        options: getChartOptions('white')
+        options: getChartOptions('black')
     });
 }
 
 function getChartData() {
     return {
         labels: [<?= implode(',', array_map(function($b) { 
-            return "'" . date('m/Y', strtotime($b['fecha_balance'])) . "'"; 
+            return "'" . date('M/Y', strtotime($b['fecha_balance'])) . "'"; 
         }, array_reverse($balances))) ?>],
         datasets: [
             {
@@ -284,10 +409,10 @@ function getChartOptions(textColor) {
             y: {
                 beginAtZero: true,
                 grid: {
-                    color: `rgba(0, 0, 0, ${textColor === 'white' ? '0.1' : '0.2'})`
+                    color: `rgba(255, 255, 255, 0.1)`
                 },
                 ticks: {
-                    color: textColor,
+                    color: 'white',
                     callback: function(value) {
                         return '$' + value.toLocaleString();
                     }
@@ -295,10 +420,10 @@ function getChartOptions(textColor) {
             },
             x: {
                 grid: {
-                    color: `rgba(0, 0, 0, ${textColor === 'white' ? '0.1' : '0.2'})`
+                    color: `rgba(0, 0, 0, 0.1)`
                 },
                 ticks: {
-                    color: textColor
+                    color: 'white'
                 }
             }
         },
@@ -306,7 +431,7 @@ function getChartOptions(textColor) {
             legend: {
                 position: 'top',
                 labels: {
-                    color: textColor,
+                    color: 'white',
                     font: {
                         size: 14
                     }
@@ -314,6 +439,9 @@ function getChartOptions(textColor) {
             },
             tooltip: {
                 callbacks: {
+                    label: {
+                        color: 'white'
+                    },
                     label: function(context) {
                         let label = context.dataset.label || '';
                         if (label) {
@@ -327,10 +455,14 @@ function getChartOptions(textColor) {
         }
     };
 }
+<?php endif; ?>
 
 function inicializarFiltros() {
-    document.getElementById('filtroMes').addEventListener('input', filtrarTabla);
-    document.getElementById('filtroAnio').addEventListener('change', filtrarTabla);
+    const filtroMes = document.getElementById('filtroMes');
+    const filtroAnio = document.getElementById('filtroAnio');
+    
+    if (filtroMes) filtroMes.addEventListener('input', filtrarTabla);
+    if (filtroAnio) filtroAnio.addEventListener('change', filtrarTabla);
     filtrarTabla();
 }
 
@@ -349,9 +481,12 @@ function filtrarTabla() {
     let filasVisibles = 0;
     
     filas.forEach(fila => {
+        // Saltar la fila de mensaje de no datos
+        if (fila.cells.length === 1) return;
+        
         const anio = fila.getAttribute('data-anio');
-        const mes = fila.getAttribute('data-mes').toLowerCase();
-        const mesEspanol = fila.getAttribute('data-mes-es').toLowerCase();
+        const mes = fila.getAttribute('data-mes')?.toLowerCase() || '';
+        const mesEspanol = fila.getAttribute('data-mes-es')?.toLowerCase() || '';
         
         const coincideAnio = filtroAnio === 'todos' || anio === filtroAnio;
         const coincideMes = filtroMes === '' || 
@@ -368,7 +503,7 @@ function filtrarTabla() {
     });
     
     // Mostrar mensaje si no hay resultados
-    if (filasVisibles === 0) {
+    if (filasVisibles === 0 && filas.length > 0) {
         const mensaje = document.createElement('tr');
         mensaje.id = 'mensajeNoResultados';
         mensaje.innerHTML = `
@@ -384,194 +519,5 @@ function limpiarFiltros() {
     document.getElementById('filtroAnio').value = 'todos';
     document.getElementById('filtroMes').value = '';
     filtrarTabla();
-}
-
-async function generarPDF() {
-    // Mostrar loading
-    const btnOriginal = document.querySelector('.btn-neon');
-    const originalHTML = btnOriginal.innerHTML;
-    btnOriginal.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Generando PDF...';
-    btnOriginal.disabled = true;
-
-    try {
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        
-        // Página 1: Resumen y tabla
-        await agregarPaginaResumen(pdf);
-        
-        // Página 2: Gráfico
-        await agregarPaginaGrafico(pdf);
-        
-        // Descargar el PDF
-        pdf.save(`Balance_General_StockNexus_${new Date().toISOString().split('T')[0]}.pdf`);
-        
-    } catch (error) {
-        console.error('Error generando PDF:', error);
-        alert('Error al generar el PDF. Por favor, intente nuevamente.');
-    } finally {
-        // Restaurar botón
-        btnOriginal.innerHTML = originalHTML;
-        btnOriginal.disabled = false;
-    }
-}
-
-async function agregarPaginaResumen(pdf) {
-    // Título
-    pdf.setFontSize(20);
-    pdf.setTextColor(0, 0, 0);
-    pdf.text('Stock Nexus - Balance General', 105, 20, { align: 'center' });
-    
-    pdf.setFontSize(14);
-    pdf.text('Resumen Financiero', 105, 30, { align: 'center' });
-    
-    pdf.setFontSize(10);
-    pdf.setTextColor(128, 128, 128);
-    pdf.text(`Fecha de reporte: ${new Date().toLocaleDateString()}`, 105, 37, { align: 'center' });
-    
-    // Línea separadora
-    pdf.setDrawColor(0, 0, 0);
-    pdf.line(20, 42, 190, 42);
-    
-    // Resumen de balance actual
-    if (<?= $balanceActual ? 'true' : 'false' ?>) {
-        pdf.setFontSize(12);
-        pdf.setTextColor(0, 0, 0);
-        pdf.text('RESUMEN BALANCE ACTUAL', 20, 55);
-        
-        // Cuadro de resumen
-        pdf.setFillColor(240, 240, 240);
-        pdf.rect(20, 60, 170, 25, 'F');
-        pdf.setDrawColor(0, 0, 0);
-        pdf.rect(20, 60, 170, 25);
-        
-        // Datos del resumen
-        const ingresos = <?= $balanceActual['total_ingresos'] ?? 0 ?>;
-        const egresos = <?= $balanceActual['total_egresos'] ?? 0 ?>;
-        const utilidad = <?= $balanceActual['utilidad'] ?? 0 ?>;
-        
-        pdf.setFontSize(10);
-        pdf.text('Total Ingresos:', 30, 70);
-        pdf.setTextColor(0, 128, 0);
-        pdf.text(`$${ingresos.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`, 70, 70);
-        
-        pdf.setTextColor(0, 0, 0);
-        pdf.text('Total Egresos:', 30, 77);
-        pdf.setTextColor(255, 0, 0);
-        pdf.text(`$${egresos.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`, 70, 77);
-        
-        pdf.setTextColor(0, 0, 0);
-        pdf.text('Utilidad Neta:', 30, 84);
-        pdf.setTextColor(0, 0, 255);
-        pdf.text(`$${utilidad.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`, 70, 84);
-    }
-    
-    // Tabla de historial
-    pdf.setFontSize(12);
-    pdf.setTextColor(0, 0, 0);
-    pdf.text('HISTORIAL DE BALANCES (ÚLTIMOS 12 MESES)', 20, 105);
-    
-    // Encabezados de tabla
-    pdf.setFillColor(52, 58, 64);
-    pdf.rect(20, 110, 170, 8, 'F');
-    pdf.setTextColor(255, 255, 255);
-    pdf.setFontSize(9);
-    pdf.text('Fecha', 25, 116);
-    pdf.text('Ingresos', 60, 116);
-    pdf.text('Egresos', 95, 116);
-    pdf.text('Utilidad', 130, 116);
-    pdf.text('Margen', 165, 116);
-    
-    // Datos de la tabla
-    let yPos = 122;
-    pdf.setTextColor(0, 0, 0);
-    
-    <?php foreach ($balances as $index => $balance): ?>
-    <?php 
-    $margen = $balance['total_ingresos'] > 0 ? 
-        ($balance['utilidad'] / $balance['total_ingresos']) * 100 : 0;
-    $fecha = date('m/Y', strtotime($balance['fecha_balance']));
-    ?>
-    if (yPos > 270) {
-        pdf.addPage();
-        yPos = 20;
-    }
-    
-    pdf.setFontSize(8);
-    pdf.text('<?= $fecha ?>', 25, yPos);
-    pdf.setTextColor(0, 128, 0);
-    pdf.text('$<?= number_format($balance['total_ingresos'], 2) ?>', 60, yPos);
-    pdf.setTextColor(255, 0, 0);
-    pdf.text('$<?= number_format($balance['total_egresos'], 2) ?>', 95, yPos);
-    pdf.setTextColor(0, 0, 255);
-    pdf.text('$<?= number_format($balance['utilidad'], 2) ?>', 130, yPos);
-    pdf.setTextColor(0, 0, 0);
-    pdf.text('<?= number_format($margen, 1) ?>%', 165, yPos);
-    
-    yPos += 6;
-    <?php endforeach; ?>
-}
-
-async function agregarPaginaGrafico(pdf) {
-    pdf.addPage();
-    
-    // Título
-    pdf.setFontSize(20);
-    pdf.setTextColor(0, 0, 0);
-    pdf.text('Stock Nexus - Balance General', 105, 20, { align: 'center' });
-    
-    pdf.setFontSize(14);
-    pdf.text('Gráfico de Tendencia', 105, 30, { align: 'center' });
-    
-    pdf.setFontSize(10);
-    pdf.setTextColor(128, 128, 128);
-    pdf.text(`Fecha de reporte: ${new Date().toLocaleDateString()}`, 105, 37, { align: 'center' });
-    
-    // Línea separadora
-    pdf.setDrawColor(0, 0, 0);
-    pdf.line(20, 42, 190, 42);
-    
-    // Título del gráfico
-    pdf.setFontSize(12);
-    pdf.setTextColor(0, 0, 0);
-    pdf.text('EVOLUCIÓN FINANCIERA (ÚLTIMOS 12 MESES)', 20, 55);
-    
-    // Crear un canvas temporal para el gráfico
-    const canvas = document.createElement('canvas');
-    canvas.width = 800;
-    canvas.height = 400;
-    const ctx = canvas.getContext('2d');
-    
-    // Crear gráfico temporal
-    const tempChart = new Chart(ctx, {
-        type: 'line',
-        data: getChartData(),
-        options: {
-            ...getChartOptions('black'),
-            plugins: {
-                legend: {
-                    position: 'top',
-                    labels: {
-                        color: 'black',
-                        font: {
-                            size: 14
-                        }
-                    }
-                }
-            }
-        }
-    });
-    
-    // Esperar a que el gráfico se renderice
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    // Convertir canvas a imagen
-    const chartImage = canvas.toDataURL('image/png');
-    
-    // Agregar imagen al PDF
-    pdf.addImage(chartImage, 'PNG', 20, 65, 170, 80);
-    
-    // Limpiar
-    tempChart.destroy();
 }
 </script>

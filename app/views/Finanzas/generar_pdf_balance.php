@@ -4,30 +4,216 @@ require_once __DIR__ . '/../../libs/dompdf/autoload.inc.php';
 
 use Dompdf\Dompdf;
 
-// --- Incluir conexión y modelo ---
+// --- Incluir conexión ---
 require_once __DIR__ . '/../../../config/database.php';
-require_once __DIR__ . '/../../../app/models/BalanceGeneral.php';
 
 try {
     // --- Capturar fecha y hora EXACTA de generación ---
     date_default_timezone_set('America/Bogota');
-
-    // --- Capturar fecha y hora EXACTA de generación ---
     $fechaGeneracion = date('d/m/Y h:i:s A');
     
-    // --- Instanciar modelo ---
-    $balanceModel = new BalanceGeneral($db);
+    // --- Obtener conexión a la base de datos ---
+    // Asumiendo que $db ya está creada en database.php
 
-    // --- Obtener datos con filtros ---
+    // --- Verificar si se enviaron fechas para filtrar ---
+    $filtroPorFecha = false;
+    $fechaInicio = null;
+    $fechaFin = null;
+
     if (isset($_REQUEST['fecha_inicio']) && isset($_REQUEST['fecha_fin'])) {
         $fechaInicio = $_REQUEST['fecha_inicio'];
         $fechaFin = $_REQUEST['fecha_fin'];
-        $balances = $balanceModel->listarPorMes();
-        $totalesAcumulados = $balanceModel->obtenerBalancesMensuales($año);
+        $filtroPorFecha = true;
+    }
+
+    // --- Calcular balances mensuales reales ---
+    if ($filtroPorFecha) {
+        // Filtro por rango de fechas
+        // Nota: Aquí asumimos que las fechas están en formato YYYY-MM-DD
+        $queryBalances = "
+            SELECT 
+                DATE_FORMAT(fecha, '%Y-%m-01') as fecha_balance,
+                COALESCE(ingresos.total_ingresos, 0) as total_ingresos,
+                COALESCE(compras.total_compras, 0) + COALESCE(gastos.total_gastos, 0) as total_egresos,
+                COALESCE(ingresos.total_ingresos, 0) - (COALESCE(compras.total_compras, 0) + COALESCE(gastos.total_gastos, 0)) as utilidad
+            FROM (
+                -- Generar todos los meses entre fecha_inicio y fecha_fin
+                SELECT DATE_FORMAT( fecha, '%Y-%m-01' ) as fecha
+                FROM (
+                    SELECT DATE_ADD(?, INTERVAL (a.a + (10 * b.a)) MONTH) as fecha
+                    FROM (SELECT 0 AS a UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) AS a
+                    CROSS JOIN (SELECT 0 AS a UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) AS b
+                ) a
+                WHERE fecha <= ?
+            ) meses
+            LEFT JOIN (
+                -- Ingresos por mes (ventas pagadas)
+                SELECT 
+                    DATE_FORMAT(fecha_venta, '%Y-%m-01') as mes,
+                    SUM(total_venta) as total_ingresos
+                FROM ventas 
+                WHERE estado = 'Pagada'
+                GROUP BY DATE_FORMAT(fecha_venta, '%Y-%m-01')
+            ) ingresos ON meses.fecha = ingresos.mes
+            LEFT JOIN (
+                -- Compras por mes (compras pagadas)
+                SELECT 
+                    DATE_FORMAT(fecha_compra, '%Y-%m-01') as mes,
+                    SUM(total_compra) as total_compras
+                FROM compras 
+                WHERE estado = 'Pagada'
+                GROUP BY DATE_FORMAT(fecha_compra, '%Y-%m-01')
+            ) compras ON meses.fecha = compras.mes
+            LEFT JOIN (
+                -- Gastos por mes
+                SELECT 
+                    DATE_FORMAT(fecha, '%Y-%m-01') as mes,
+                    SUM(valor) as total_gastos
+                FROM gastos_operativos 
+                GROUP BY DATE_FORMAT(fecha, '%Y-%m-01')
+            ) gastos ON meses.fecha = gastos.mes
+            WHERE (ingresos.total_ingresos IS NOT NULL OR compras.total_compras IS NOT NULL OR gastos.total_gastos IS NOT NULL)
+            ORDER BY meses.fecha ASC
+        ";
+
+        $stmtBalances = $db->prepare($queryBalances);
+        $stmtBalances->execute([$fechaInicio, $fechaFin]);
+        $balances = $stmtBalances->fetchAll(PDO::FETCH_ASSOC);
+
+        // Calcular totales acumulados para el rango
+        $queryTotales = "
+            SELECT 
+                COALESCE(SUM(ingresos.total_ingresos), 0) as total_ingresos,
+                COALESCE(SUM(compras.total_compras), 0) + COALESCE(SUM(gastos.total_gastos), 0) as total_egresos,
+                COALESCE(SUM(ingresos.total_ingresos), 0) - (COALESCE(SUM(compras.total_compras), 0) + COALESCE(SUM(gastos.total_gastos), 0)) as utilidad_neta
+            FROM (
+                SELECT DATE_FORMAT( fecha, '%Y-%m-01' ) as fecha
+                FROM (
+                    SELECT DATE_ADD(?, INTERVAL (a.a + (10 * b.a)) MONTH) as fecha
+                    FROM (SELECT 0 AS a UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) AS a
+                    CROSS JOIN (SELECT 0 AS a UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) AS b
+                ) a
+                WHERE fecha <= ?
+            ) meses
+            LEFT JOIN (
+                SELECT 
+                    DATE_FORMAT(fecha_venta, '%Y-%m-01') as mes,
+                    SUM(total_venta) as total_ingresos
+                FROM ventas 
+                WHERE estado = 'Pagada'
+                GROUP BY DATE_FORMAT(fecha_venta, '%Y-%m-01')
+            ) ingresos ON meses.fecha = ingresos.mes
+            LEFT JOIN (
+                SELECT 
+                    DATE_FORMAT(fecha_compra, '%Y-%m-01') as mes,
+                    SUM(total_compra) as total_compras
+                FROM compras 
+                WHERE estado = 'Pagada'
+                GROUP BY DATE_FORMAT(fecha_compra, '%Y-%m-01')
+            ) compras ON meses.fecha = compras.mes
+            LEFT JOIN (
+                SELECT 
+                    DATE_FORMAT(fecha, '%Y-%m-01') as mes,
+                    SUM(valor) as total_gastos
+                FROM gastos_operativos 
+                GROUP BY DATE_FORMAT(fecha, '%Y-%m-01')
+            ) gastos ON meses.fecha = gastos.mes
+        ";
+
+        $stmtTotales = $db->prepare($queryTotales);
+        $stmtTotales->execute([$fechaInicio, $fechaFin]);
+        $totalesAcumulados = $stmtTotales->fetch(PDO::FETCH_ASSOC);
+
     } else {
-        // Por defecto, últimos 12 meses
-        $balances = $balanceModel->listarBalances(12);
-        $totalesAcumulados = $balanceModel->obtenerTotalesPorMes();
+        // Últimos 12 meses (comportamiento por defecto)
+        $queryBalances = "
+            SELECT 
+                DATE_FORMAT(fecha, '%Y-%m-01') as fecha_balance,
+                COALESCE(ingresos.total_ingresos, 0) as total_ingresos,
+                COALESCE(compras.total_compras, 0) + COALESCE(gastos.total_gastos, 0) as total_egresos,
+                COALESCE(ingresos.total_ingresos, 0) - (COALESCE(compras.total_compras, 0) + COALESCE(gastos.total_gastos, 0)) as utilidad
+            FROM (
+                -- Generar los últimos 12 meses
+                SELECT DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL n MONTH), '%Y-%m-01') as fecha
+                FROM (
+                    SELECT 0 as n UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 
+                    UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 
+                    UNION SELECT 9 UNION SELECT 10 UNION SELECT 11
+                ) numeros
+            ) meses
+            LEFT JOIN (
+                SELECT 
+                    DATE_FORMAT(fecha_venta, '%Y-%m-01') as mes,
+                    SUM(total_venta) as total_ingresos
+                FROM ventas 
+                WHERE estado = 'Pagada'
+                GROUP BY DATE_FORMAT(fecha_venta, '%Y-%m-01')
+            ) ingresos ON meses.fecha = ingresos.mes
+            LEFT JOIN (
+                SELECT 
+                    DATE_FORMAT(fecha_compra, '%Y-%m-01') as mes,
+                    SUM(total_compra) as total_compras
+                FROM compras 
+                WHERE estado = 'Pagada'
+                GROUP BY DATE_FORMAT(fecha_compra, '%Y-%m-01')
+            ) compras ON meses.fecha = compras.mes
+            LEFT JOIN (
+                SELECT 
+                    DATE_FORMAT(fecha, '%Y-%m-01') as mes,
+                    SUM(valor) as total_gastos
+                FROM gastos_operativos 
+                GROUP BY DATE_FORMAT(fecha, '%Y-%m-01')
+            ) gastos ON meses.fecha = gastos.mes
+            WHERE (ingresos.total_ingresos IS NOT NULL OR compras.total_compras IS NOT NULL OR gastos.total_gastos IS NOT NULL)
+            ORDER BY meses.fecha ASC
+        ";
+
+        $stmtBalances = $db->prepare($queryBalances);
+        $stmtBalances->execute();
+        $balances = $stmtBalances->fetchAll(PDO::FETCH_ASSOC);
+
+        // Calcular totales acumulados para los últimos 12 meses
+        $queryTotales = "
+            SELECT 
+                COALESCE(SUM(ingresos.total_ingresos), 0) as total_ingresos,
+                COALESCE(SUM(compras.total_compras), 0) + COALESCE(SUM(gastos.total_gastos), 0) as total_egresos,
+                COALESCE(SUM(ingresos.total_ingresos), 0) - (COALESCE(SUM(compras.total_compras), 0) + COALESCE(SUM(gastos.total_gastos), 0)) as utilidad_neta
+            FROM (
+                SELECT DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL n MONTH), '%Y-%m-01') as fecha
+                FROM (
+                    SELECT 0 as n UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 
+                    UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 
+                    UNION SELECT 9 UNION SELECT 10 UNION SELECT 11
+                ) numeros
+            ) meses
+            LEFT JOIN (
+                SELECT 
+                    DATE_FORMAT(fecha_venta, '%Y-%m-01') as mes,
+                    SUM(total_venta) as total_ingresos
+                FROM ventas 
+                WHERE estado = 'Pagada'
+                GROUP BY DATE_FORMAT(fecha_venta, '%Y-%m-01')
+            ) ingresos ON meses.fecha = ingresos.mes
+            LEFT JOIN (
+                SELECT 
+                    DATE_FORMAT(fecha_compra, '%Y-%m-01') as mes,
+                    SUM(total_compra) as total_compras
+                FROM compras 
+                WHERE estado = 'Pagada'
+                GROUP BY DATE_FORMAT(fecha_compra, '%Y-%m-01')
+            ) compras ON meses.fecha = compras.mes
+            LEFT JOIN (
+                SELECT 
+                    DATE_FORMAT(fecha, '%Y-%m-01') as mes,
+                    SUM(valor) as total_gastos
+                FROM gastos_operativos 
+                GROUP BY DATE_FORMAT(fecha, '%Y-%m-01')
+            ) gastos ON meses.fecha = gastos.mes
+        ";
+
+        $stmtTotales = $db->prepare($queryTotales);
+        $stmtTotales->execute();
+        $totalesAcumulados = $stmtTotales->fetch(PDO::FETCH_ASSOC);
     }
 
     // --- PREPARAR DATOS PARA EL GRÁFICO ---
@@ -126,7 +312,7 @@ try {
     <h3>Resumen Financiero</h3>
     <p style="text-align:center;color:gray;">Fecha de reporte: <?= $fechaGeneracion ?></p>
     <p style="text-align:center;color:gray;">
-        <?php if (isset($fechaInicio) && isset($fechaFin)): ?>
+        <?php if ($filtroPorFecha): ?>
             Período: <?= date('d/m/Y', strtotime($fechaInicio)) ?> - <?= date('d/m/Y', strtotime($fechaFin)) ?>
         <?php else: ?>
             Últimos 12 meses
@@ -136,14 +322,14 @@ try {
 
     <div class="resumen">
         <div class="total-acumulado">
-            <h3>Balance Total Actual (<?php echo (isset($fechaInicio) && isset($fechaFin)) ? 'Período Personalizado' : 'Últimos 12 meses'; ?>)</h3>
+            <h3>Balance Total Actual (<?php echo $filtroPorFecha ? 'Período Personalizado' : 'Últimos 12 meses'; ?>)</h3>
             <p><strong>Total Ingresos:</strong> <span class="text-green">$<?= number_format($totalesAcumulados['total_ingresos'], 2) ?></span></p>
             <p><strong>Total Egresos:</strong> <span class="text-red">$<?= number_format($totalesAcumulados['total_egresos'], 2) ?></span></p>
             <p><strong>Utilidad Neta:</strong> <span class="text-blue">$<?= number_format($totalesAcumulados['utilidad_neta'], 2) ?></span></p>
         </div>
     </div>
 
-    <h3>Historial de Balances (<?php echo (isset($fechaInicio) && isset($fechaFin)) ? 'Período Personalizado' : 'Últimos 12 meses'; ?>)</h3>
+    <h3>Historial de Balances (<?php echo $filtroPorFecha ? 'Período Personalizado' : 'Últimos 12 meses'; ?>)</h3>
     <table>
         <thead>
             <tr>
@@ -171,7 +357,7 @@ try {
     <div class="page-break"></div>
 
     <h2>Gráfico de Tendencia</h2>
-    <p style="text-align:center;color:gray;">Evolución Financiera (<?php echo (isset($fechaInicio) && isset($fechaFin)) ? 'Período Personalizado' : 'Últimos 12 meses'; ?>)</p>
+    <p style="text-align:center;color:gray;">Evolución Financiera (<?php echo $filtroPorFecha ? 'Período Personalizado' : 'Últimos 12 meses'; ?>)</p>
     <div style="text-align:center; margin-top:30px;">
         <?php if (!empty($chartBase64)): ?>
             <img src="<?= $chartBase64 ?>" style="width:100%; max-width:650px;">
