@@ -62,97 +62,129 @@ class FinanzaController {
         }
     }
 
-    public function getIngresosVsEgresos($periodo = 6) {
-        try {
-            $stmt = $this->db->prepare("
-                SELECT 
-                    YEAR(fecha_pago) as año,
-                    MONTH(fecha_pago) as mes,
-                    SUM(CASE WHEN tipo_pago = 'Ingreso' THEN monto ELSE 0 END) as ingresos,
-                    SUM(CASE WHEN tipo_pago = 'Egreso' THEN monto ELSE 0 END) as egresos
-                FROM pagos 
-                WHERE fecha_pago >= DATE_SUB(CURRENT_DATE, INTERVAL :periodo MONTH)
-                GROUP BY YEAR(fecha_pago), MONTH(fecha_pago)
-                ORDER BY año, mes
-            ");
-            $stmt->bindValue(':periodo', $periodo, PDO::PARAM_INT);
-            $stmt->execute();
-            return $stmt->fetchAll();
-        } catch (PDOException $e) {
-            error_log("Error en getIngresosVsEgresos: " . $e->getMessage());
-            return [];
-        }
-    }
-
     public function getResumenFinanciero() {
         try {
-            // Ingresos del mes actual
+            // Ingresos del mes actual (ventas pagadas)
             $stmt = $this->db->query("
-                SELECT COALESCE(SUM(monto), 0) as total 
-                FROM pagos 
-                WHERE tipo_pago = 'Ingreso' AND MONTH(fecha_pago) = MONTH(CURRENT_DATE())
+                SELECT COALESCE(SUM(total_venta), 0) as total 
+                FROM ventas 
+                WHERE estado = 'Pagada' AND MONTH(fecha_venta) = MONTH(CURRENT_DATE()) AND YEAR(fecha_venta) = YEAR(CURRENT_DATE())
             ");
             $ingresos_mes = $stmt->fetch()['total'];
 
-            // Egresos del mes actual
+            // Egresos del mes actual (compras pagadas)
             $stmt = $this->db->query("
-                SELECT COALESCE(SUM(monto), 0) as total 
-                FROM pagos 
-                WHERE tipo_pago = 'Egreso' AND MONTH(fecha_pago) = MONTH(CURRENT_DATE())
+                SELECT COALESCE(SUM(total_compra), 0) as total 
+                FROM compras 
+                WHERE estado = 'Pagada' AND MONTH(fecha_compra) = MONTH(CURRENT_DATE()) AND YEAR(fecha_compra) = YEAR(CURRENT_DATE())
             ");
             $egresos_mes = $stmt->fetch()['total'];
 
             // Utilidad del mes
             $utilidad_mes = $ingresos_mes - $egresos_mes;
 
-            // Métodos de pago del mes actual
-            $stmt = $this->db->query("
-                SELECT 
-                    metodo_pago,
-                    COUNT(*) as cantidad,
-                    SUM(monto) as total
-                FROM pagos 
-                WHERE tipo_pago = 'Ingreso' AND MONTH(fecha_pago) = MONTH(CURRENT_DATE())
-                GROUP BY metodo_pago
-            ");
-            $metodosPagoData = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-            // Procesar datos de métodos de pago
-            $metodosPago = [
-                'labels' => [],
-                'data' => [],
-                'colors' => []
-            ];
-
-            $colores = ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796'];
-            $colorIndex = 0;
-
-            foreach ($metodosPagoData as $metodo) {
-                $metodosPago['labels'][] = $metodo['metodo_pago'] ?: 'No Especificado';
-                $metodosPago['data'][] = floatval($metodo['total']);
-                $metodosPago['colors'][] = $colores[$colorIndex % count($colores)];
-                $colorIndex++;
-            }
-
             return [
                 'ingresos_mes' => $ingresos_mes,
                 'egresos_mes' => $egresos_mes,
-                'utilidad_mes' => $utilidad_mes,
-                'metodos_pago' => $metodosPago
+                'utilidad_mes' => $utilidad_mes
             ];
 
         } catch (PDOException $e) {
             error_log("Error en getResumenFinanciero: " . $e->getMessage());
-            return [
-                'ingresos_mes' => 0,
-                'egresos_mes' => 0,
-                'utilidad_mes' => 0,
-                'metodos_pago' => [
-                    'labels' => ['Sin datos'],
-                    'data' => [100],
-                    'colors' => ['#858796']
-                ]
-            ];
+            return ['ingresos_mes' => 0, 'egresos_mes' => 0, 'utilidad_mes' => 0];
+        }
+    }
+
+    public function getIngresosVsEgresos($periodo = 6) {
+        try {
+            // Obtener ingresos por mes (ventas pagadas)
+            $stmt = $this->db->prepare("
+                SELECT 
+                    YEAR(fecha_venta) as año,
+                    MONTH(fecha_venta) as mes,
+                    COALESCE(SUM(total_venta), 0) as ingresos
+                FROM ventas 
+                WHERE estado = 'Pagada' AND fecha_venta >= DATE_SUB(CURRENT_DATE, INTERVAL :periodo MONTH)
+                GROUP BY YEAR(fecha_venta), MONTH(fecha_venta)
+                ORDER BY año, mes
+            ");
+            $stmt->bindValue(':periodo', $periodo, PDO::PARAM_INT);
+            $stmt->execute();
+            $ingresos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Obtener egresos por mes (compras pagadas)
+            $stmt = $this->db->prepare("
+                SELECT 
+                    YEAR(fecha_compra) as año,
+                    MONTH(fecha_compra) as mes,
+                    COALESCE(SUM(total_compra), 0) as egresos
+                FROM compras 
+                WHERE estado = 'Pagada' AND fecha_compra >= DATE_SUB(CURRENT_DATE, INTERVAL :periodo MONTH)
+                GROUP BY YEAR(fecha_compra), MONTH(fecha_compra)
+                ORDER BY año, mes
+            ");
+            $stmt->bindValue(':periodo', $periodo, PDO::PARAM_INT);
+            $stmt->execute();
+            $egresos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Combinar los resultados
+            $datos = [];
+            foreach ($ingresos as $ingreso) {
+                $key = $ingreso['año'] . '-' . $ingreso['mes'];
+                $datos[$key] = [
+                    'año' => $ingreso['año'],
+                    'mes' => $ingreso['mes'],
+                    'ingresos' => $ingreso['ingresos'],
+                    'egresos' => 0
+                ];
+            }
+
+            foreach ($egresos as $egreso) {
+                $key = $egreso['año'] . '-' . $egreso['mes'];
+                if (isset($datos[$key])) {
+                    $datos[$key]['egresos'] = $egreso['egresos'];
+                } else {
+                    $datos[$key] = [
+                        'año' => $egreso['año'],
+                        'mes' => $egreso['mes'],
+                        'ingresos' => 0,
+                        'egresos' => $egreso['egresos']
+                    ];
+                }
+            }
+
+            // Ordenar por año y mes
+            usort($datos, function($a, $b) {
+                if ($a['año'] == $b['año']) {
+                    return $a['mes'] - $b['mes'];
+                }
+                return $a['año'] - $b['año'];
+            });
+
+            return $datos;
+
+        } catch (PDOException $e) {
+            error_log("Error en getIngresosVsEgresos: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    // Método para obtener la distribución de métodos de pago en el mes actual
+    public function getMetodosPagoMes() {
+        try {
+            $stmt = $this->db->query("
+                SELECT 
+                    metodo_pago,
+                    COUNT(*) as cantidad,
+                    SUM(total_venta) as total
+                FROM ventas 
+                WHERE estado = 'Pagada' AND MONTH(fecha_venta) = MONTH(CURRENT_DATE()) AND YEAR(fecha_venta) = YEAR(CURRENT_DATE())
+                GROUP BY metodo_pago
+            ");
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Error en getMetodosPagoMes: " . $e->getMessage());
+            return [];
         }
     }
 }
