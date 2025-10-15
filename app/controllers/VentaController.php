@@ -13,7 +13,7 @@ class VentaController {
                 FROM ventas v
                 LEFT JOIN clientes c ON v.id_cliente = c.id_cliente
                 LEFT JOIN usuarios u ON v.id_usuario = u.id_usuario
-                ORDER BY v.fecha_venta DESC
+                ORDER BY v.id_venta DESC
             ");
             return $stmt->fetchAll();
         } catch (PDOException $e) {
@@ -80,7 +80,7 @@ class VentaController {
                             if (is_string($precio)) {
                                 $precio = str_replace(',', '.', $precio);
                             }
-                            
+
                             $productos[] = [
                                 'id_producto' => $p['id_producto'],
                                 'cantidad' => (float) $p['cantidad'],
@@ -92,7 +92,7 @@ class VentaController {
 
                 $metodo_pago = $_POST['metodo_pago'] ?? 'Efectivo';
 
-                // 🟢 Estado automático según el tipo de pago
+                // Estado automático según el tipo de pago
                 $estado_venta = in_array(strtolower($metodo_pago), ['efectivo', 'transferencia', 'tarjeta'])
                     ? 'Pagada'
                     : 'Pendiente';
@@ -103,6 +103,8 @@ class VentaController {
                     'id_usuario' => $_POST['id_usuario'] ?? ($_SESSION['id_usuario'] ?? null),
                     'metodo_pago' => $metodo_pago,
                     'total_venta' => $total,
+                    'descuento_aplicado' => floatval($_POST['descuento_aplicado'] ?? 0),
+                    'porcentaje_descuento' => floatval($_POST['porcentaje_descuento'] ?? 0),
                     'estado' => $estado_venta,
                     'productos' => $productos
                 ];
@@ -119,27 +121,24 @@ class VentaController {
                 throw new Exception("El total de la venta debe ser mayor a cero.");
             }
 
-            // Generar código si no viene
+            // Generar código único
             if (empty($datos['codigo_venta'])) {
-                $ultimo = $this->obtenerUltimoCodigo();
-                if ($ultimo) {
-                    $num = (int) filter_var($ultimo, FILTER_SANITIZE_NUMBER_INT);
-                    $datos['codigo_venta'] = 'VENTA' . str_pad($num + 1, 3, '0', STR_PAD_LEFT);
-                } else {
-                    $datos['codigo_venta'] = 'VENTA001';
-                }
+                $datos['codigo_venta'] = $this->generarCodigoUnico();
             }
 
             $this->db->beginTransaction();
 
-            // Intentar insertar venta
             $codigo = $datos['codigo_venta'];
             $attempt = 0;
+            $maxAttempts = 50;
+
+            // Insertar venta con manejo de códigos duplicados
             while (true) {
                 try {
                     $stmt = $this->db->prepare("
-                        INSERT INTO ventas (codigo_venta, id_cliente, id_usuario, metodo_pago, total_venta, estado)
-                        VALUES (:codigo, :cliente, :usuario, :metodo_pago, :total, :estado)
+                        INSERT INTO ventas 
+                        (codigo_venta, id_cliente, id_usuario, metodo_pago, total_venta, estado, descuento_aplicado, porcentaje_descuento)
+                        VALUES (:codigo, :cliente, :usuario, :metodo_pago, :total, :estado, :descuento, :porcentaje)
                     ");
                     $stmt->execute([
                         ':codigo' => $codigo,
@@ -147,19 +146,23 @@ class VentaController {
                         ':usuario' => $datos['id_usuario'],
                         ':metodo_pago' => $datos['metodo_pago'],
                         ':total' => $datos['total_venta'],
-                        ':estado' => $datos['estado']
+                        ':estado' => $datos['estado'],
+                        ':descuento' => $datos['descuento_aplicado'],
+                        ':porcentaje' => $datos['porcentaje_descuento']
                     ]);
                     break;
                 } catch (PDOException $e) {
                     $sqlState = $e->getCode();
                     $errorNo = $e->errorInfo[1] ?? null;
-                    if (($sqlState == '23000' || $errorNo == 1062) && $attempt < 50) {
+                    if (($sqlState == '23000' || $errorNo == 1062) && $attempt < $maxAttempts) {
+                        // Código duplicado, generar uno nuevo
                         $num = (int) filter_var($codigo, FILTER_SANITIZE_NUMBER_INT);
                         $num++;
                         $codigo = 'VENTA' . str_pad($num, 3, '0', STR_PAD_LEFT);
                         $attempt++;
                         continue;
                     }
+                    error_log("Error SQL crear venta: " . $e->getMessage());
                     throw $e;
                 }
             }
@@ -176,9 +179,11 @@ class VentaController {
                     throw new Exception("Producto inválido en el detalle (id: {$idProd}, cantidad: {$cantidad}).");
                 }
 
+                // Verificar existencia y stock del producto
                 $stmt = $this->db->prepare("SELECT stock_actual, nombre_producto FROM productos WHERE id_producto = :id");
                 $stmt->execute([':id' => $idProd]);
                 $productoInfo = $stmt->fetch(PDO::FETCH_ASSOC);
+                
                 if (!$productoInfo) {
                     throw new Exception("El producto con id {$idProd} no existe.");
                 }
@@ -186,7 +191,7 @@ class VentaController {
                     throw new Exception("Stock insuficiente para el producto '{$productoInfo['nombre_producto']}'. Stock disponible: {$productoInfo['stock_actual']}, solicitado: {$cantidad}.");
                 }
 
-                // Insertar detalle
+                // Insertar detalle de venta
                 $stmt = $this->db->prepare("
                     INSERT INTO detalle_ventas (id_venta, id_producto, cantidad, precio_unitario)
                     VALUES (:venta, :producto, :cantidad, :precio)
@@ -198,7 +203,7 @@ class VentaController {
                     ':precio' => $precio_unit
                 ]);
 
-                // Actualizar stock
+                // Actualizar stock del producto
                 $stmt = $this->db->prepare("
                     UPDATE productos 
                     SET stock_actual = stock_actual - :cantidad
@@ -227,8 +232,41 @@ class VentaController {
                 $this->db->rollBack();
             }
             error_log("ERROR crear venta: " . $e->getMessage());
+            error_log("Datos de la venta: " . print_r($datos, true));
             return false;
         }
+    }
+
+    private function generarCodigoUnico() {
+        $attempt = 0;
+        $maxAttempts = 100;
+
+        while ($attempt < $maxAttempts) {
+            // Obtener el último código de venta
+            $stmt = $this->db->query("SELECT codigo_venta FROM ventas ORDER BY id_venta DESC LIMIT 1");
+            $ultimo = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($ultimo && preg_match('/VENTA(\d+)/', $ultimo['codigo_venta'], $matches)) {
+                $num = (int)$matches[1] + 1;
+            } else {
+                $num = 1;
+            }
+
+            $nuevoCodigo = 'VENTA' . str_pad($num, 3, '0', STR_PAD_LEFT);
+
+            // Verificar si el código ya existe
+            $stmt = $this->db->prepare("SELECT COUNT(*) as count FROM ventas WHERE codigo_venta = ?");
+            $stmt->execute([$nuevoCodigo]);
+            $existe = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($existe['count'] == 0) {
+                return $nuevoCodigo;
+            }
+
+            $attempt++;
+        }
+
+        throw new Exception("No se pudo generar un código único después de $maxAttempts intentos");
     }
 
     public function actualizarEstado($id, $estado) {

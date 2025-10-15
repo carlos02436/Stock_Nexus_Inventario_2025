@@ -105,15 +105,54 @@ class FinanzaController {
             // Utilidad del mes
             $utilidad_mes = $ingresos_mes - $egresos_mes;
 
+            // Métodos de pago del mes actual
+            $stmt = $this->db->query("
+                SELECT 
+                    metodo_pago,
+                    COUNT(*) as cantidad,
+                    SUM(monto) as total
+                FROM pagos 
+                WHERE tipo_pago = 'Ingreso' AND MONTH(fecha_pago) = MONTH(CURRENT_DATE())
+                GROUP BY metodo_pago
+            ");
+            $metodosPagoData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Procesar datos de métodos de pago
+            $metodosPago = [
+                'labels' => [],
+                'data' => [],
+                'colors' => []
+            ];
+
+            $colores = ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796'];
+            $colorIndex = 0;
+
+            foreach ($metodosPagoData as $metodo) {
+                $metodosPago['labels'][] = $metodo['metodo_pago'] ?: 'No Especificado';
+                $metodosPago['data'][] = floatval($metodo['total']);
+                $metodosPago['colors'][] = $colores[$colorIndex % count($colores)];
+                $colorIndex++;
+            }
+
             return [
                 'ingresos_mes' => $ingresos_mes,
                 'egresos_mes' => $egresos_mes,
-                'utilidad_mes' => $utilidad_mes
+                'utilidad_mes' => $utilidad_mes,
+                'metodos_pago' => $metodosPago
             ];
 
         } catch (PDOException $e) {
             error_log("Error en getResumenFinanciero: " . $e->getMessage());
-            return ['ingresos_mes' => 0, 'egresos_mes' => 0, 'utilidad_mes' => 0];
+            return [
+                'ingresos_mes' => 0,
+                'egresos_mes' => 0,
+                'utilidad_mes' => 0,
+                'metodos_pago' => [
+                    'labels' => ['Sin datos'],
+                    'data' => [100],
+                    'colors' => ['#858796']
+                ]
+            ];
         }
     }
 }

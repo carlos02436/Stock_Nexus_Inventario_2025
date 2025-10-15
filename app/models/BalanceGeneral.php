@@ -139,25 +139,31 @@ class BalanceGeneral {
     }
 
     // Balance_general
+// Balance_general
     public function obtenerTotalesPorMes($mes = null) {
-        if (!empty($mes)) {
-            $sql = "SELECT 
-                        COALESCE(SUM(total_ingresos), 0) AS total_ingresos,
-                        COALESCE(SUM(total_egresos), 0) AS total_egresos,
-                        COALESCE(SUM(utilidad), 0) AS utilidad_neta
-                    FROM balance_general
-                    WHERE DATE_FORMAT(fecha_balance, '%Y-%m') = :mes";
-            $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':mes', $mes);
-        } else {
-            $sql = "SELECT 
-                        COALESCE(SUM(total_ingresos), 0) AS total_ingresos,
-                        COALESCE(SUM(total_egresos), 0) AS total_egresos,
-                        COALESCE(SUM(utilidad), 0) AS utilidad_neta
-                    FROM balance_general";
-            $stmt = $this->db->prepare($sql);
+        try {
+            if (!empty($mes)) {
+                $sql = "SELECT 
+                            COALESCE(SUM(total_ingresos), 0) AS total_ingresos,
+                            COALESCE(SUM(total_egresos), 0) AS total_egresos,
+                            COALESCE(SUM(total_ingresos - total_egresos), 0) AS utilidad_neta
+                        FROM balance_general
+                        WHERE DATE_FORMAT(fecha_balance, '%Y-%m') = :mes";
+                $stmt = $this->db->prepare($sql);
+                $stmt->bindParam(':mes', $mes);
+            } else {
+                $sql = "SELECT 
+                            COALESCE(SUM(total_ingresos), 0) AS total_ingresos,
+                            COALESCE(SUM(total_egresos), 0) AS total_egresos,
+                            COALESCE(SUM(total_ingresos - total_egresos), 0) AS utilidad_neta
+                        FROM balance_general";
+                $stmt = $this->db->prepare($sql);
+            }
+            $stmt->execute();
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Error en obtenerTotalesPorMes: " . $e->getMessage());
+            return ['total_ingresos' => 0, 'total_egresos' => 0, 'utilidad_neta' => 0];
         }
-        $stmt->execute();
-        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 }

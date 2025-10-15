@@ -304,6 +304,41 @@ try {
             max-width: 100%;
             margin: 0 auto;
         }
+        .interpretacion {
+            margin-top: 30px; 
+            padding: 15px; 
+            background: #f8f9fa; 
+            border-radius: 5px;
+            border-left: 4px solid #007bff;
+        }
+        .interpretacion h4 {
+            color: #003366;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .interpretacion-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .indicadores-positivos h5 {
+            color: #28a745; 
+            margin-bottom: 8px;
+        }
+        .areas-mejora h5 {
+            color: #dc3545; 
+            margin-bottom: 8px;
+        }
+        .interpretacion ul {
+            font-size: 11px; 
+            color: #333;
+            margin: 0;
+            padding-left: 15px;
+        }
+        .interpretacion li {
+            margin-bottom: 5px;
+        }
     </style>
 </head>
 <body>
@@ -364,6 +399,66 @@ try {
         <?php else: ?>
             <p style="color: #dc3545; font-style: italic;">El gráfico no está disponible temporalmente. Por favor, instale la extensión GD de PHP.</p>
         <?php endif; ?>
+    </div>
+
+    <!-- Sección de Interpretación -->
+    <div class="interpretacion">
+        <h4>Interpretación del Balance General</h4>
+        <div class="interpretacion-grid">
+            <div class="indicadores-positivos">
+                <h5>Indicadores Positivos</h5>
+                <ul>
+                    <li><strong>Crecimiento en ingresos:</strong> Tendencias ascendentes indican expansión del negocio</li>
+                    <li><strong>Utilidad consistente:</strong> Meses con resultados positivos muestran estabilidad</li>
+                    <li><strong>Control de gastos:</strong> Egresos proporcionales a los ingresos</li>
+                    <li><strong>Márgenes saludables:</strong> Porcentajes superiores al 15% son óptimos</li>
+                </ul>
+            </div>
+            <div class="areas-mejora">
+                <h5>Áreas de Mejora</h5>
+                <ul>
+                    <li><strong>Reducción de costos:</strong> Identificar gastos innecesarios</li>
+                    <li><strong>Optimización de recursos:</strong> Mejorar eficiencia operativa</li>
+                    <li><strong>Diversificación de ingresos:</strong> Explorar nuevas fuentes de revenue</li>
+                    <li><strong>Gestión de flujo de caja:</strong> Mantener liquidez adecuada</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Análisis de Rentabilidad -->
+        <div style="margin-top: 20px; padding: 15px; background: white; border-radius: 5px; border: 1px solid #ddd;">
+            <h5 style="color: #003366; margin-bottom: 10px; text-align: center;">Análisis de Rentabilidad</h5>
+            <div style="font-size: 11px; color: #333;">
+                <p><strong>Margen Neto Promedio:</strong> 
+                    <?php 
+                    $margenPromedio = $totalesAcumulados['total_ingresos'] > 0 ? 
+                        ($totalesAcumulados['utilidad_neta'] / $totalesAcumulados['total_ingresos']) * 100 : 0;
+                    echo number_format($margenPromedio, 2) . '%';
+                    ?>
+                    <?php if ($margenPromedio >= 20): ?>
+                        <span style="color: #28a745;"> (Excelente)</span>
+                    <?php elseif ($margenPromedio >= 10): ?>
+                        <span style="color: #ffc107;"> (Bueno)</span>
+                    <?php else: ?>
+                        <span style="color: #dc3545;"> (Necesita mejora)</span>
+                    <?php endif; ?>
+                </p>
+                <p><strong>Relación Ingresos/Egresos:</strong> 
+                    <?php 
+                    $relacion = $totalesAcumulados['total_egresos'] > 0 ? 
+                        ($totalesAcumulados['total_ingresos'] / $totalesAcumulados['total_egresos']) : 0;
+                    echo number_format($relacion, 2) . ':1';
+                    ?>
+                    <?php if ($relacion >= 1.5): ?>
+                        <span style="color: #28a745;"> (Saludable)</span>
+                    <?php elseif ($relacion >= 1.2): ?>
+                        <span style="color: #ffc107;"> (Aceptable)</span>
+                    <?php else: ?>
+                        <span style="color: #dc3545;"> (Crítico)</span>
+                    <?php endif; ?>
+                </p>
+            </div>
+        </div>
     </div>
 
     <!-- Footer profesional -->
