@@ -90,7 +90,7 @@ $ventas = $ventaController->listar();
                                         isset($_SESSION['rol']) && 
                                         stripos(trim($_SESSION['rol']), 'admin') !== false
                                     ): ?>
-                                        <a href="index.php?page=revertir_anulacion&id=<?= $venta['id_venta'] ?>" 
+                                        <a href="index.php?page=revertir_anulacion&codigo=<?= urlencode($venta['codigo_venta']) ?>" 
                                         class="btn btn-warning" title="Revertir Anulación">
                                             <i class="fas fa-undo"></i>
                                         </a>

@@ -201,7 +201,6 @@ echo "<!-- ================= -->";
                             </tbody>
                         </table>
                     </div>
-                    <a href="index.php?page=ventas" class="btn btn-sm btn-neon">Ver todas las ventas</a>
                 </div>
             </div>
         </div>
