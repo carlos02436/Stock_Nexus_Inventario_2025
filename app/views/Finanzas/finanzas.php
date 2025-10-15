@@ -156,7 +156,7 @@ try {
     <div class="row">
         <!-- Gráfico de Ingresos vs Egresos -->
         <div class="col-lg-8 mb-4">
-            <div class="card h-100 shadow-lg border-0">
+            <div class="card h-100 shadow-lg border-green">
                 <div class="card-header">
                     <h5 class="text-center m-2 fw-bold text-white py-2">Evolución de Ingresos vs Egresos (Últimos 6 Meses)</h5>
                 </div>
@@ -168,7 +168,7 @@ try {
 
         <!-- Gráfico de Métodos de Pago -->
         <div class="col-lg-4 mb-4">
-            <div class="card h-100 shadow-lg border-0">
+            <div class="card h-100 shadow-lg border-green">
                 <div class="card-header">
                     <h5 class="text-center m-2 fw-bold text-white py-2">Métodos de Pago (Ventas del Mes)</h5>
                 </div>

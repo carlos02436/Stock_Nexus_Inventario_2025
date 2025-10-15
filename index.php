@@ -249,6 +249,14 @@ switch ($page) {
         include __DIR__ . '/app/views/ventas/actualizar_estado_venta.php';
         break;
 
+    case 'anular_venta':
+        include __DIR__ . '/app/views/ventas/anular_venta.php';
+        break;
+
+    case 'revertir_anulacion':
+        include __DIR__ . '/app/views/ventas/revertir_anulacion.php';
+        break;
+
     // ==================== CLIENTES ====================
     case 'clientes':
         include __DIR__ . '/app/views/clientes/clientes.php';

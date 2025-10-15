@@ -200,8 +200,8 @@ sort($categoriasUnicas);
     <!-- Lista de Productos -->
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="card-title mb-0">
-                <i class="fas fa-list me-2"></i>Lista de Productos en Inventario
+            <h5 class="card-title mb-0 text-white">
+                <i class="fas fa-list me-2 text-white"></i>Lista de Productos en Inventario
             </h5>
             <div class="text-muted small" id="contadorProductos">
                 Mostrando <?= count($productos) ?> productos

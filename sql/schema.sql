@@ -153,6 +153,8 @@ CREATE TABLE IF NOT EXISTS `ventas` (
   `fecha_venta` datetime DEFAULT current_timestamp(),
   `metodo_pago` enum('Efectivo','Transferencia','Tarjeta','Crédito') DEFAULT 'Efectivo',
   `total_venta` decimal(14,2) DEFAULT 0.00,
+  `descuento_aplicado` decimal(10,2) DEFAULT 0.00,
+  `porcentaje_descuento` decimal(5,2) DEFAULT 0.00,
   `estado` enum('Pendiente','Pagada','Anulada') DEFAULT 'Pendiente',
   PRIMARY KEY (`id_venta`),
   UNIQUE KEY `uk_ventas_codigo` (`codigo_venta`),
