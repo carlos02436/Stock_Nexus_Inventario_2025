@@ -50,7 +50,7 @@ $nombreUsuario = $_SESSION['usuario_nombre'] ?? 'Usuario';
                     <li class="nav-item me-4"><a class="nav-link text-white" href="index.php?page=inventario">Inventario</a></li>
 
                     <!-- Finanzas -->
-                    <?php if (!in_array($rol, ['Vendedor', 'Compras', 'Contador'])): ?>
+                    <?php if (!in_array($rol, ['Vendedor', 'Compras', 'Contador', 'Bodeguero'])): ?>
                         <li class="nav-item me-4"><a class="nav-link text-white" href="index.php?page=finanzas">Finanzas</a></li>
                     <?php endif; ?>
 
@@ -60,7 +60,7 @@ $nombreUsuario = $_SESSION['usuario_nombre'] ?? 'Usuario';
                     <?php endif; ?>
 
                     <!-- Reportes -->
-                    <?php if (!in_array($rol, ['Vendedor', 'Compras', 'Contador'])): ?>
+                    <?php if (!in_array($rol, ['Vendedor', 'Compras', 'Contador', 'Bodeguero'])): ?>
                         <li class="nav-item me-4"><a class="nav-link text-white" href="index.php?page=reportes">Reportes</a></li>
                     <?php endif; ?>
 
