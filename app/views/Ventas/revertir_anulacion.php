@@ -53,11 +53,11 @@ try {
     }
 
     // 🔁 Volver al listado
-    header("Location: index.php?page=ventas");
+    header("Location: index.php?page=ventas#historial_ventas");
     exit;
 
 } catch (PDOException $e) {
     // En caso de error, redirigir sin mensajes
-    header("Location: index.php?page=ventas");
+    header("Location: index.php?page=ventas#historial_ventas");
     exit;
 }

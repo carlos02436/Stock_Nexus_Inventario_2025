@@ -22,15 +22,68 @@ $ventas = $ventaController->listar();
         </div>
     </div>
 
-    <div class="card">
-        <div class="card-header">
+    <!-- Contenedor de Filtros -->
+    <div class="card py-3 mb-4">
+        <div class="card-header text-white">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-filter me-2"></i>Filtros de Búsqueda
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-2">
+                    <label for="filtroCodigo" class="form-label small text-white">Código</label>
+                    <input type="text" id="filtroCodigo" class="form-control form-control-sm" 
+                           placeholder="Código venta...">
+                </div>
+                <div class="col-md-3">
+                    <label for="filtroCliente" class="form-label small text-white">Cliente</label>
+                    <input type="text" id="filtroCliente" class="form-control form-control-sm" 
+                           placeholder="Nombre cliente...">
+                </div>
+                <div class="col-md-2">
+                    <label for="filtroFecha" class="form-label small text-white">Fecha</label>
+                    <input type="text" id="filtroFecha" class="form-control form-control-sm" 
+                           placeholder="dd/mm/aaaa...">
+                </div>
+                <div class="col-md-2">
+                    <label for="filtroMetodoPago" class="form-label small text-white">Método Pago</label>
+                    <select id="filtroMetodoPago" class="form-select form-select-sm">
+                        <option value="">Todos los métodos</option>
+                        <option value="Tarjeta">Tarjeta</option>
+                        <option value="Transferencia">Transferencia</option>
+                        <option value="Efectivo">Efectivo</option>
+                        <option value="Crédito">Crédito</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="filtroEstado" class="form-label small text-white">Estado</label>
+                    <select id="filtroEstado" class="form-select form-select-sm">
+                        <option value="">Todos los estados</option>
+                        <option value="Pagada">Pagada</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="Anulada">Anulada</option>
+                    </select>
+                </div>
+                <div class="col-md-1">
+                    <label class="form-label small d-block">&nbsp;</label>
+                    <button id="btnLimpiarFiltros" class="btn btn-danger w-150">
+                        <i class="fas fa-undo me-1"></i>Limpiar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="historial_ventas" class="card">
+        <div class="card-header py-4">
             <h5 class="card-title mb-0 text-white">
                 <i class="fas fa-list me-2 text-white"></i>Historial de Ventas
             </h5>
         </div>
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-striped table-hover">
+                <table class="table table-striped table-hover" id="tablaVentas">
                     <thead class="table-dark">
                         <tr>
                             <th>Código</th>
@@ -44,15 +97,15 @@ $ventas = $ventaController->listar();
                     </thead>
                     <tbody>
                         <?php foreach ($ventas as $venta): ?>
-                        <tr>
-                            <td><?= $venta['codigo_venta'] ?></td>
-                            <td><?= $venta['nombre_cliente'] ?: 'Cliente General' ?></td>
-                            <td><?= date('d/m/Y H:i', strtotime($venta['fecha_venta'])) ?></td>
-                            <td>$<?= number_format($venta['total_venta'], 2, ',', '.') ?></td>
-                            <td>
+                        <tr class="fila-venta">
+                            <td class="codigo-venta"><?= $venta['codigo_venta'] ?></td>
+                            <td class="nombre-cliente"><?= $venta['nombre_cliente'] ?: 'Cliente General' ?></td>
+                            <td class="fecha-venta"><?= date('d/m/Y H:i', strtotime($venta['fecha_venta'])) ?></td>
+                            <td class="total-venta">$<?= number_format($venta['total_venta'], 2, ',', '.') ?></td>
+                            <td class="metodo-pago">
                                 <span class="badge bg-info"><?= $venta['metodo_pago'] ?></span>
                             </td>
-                            <td>
+                            <td class="estado-venta">
                                 <span class="badge bg-<?= 
                                     $venta['estado'] == 'Pagada' ? 'success' : 
                                     ($venta['estado'] == 'Pendiente' ? 'warning' : 'danger') 
@@ -60,7 +113,7 @@ $ventas = $ventaController->listar();
                                     <?= $venta['estado'] ?>
                                 </span>
                             </td>
-                            <td>
+                            <td class="acciones-venta">
                                 <div class="btn-group btn-group-sm">
                                     <!-- Ver detalle -->
                                     <a href="index.php?page=detalle_venta&id=<?= $venta['id_venta'] ?>" 
@@ -105,3 +158,65 @@ $ventas = $ventaController->listar();
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const filtroCodigo = document.getElementById('filtroCodigo');
+    const filtroCliente = document.getElementById('filtroCliente');
+    const filtroFecha = document.getElementById('filtroFecha');
+    const filtroMetodoPago = document.getElementById('filtroMetodoPago');
+    const filtroEstado = document.getElementById('filtroEstado');
+    const btnLimpiar = document.getElementById('btnLimpiarFiltros');
+    const filasVentas = document.querySelectorAll('.fila-venta');
+    
+    // Array con todos los filtros
+    const filtros = [filtroCodigo, filtroCliente, filtroFecha, filtroMetodoPago, filtroEstado];
+    
+    // Función para filtrar las ventas
+    function filtrarVentas() {
+        const valoresFiltros = {
+            codigo: filtroCodigo.value.toLowerCase().trim(),
+            cliente: filtroCliente.value.toLowerCase().trim(),
+            fecha: filtroFecha.value.toLowerCase().trim(),
+            metodoPago: filtroMetodoPago.value,
+            estado: filtroEstado.value
+        };
+        
+        filasVentas.forEach(fila => {
+            const codigo = fila.querySelector('.codigo-venta').textContent.toLowerCase();
+            const cliente = fila.querySelector('.nombre-cliente').textContent.toLowerCase();
+            const fecha = fila.querySelector('.fecha-venta').textContent.toLowerCase();
+            const metodoPago = fila.querySelector('.metodo-pago').textContent.trim();
+            const estado = fila.querySelector('.estado-venta').textContent.trim();
+            
+            // Verificar si la fila coincide con todos los filtros activos
+            const coincide = 
+                (!valoresFiltros.codigo || codigo.includes(valoresFiltros.codigo)) &&
+                (!valoresFiltros.cliente || cliente.includes(valoresFiltros.cliente)) &&
+                (!valoresFiltros.fecha || fecha.includes(valoresFiltros.fecha)) &&
+                (!valoresFiltros.metodoPago || metodoPago === valoresFiltros.metodoPago) &&
+                (!valoresFiltros.estado || estado === valoresFiltros.estado);
+            
+            // Mostrar u ocultar la fila según si coincide
+            fila.style.display = coincide ? '' : 'none';
+        });
+    }
+    
+    // Eventos para todos los filtros
+    filtros.forEach(filtro => {
+        filtro.addEventListener('input', filtrarVentas);
+        filtro.addEventListener('change', filtrarVentas);
+    });
+    
+    // Evento para el botón limpiar filtros
+    btnLimpiar.addEventListener('click', function() {
+        filtroCodigo.value = '';
+        filtroCliente.value = '';
+        filtroFecha.value = '';
+        filtroMetodoPago.value = '';
+        filtroEstado.value = '';
+        filtrarVentas();
+        filtroCodigo.focus();
+    });
+});
+</script>

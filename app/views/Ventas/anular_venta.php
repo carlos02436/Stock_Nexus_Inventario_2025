@@ -9,7 +9,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 // Validar que se envíe el id_venta
 if (!isset($_GET['id']) || empty($_GET['id'])) {
-    header("Location: index.php?page=ventas");
+    header("Location: index.php?page=ventas#historial_ventas");
     exit;
 }
 
@@ -25,13 +25,13 @@ try {
     $venta = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$venta) {
-        header("Location: index.php?page=ventas");
+        header("Location: index.php?page=ventas#historial_ventas");
         exit;
     }
 
     // Si ya está anulada, no hacer nada
     if ($venta['estado'] === 'Anulada') {
-        header("Location: index.php?page=ventas");
+        header("Location: index.php?page=ventas#historial_ventas");
         exit;
     }
 
@@ -72,11 +72,11 @@ try {
     }
 
     // Redirigir de nuevo
-    header("Location: index.php?page=ventas");
+    header("Location: index.php?page=ventas#historial_ventas");
     exit;
-
+    
 } catch (PDOException $e) {
     error_log("Error al anular venta: " . $e->getMessage());
-    header("Location: index.php?page=ventas");
+    header("Location: index.php?page=ventas#historial_ventas");
     exit;
 }
