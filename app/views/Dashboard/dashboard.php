@@ -68,7 +68,8 @@ echo "<!-- ================= -->";
     <!-- Estadísticas principales -->
     <div class="row mb-4">
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card stat-card h-100">
+            <div class="card stat-card h-100"
+                 style="border-left: 4px solid #ff3c00ff !important;">
                 <div class="card-body">
                     <div class="row align-items-center">
                         <div class="col">
@@ -86,7 +87,8 @@ echo "<!-- ================= -->";
         </div>
 
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card stat-card h-100">
+            <div class="card stat-card h-100"
+                 style="border-left: 4px solid #c300ffff !important;">
                 <div class="card-body">
                     <div class="row align-items-center">
                         <div class="col">
@@ -104,7 +106,7 @@ echo "<!-- ================= -->";
                             <div class="h5 mb-0 font-weight-bold text-white">
                                 $<?= number_format($estadisticas['ingresos_ventas_mes'] ?? 0, 2) ?>
                             </div>
-                            <small class="text-white-50">
+                            <small class="text-white">
                                 <?= $estadisticas['cantidad_ventas'] ?? 0 ?> ventas
                                 <?php if (($estadisticas['ventas_pagadas'] ?? 0) > 0): ?>
                                     <br><?= $estadisticas['cantidad_pagadas'] ?? 0 ?> pagadas
@@ -120,7 +122,8 @@ echo "<!-- ================= -->";
         </div>
 
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card stat-card h-100">
+            <div class="card stat-card h-100"
+                  style="border-left: 4px solid #ffff04ff !important;">
                 <div class="card-body">
                     <div class="row align-items-center">
                         <div class="col">
@@ -138,7 +141,8 @@ echo "<!-- ================= -->";
         </div>
 
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card stat-card h-100">
+            <div class="card stat-card h-100"
+                 style="border-left: 4px solid #42f810ff !important;">
                 <div class="card-body">
                     <div class="row align-items-center">
                         <div class="col">

@@ -339,12 +339,12 @@ switch ($page) {
         include __DIR__ . '/app/views/reportes/reporte_compras.php';
         break;
 
-    case 'generar_pdf':
-        include __DIR__ . '/app/views/reportes/generar_pdf.php';
+    case 'generar_pdf_reporte':
+        include __DIR__ . '/app/views/Reportes/generar_pdf_reporte.php';
         break;
 
-    case 'generar_excel':
-        include __DIR__ . '/app/views/reportes/generar_excel.php';
+    case 'generar_excel_reporte':
+        include __DIR__ . '/app/views/Reportes/generar_excel_reporte.php';
         break;
 
     // ==================== USUARIOS ====================

@@ -20,11 +20,11 @@ $ventasPendientes = count(array_filter($ventasActivas, fn($v) => $v['estado'] ==
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom border-light">
         <h1 class="h2"><i class="fas fa-shopping-cart me-2"></i>Reporte de Ventas</h1>
         <div class="btn-toolbar mb-2 mb-md-2">
-            <a href="index.php?page=generar_pdf&tipo=ventas&fecha_inicio=<?= $fecha_inicio ?>&fecha_fin=<?= $fecha_fin ?>" 
+            <a href="index.php?page=generar_pdf_reporte&tipo=ventas&fecha_inicio=<?= $fecha_inicio ?>&fecha_fin=<?= $fecha_fin ?>" 
                class="btn btn-danger me-2">
                 <i class="fas fa-file-pdf me-2"></i>PDF
             </a>
-            <a href="index.php?page=generar_excel&tipo=ventas&fecha_inicio=<?= $fecha_inicio ?>&fecha_fin=<?= $fecha_fin ?>" 
+            <a href="index.php?page=generar_excel_reporte&tipo=ventas&fecha_inicio=<?= $fecha_inicio ?>&fecha_fin=<?= $fecha_fin ?>" 
                class="btn btn-success">
                 <i class="fas fa-file-excel me-2"></i>Excel
             </a>
