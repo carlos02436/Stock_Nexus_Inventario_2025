@@ -38,7 +38,7 @@ sort($usuariosUnicos);
          style="margin-top:180px;">
         <h1 class="h2"><i class="fas fa-exchange-alt me-2"></i>Movimientos de Bodega</h1>
         <div class="btn-toolbar mb-2 mb-md-0">
-            <a href="index.php?page=inventario" class="btn btn-warning me-2">
+            <a href="index.php?page=inventario" class="btn btn-secondary me-2">
                 <i class="fas fa-arrow-left me-2"></i>Volver al Inventario
             </a>
             <a href="index.php?page=crear_movimiento" class="btn btn-neon">

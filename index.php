@@ -347,6 +347,30 @@ switch ($page) {
         include __DIR__ . '/app/views/Reportes/generar_excel_reporte.php';
         break;
 
+    case 'generar_pdf_inventario':
+        include __DIR__ . '/app/views/Reportes/generar_pdf_inventario.php';
+        break;
+
+    case 'generar_excel_inventario':
+        include __DIR__ . '/app/views/Reportes/generar_excel_inventario.php';
+        break;
+
+    case 'generar_pdf_compras':
+        include __DIR__ . '/app/views/Reportes/generar_pdf_compras.php';
+        break;
+
+    case 'generar_excel_compras':
+        include __DIR__ . '/app/views/Reportes/generar_excel_compras.php';
+        break;
+
+    case 'generar_pdf_finanzas':
+        include __DIR__ . '/app/views/Reportes/generar_pdf_finanzas.php';
+        break;
+
+    case 'generar_excel_finanzas':
+        include __DIR__ . '/app/views/Reportes/generar_excel_finanzas.php';
+        break;
+
     // ==================== USUARIOS ====================
     case 'usuarios':
         if ($_SESSION['usuario_rol'] !== 'Administrador') {
