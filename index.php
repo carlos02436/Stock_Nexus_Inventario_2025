@@ -221,6 +221,14 @@ switch ($page) {
         include __DIR__ . '/app/views/compras/marcar_compra_pagada.php';
         break;
 
+    case 'reanudar_compra':
+        include __DIR__ . '/app/views/Compras/reanudar_compra.php';
+        break;
+
+    case 'anular_compra':
+        include __DIR__ . '/app/views/Compras/anular_compra.php';
+        break;
+
     // ==================== VENTAS ====================
     case 'ventas':
         include __DIR__ . '/app/views/ventas/ventas.php';

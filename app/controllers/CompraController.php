@@ -81,10 +81,10 @@ class CompraController {
         try {
             $this->db->beginTransaction();
 
-            // Insertar compra
+            // Insertar compra - CORREGIR los nombres de las columnas
             $stmt = $this->db->prepare("
-                INSERT INTO compras (codigo_compra, id_proveedor, id_usuario, total_compra, descuento, estado)
-                VALUES (:codigo, :proveedor, :usuario, :total, :descuento, :estado)
+                INSERT INTO compras (codigo_compra, id_proveedor, id_usuario, total_compra, estado, descuento_aplicado, porcentaje_descuento)
+                VALUES (:codigo, :proveedor, :usuario, :total, :estado, :descuento_aplicado, :porcentaje_descuento)
             ");
             
             $stmt->execute([
@@ -92,13 +92,14 @@ class CompraController {
                 ':proveedor' => $datos['id_proveedor'],
                 ':usuario' => $datos['id_usuario'],
                 ':total' => $datos['total_compra'],
-                ':descuento' => $datos['descuento'] ?? 0,
-                ':estado' => $datos['estado'] ?? 'Pagada'
+                ':estado' => $datos['estado'] ?? 'Pagada',
+                ':descuento_aplicado' => $datos['descuento'] ?? 0, // Cambiar clave aquí
+                ':porcentaje_descuento' => $datos['porcentaje_descuento'] ?? 0 // Agregar esta línea
             ]);
 
             $id_compra = $this->db->lastInsertId();
 
-            // Insertar detalles y actualizar stock
+            // El resto del código se mantiene igual...
             foreach ($datos['productos'] as $producto) {
                 // Insertar detalle
                 $stmt = $this->db->prepare("

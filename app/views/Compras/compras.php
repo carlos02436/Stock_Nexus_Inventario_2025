@@ -77,7 +77,7 @@ $estados = ['Todos' => '', 'Pagada' => 'Pagada', 'Pendiente' => 'Pendiente', 'An
                 <i class="fas fa-list me-2"></i>Historial de Compras
             </h5>
         </div>
-        <div class="card-body">
+        <div id="historial_compras" class="card-body">
             <div class="table-responsive">
                 <table class="table table-striped table-hover" id="tabla-compras">
                     <thead class="table-dark">

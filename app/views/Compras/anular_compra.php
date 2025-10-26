@@ -1,39 +1,49 @@
 <?php
-// app/controllers/anular_compra.php
-session_start();
+// app/views/ventas/anular_venta.php
 
-// Verificar si el usuario es administrador
-if (!isset($_SESSION['usuario']) || $_SESSION['rol'] != 'administrador') {
-    $_SESSION['error'] = 'Acceso denegado. Se requiere rol de administrador.';
-    header('Location: index.php?page=login');
-    exit();
+require_once __DIR__ . '/../../../config/database.php';
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
 
+// Validar que se envíe el id_venta
 if (!isset($_GET['id']) || empty($_GET['id'])) {
-    $_SESSION['error'] = 'ID de compra no válido';
-    header('Location: index.php?page=compras');
-    exit();
+    header("Location: index.php?page=compras#historial_compras");
+    exit;
 }
 
 $id_compra = $_GET['id'];
 
 try {
+    // Incluir los controladores con la ruta correcta desde views/Compras
+    require_once __DIR__ . '/../../controllers/CompraController.php';
+    require_once __DIR__ . '/../../controllers/InventarioController.php';
+    
     $compraController = new CompraController($db);
     $inventarioController = new InventarioController($db);
     
-    // Obtener los detalles de la compra para actualizar el inventario
-    $detalles_compra = $compraController->obtenerDetalle($id_compra);
+    // Obtener la compra completa
+    $compra = $compraController->obtener($id_compra);
     
-    if (!$detalles_compra) {
+    if (!$compra) {
         $_SESSION['error'] = 'Compra no encontrada';
         header('Location: index.php?page=compras');
         exit();
     }
     
     // Verificar que la compra no esté ya anulada
-    $compra = $compraController->obtener($id_compra);
     if ($compra['estado'] == 'Anulada') {
         $_SESSION['error'] = 'La compra ya está anulada';
+        header('Location: index.php?page=compras');
+        exit();
+    }
+    
+    // Obtener los detalles de la compra para actualizar el inventario
+    $detalles_compra = $compraController->obtenerDetalle($id_compra);
+    
+    if (!$detalles_compra) {
+        $_SESSION['error'] = 'No se encontraron detalles de la compra';
         header('Location: index.php?page=compras');
         exit();
     }
@@ -47,13 +57,16 @@ try {
             $id_producto = $detalle['id_producto'];
             $cantidad = $detalle['cantidad'];
             
+            // Usar el ID de usuario de la sesión o de la compra
+            $id_usuario = $_SESSION['id_usuario'] ?? $compra['id_usuario'] ?? 1; // Fallback a 1 si no existe
+            
             // Crear movimiento de salida para anulación
             $datosMovimiento = [
                 'id_producto' => $id_producto,
                 'tipo_movimiento' => 'Salida',
                 'cantidad' => $cantidad,
                 'descripcion' => "Anulación de compra #" . $compra['codigo_compra'],
-                'id_usuario' => $_SESSION['id_usuario'] // Asegúrate de tener este dato en sesión
+                'id_usuario' => $id_usuario
             ];
             
             $inventarioController->crearMovimiento($datosMovimiento);
@@ -65,7 +78,8 @@ try {
     }
     
 } catch (Exception $e) {
-    $_SESSION['error'] = 'Error: ' . $e->getMessage();
+    error_log("Error en anular_compra: " . $e->getMessage());
+    $_SESSION['error'] = 'Error al procesar la anulación: ' . $e->getMessage();
 }
 
 header('Location: index.php?page=compras');
