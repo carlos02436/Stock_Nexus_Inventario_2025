@@ -6,7 +6,6 @@ CREATE DATABASE IF NOT EXISTS stock_nexus_inventario_2025
 USE stock_nexus_inventario_2025;
 
 -- --------------------------------------------------------
-
 --
 -- Estructura de tabla para la tabla `balance_general`
 --
@@ -111,26 +110,41 @@ CREATE TABLE `compras` (
   `id_usuario` int(11) NOT NULL,
   `fecha_compra` datetime DEFAULT current_timestamp(),
   `total_compra` decimal(14,2) DEFAULT 0.00,
-  `estado` enum('Pendiente','Pagada','Anulada') DEFAULT 'Pendiente'
+  `estado` enum('Pendiente','Pagada','Anulada') DEFAULT 'Pendiente',
+  `descuento_aplicado` decimal(10,2) DEFAULT 0.00,
+  `porcentaje_descuento` decimal(5,2) DEFAULT 0.00
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `compras`
 --
 
-INSERT INTO `compras` (`id_compra`, `codigo_compra`, `id_proveedor`, `id_usuario`, `fecha_compra`, `total_compra`, `estado`) VALUES
-(1, 'COMP001', 1, 6, '2025-10-07 14:26:30', 500.00, 'Pagada'),
-(2, 'COMP002', 2, 6, '2025-10-07 14:26:30', 800.00, 'Pagada'),
-(3, 'COMP003', 3, 7, '2025-10-07 14:26:30', 200.00, 'Pagada'),
-(4, 'COMP004', 4, 7, '2025-10-07 14:26:30', 1000.00, 'Anulada'),
-(5, 'COMP005', 5, 6, '2025-10-07 14:26:30', 300.00, 'Pagada'),
-(6, 'COMP006', 6, 6, '2025-10-07 14:26:30', 150.00, 'Pagada'),
-(7, 'COMP007', 7, 7, '2025-10-07 14:26:30', 120.00, 'Pagada'),
-(8, 'COMP008', 8, 6, '2025-10-07 14:26:30', 250.00, 'Pagada'),
-(9, 'COMP009', 9, 7, '2025-10-07 14:26:30', 400.00, 'Pagada'),
-(10, 'COMP010', 10, 6, '2025-10-07 14:26:30', 700.00, 'Pagada'),
-(11, 'COMP011', 4, 1, '2025-10-13 21:29:08', 3750000.00, 'Pagada'),
-(12, 'COMP012', 9, 1, '2025-10-14 12:28:35', 1600000.00, 'Pagada');
+INSERT INTO `compras` (`id_compra`, `codigo_compra`, `id_proveedor`, `id_usuario`, `fecha_compra`, `total_compra`, `estado`, `descuento_aplicado`, `porcentaje_descuento`) VALUES
+(1, 'COMP001', 1, 6, '2025-10-07 14:26:30', 500.00, 'Pagada', 0.00, 0.00),
+(2, 'COMP002', 2, 6, '2025-10-07 14:26:30', 800.00, 'Pagada', 0.00, 0.00),
+(3, 'COMP003', 3, 7, '2025-10-07 14:26:30', 200.00, 'Pagada', 0.00, 0.00),
+(4, 'COMP004', 4, 7, '2025-10-07 14:26:30', 1000.00, 'Pagada', 0.00, 0.00),
+(5, 'COMP005', 5, 6, '2025-10-07 14:26:30', 300.00, 'Pagada', 0.00, 0.00),
+(6, 'COMP006', 6, 6, '2025-10-07 14:26:30', 150.00, 'Pagada', 0.00, 0.00),
+(7, 'COMP007', 7, 7, '2025-10-07 14:26:30', 120.00, 'Pagada', 0.00, 0.00),
+(8, 'COMP008', 8, 6, '2025-10-07 14:26:30', 250.00, 'Pagada', 0.00, 0.00),
+(9, 'COMP009', 9, 7, '2025-10-07 14:26:30', 400.00, 'Pagada', 0.00, 0.00),
+(10, 'COMP010', 10, 6, '2025-10-07 14:26:30', 700.00, 'Pagada', 0.00, 0.00),
+(11, 'COMP011', 4, 1, '2025-10-13 21:29:08', 3750000.00, 'Pagada', 0.00, 0.00),
+(12, 'COMP012', 9, 1, '2025-10-14 12:28:35', 1600000.00, 'Pagada', 0.00, 0.00),
+(13, 'COMP013', 9, 1, '2025-10-26 17:13:38', 245000.00, 'Pagada', 0.00, 2.00);
+
+--
+-- Disparadores `compras`
+--
+DELIMITER $$
+CREATE TRIGGER `before_insert_compras` BEFORE INSERT ON `compras` FOR EACH ROW BEGIN
+    IF NEW.codigo_compra IS NULL OR NEW.codigo_compra = '' THEN
+        SET NEW.codigo_compra = CONCAT('COMP', LPAD(NEW.id_compra, 3, '0'));
+    END IF;
+END
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -283,7 +297,8 @@ INSERT INTO `detalle_compras` (`id_detalle`, `id_compra`, `id_producto`, `cantid
 (9, 9, 9, 5.00, 30.00),
 (10, 10, 10, 2.00, 80.00),
 (11, 11, 4, 15.00, 250000.00),
-(12, 12, 10, 20.00, 80000.00);
+(12, 12, 10, 20.00, 80000.00),
+(13, 13, 2, 5.00, 0.00);
 
 -- --------------------------------------------------------
 
@@ -341,7 +356,8 @@ INSERT INTO `detalle_ventas` (`id_detalle`, `id_venta`, `id_producto`, `cantidad
 (34, 80, 8, 3.00, 4000.00),
 (35, 80, 5, 1.00, 30000.00),
 (36, 80, 6, 1.00, 5500.00),
-(37, 81, 1, 1.00, 35000.00);
+(37, 81, 1, 1.00, 35000.00),
+(38, 82, 6, 5.00, 5500.00);
 
 -- --------------------------------------------------------
 
@@ -467,7 +483,25 @@ INSERT INTO `movimientos_bodega` (`id_movimiento`, `id_producto`, `tipo_movimien
 (55, 6, 'Entrada', 1.00, 'Reversión por anulación de venta ID 80', NULL, '2025-10-14 23:18:35'),
 (56, 10, 'Entrada', 4.00, 'Reversión por anulación de venta ID 79', NULL, '2025-10-14 23:18:59'),
 (57, 1, 'Salida', 1.00, 'Venta #VENTA030', 1, '2025-10-14 23:20:06'),
-(58, 1, 'Entrada', 1.00, 'Reversión por anulación de venta ID 81', NULL, '2025-10-14 23:40:06');
+(58, 1, 'Entrada', 1.00, 'Reversión por anulación de venta ID 81', NULL, '2025-10-14 23:40:06'),
+(59, 1, 'Entrada', 1.00, 'Reversión por anulación de venta ID 81', NULL, '2025-10-15 16:10:42'),
+(60, 1, 'Entrada', 1.00, 'Reversión por anulación de venta ID 81', NULL, '2025-10-15 16:23:37'),
+(61, 6, 'Salida', 5.00, 'Venta #VENTA031', 1, '2025-10-24 13:37:18'),
+(62, 6, 'Entrada', 5.00, 'Reversión por anulación de venta ID 82', NULL, '2025-10-24 13:54:04'),
+(63, 1, 'Entrada', 1.00, 'Reversión por anulación de venta ID 81', NULL, '2025-10-24 14:36:10'),
+(64, 6, 'Entrada', 5.00, 'Reversión por anulación de venta ID 82', NULL, '2025-10-24 14:39:27'),
+(65, 7, 'Entrada', 5.00, 'Reversión por anulación de venta ID 77', NULL, '2025-10-24 14:41:47'),
+(66, 10, 'Salida', 20.00, 'Anulación de compra #COMP012', 1, '2025-10-26 16:04:06'),
+(67, 10, 'Entrada', 20.00, 'Reanudación de compra #COMP012', 1, '2025-10-26 16:04:16'),
+(68, 6, 'Entrada', 5.00, 'Reversión por anulación de venta ID 82', NULL, '2025-10-26 16:04:35'),
+(69, 4, 'Entrada', 1.00, 'Reanudación de compra #COMP004', 7, '2025-10-26 16:04:48'),
+(70, 10, 'Salida', 20.00, 'Anulación de compra #COMP012', 1, '2025-10-26 16:04:56'),
+(71, 10, 'Entrada', 20.00, 'Reanudación de compra #COMP012', 1, '2025-10-26 16:05:01'),
+(72, 2, 'Entrada', 5.00, 'Compra #COMP013', 1, '2025-10-26 17:13:38'),
+(73, 2, 'Salida', 5.00, 'Anulación de compra #COMP013', 1, '2025-10-26 17:20:36'),
+(74, 2, 'Entrada', 5.00, 'Reanudación de compra #COMP013', 1, '2025-10-26 17:20:44'),
+(75, 2, 'Salida', 5.00, 'Anulación de compra #COMP013', 1, '2025-10-26 17:21:13'),
+(76, 2, 'Entrada', 5.00, 'Reanudación de compra #COMP013', 1, '2025-10-26 17:21:29');
 
 -- --------------------------------------------------------
 
@@ -588,13 +622,13 @@ CREATE TABLE `productos` (
 --
 
 INSERT INTO `productos` (`id_producto`, `codigo_producto`, `nombre_producto`, `id_categoria`, `descripcion`, `stock_actual`, `stock_minimo`, `unidad_medida`, `precio_compra`, `precio_venta`, `estado`) VALUES
-(1, 'ELE001', 'Cargador USB', 1, 'Cargador rápido para celulares', 25.00, 10.00, 'Unidad', 20000.00, 35000.00, 'Activo'),
-(2, 'ELE002', 'Auriculares Bluetooth', 1, 'Auriculares inalámbricos', 30.00, 5.00, 'Unidad', 50000.00, 80000.00, 'Activo'),
+(1, 'ELE001', 'Cargador USB', 1, 'Cargador rápido para celulares', 28.00, 10.00, 'Unidad', 20000.00, 35000.00, 'Activo'),
+(2, 'ELE002', 'Auriculares Bluetooth', 1, 'Auriculares inalámbricos', 35.00, 5.00, 'Unidad', 0.00, 80000.00, 'Activo'),
 (3, 'MUE001', 'Silla Oficina', 2, 'Silla ergonómica de oficina', 11.00, 2.00, 'Unidad', 120000.00, 200000.00, 'Activo'),
-(4, 'MUE002', 'Mesa Comedor', 2, 'Mesa de madera para comedor', 18.00, 1.00, 'Unidad', 250000.00, 400000.00, 'Activo'),
+(4, 'MUE002', 'Mesa Comedor', 2, 'Mesa de madera para comedor', 19.00, 1.00, 'Unidad', 250000.00, 400000.00, 'Activo'),
 (5, 'ROP001', 'Camiseta Hombre', 3, 'Camiseta de algodón talla M', 93.00, 20.00, 'Unidad', 15000.00, 30000.00, 'Activo'),
-(6, 'ALI001', 'Arroz 1kg', 4, 'Arroz blanco', 151.00, 50.00, 'Paquete', 3000.00, 5500.00, 'Activo'),
-(7, 'BEB001', 'Gaseosa 2L', 5, 'Bebida carbonatada', 78.00, 20.00, 'Unidad', 4000.00, 7000.00, 'Activo'),
+(6, 'ALI001', 'Arroz 1kg', 4, 'Arroz blanco', 161.00, 50.00, 'Paquete', 3000.00, 5500.00, 'Activo'),
+(7, 'BEB001', 'Gaseosa 2L', 5, 'Bebida carbonatada', 83.00, 20.00, 'Unidad', 4000.00, 7000.00, 'Activo'),
 (8, 'PAP001', 'Cuaderno A4', 6, 'Cuaderno rayado 100 hojas', 53.00, 30.00, 'Unidad', 2000.00, 4000.00, 'Activo'),
 (9, 'JUG001', 'Pelota Futbol', 7, 'Pelota profesional', 21.00, 5.00, 'Unidad', 30000.00, 55000.00, 'Activo'),
 (10, 'DEPO001', 'Raqueta Tenis', 8, 'Raqueta de tenis profesional', 27.00, 2.00, 'Unidad', 80000.00, 150000.00, 'Activo'),
@@ -743,7 +777,8 @@ INSERT INTO `ventas` (`id_venta`, `codigo_venta`, `id_cliente`, `id_usuario`, `f
 (78, 'VENTA027', 1, 1, '2025-10-14 21:59:24', 'Efectivo', 50000.00, 0.00, 0.00, 'Pagada'),
 (79, 'VENTA028', 10, 1, '2025-10-14 22:01:33', 'Crédito', 582000.00, 18000.00, 3.00, 'Pagada'),
 (80, 'VENTA029', 8, 1, '2025-10-14 22:11:52', 'Tarjeta', 45125.00, 2375.00, 5.00, 'Pagada'),
-(81, 'VENTA030', 6, 1, '2025-10-14 23:20:06', 'Crédito', 35000.00, 0.00, NULL, 'Pagada');
+(81, 'VENTA030', 6, 1, '2025-10-14 23:20:06', 'Crédito', 35000.00, 0.00, NULL, 'Pagada'),
+(82, 'VENTA031', 4, 1, '2025-10-24 13:37:18', 'Transferencia', 26125.00, 1375.00, 5.00, 'Pagada');
 
 --
 -- Índices para tablas volcadas
@@ -909,7 +944,7 @@ ALTER TABLE `clientes`
 -- AUTO_INCREMENT de la tabla `compras`
 --
 ALTER TABLE `compras`
-  MODIFY `id_compra` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id_compra` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT de la tabla `cuentas_contables`
@@ -921,13 +956,13 @@ ALTER TABLE `cuentas_contables`
 -- AUTO_INCREMENT de la tabla `detalle_compras`
 --
 ALTER TABLE `detalle_compras`
-  MODIFY `id_detalle` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id_detalle` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT de la tabla `detalle_ventas`
 --
 ALTER TABLE `detalle_ventas`
-  MODIFY `id_detalle` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
+  MODIFY `id_detalle` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
 
 --
 -- AUTO_INCREMENT de la tabla `gastos_operativos`
@@ -945,7 +980,7 @@ ALTER TABLE `modulos_sistema`
 -- AUTO_INCREMENT de la tabla `movimientos_bodega`
 --
 ALTER TABLE `movimientos_bodega`
-  MODIFY `id_movimiento` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
+  MODIFY `id_movimiento` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=77;
 
 --
 -- AUTO_INCREMENT de la tabla `movimientos_contables`
@@ -993,7 +1028,7 @@ ALTER TABLE `usuarios`
 -- AUTO_INCREMENT de la tabla `ventas`
 --
 ALTER TABLE `ventas`
-  MODIFY `id_venta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=82;
+  MODIFY `id_venta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=83;
 
 --
 -- Restricciones para tablas volcadas
