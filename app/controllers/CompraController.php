@@ -6,6 +6,26 @@ class CompraController {
         $this->db = $database;
     }
 
+    /**
+     * Obtiene el próximo código de compra consecutivo
+     */
+    public function obtenerProximoCodigo() {
+        try {
+            $stmt = $this->db->query("
+                SELECT MAX(CAST(SUBSTRING(codigo_compra, 5) AS UNSIGNED)) as ultimo_numero 
+                FROM compras 
+                WHERE codigo_compra LIKE 'COMP%'
+            ");
+            $resultado = $stmt->fetch();
+            
+            $proximoNumero = ($resultado['ultimo_numero'] ?? 0) + 1;
+            return "COMP" . str_pad($proximoNumero, 3, '0', STR_PAD_LEFT);
+        } catch (PDOException $e) {
+            error_log("Error en obtenerProximoCodigo: " . $e->getMessage());
+            return "COMP001";
+        }
+    }
+
     public function listar() {
         try {
             $stmt = $this->db->query("
@@ -63,8 +83,8 @@ class CompraController {
 
             // Insertar compra
             $stmt = $this->db->prepare("
-                INSERT INTO compras (codigo_compra, id_proveedor, id_usuario, total_compra, estado)
-                VALUES (:codigo, :proveedor, :usuario, :total, :estado)
+                INSERT INTO compras (codigo_compra, id_proveedor, id_usuario, total_compra, descuento, estado)
+                VALUES (:codigo, :proveedor, :usuario, :total, :descuento, :estado)
             ");
             
             $stmt->execute([
@@ -72,7 +92,8 @@ class CompraController {
                 ':proveedor' => $datos['id_proveedor'],
                 ':usuario' => $datos['id_usuario'],
                 ':total' => $datos['total_compra'],
-                ':estado' => $datos['estado'] ?? 'Pendiente'
+                ':descuento' => $datos['descuento'] ?? 0,
+                ':estado' => $datos['estado'] ?? 'Pagada'
             ]);
 
             $id_compra = $this->db->lastInsertId();
@@ -139,6 +160,25 @@ class CompraController {
             error_log("Error en actualizarEstado: " . $e->getMessage());
             return false;
         }
+    }
+    public function obtenerProveedores() {
+        try {
+            $stmt = $this->db->query("SELECT id_proveedor, nombre_proveedor FROM proveedores WHERE estado = 1 ORDER BY nombre_proveedor");
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            error_log("Error en obtenerProveedores: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /* Obtener compra por ID */
+    public function obtenerCompraPorId($id_compra) {
+        return $this->obtener($id_compra);
+    }
+
+    /* Obtener detalles de compra para inventario */
+    public function obtenerDetallesCompra($id_compra) {
+        return $this->obtenerDetalle($id_compra);
     }
 }
 ?>

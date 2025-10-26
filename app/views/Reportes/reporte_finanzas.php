@@ -378,7 +378,8 @@ try {
     <!-- Resumen Estadístico -->
     <div class="row mt-4">
         <div class="col-12">
-            <div class="card shadow-sm">
+            <div class="card shadow-sm py-3"
+                 style="border-left: 4px solid #e6ff8eff !important;">
                 <div class="card-header text-white">
                     <h5 class="card-title mb-0">
                         <i class="fas fa-chart-bar me-2"></i>Resumen Estadístico del Período

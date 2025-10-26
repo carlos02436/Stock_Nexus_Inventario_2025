@@ -1,13 +1,28 @@
 <?php
 // app/views/auth/login.php
 
-// Headers para prevenir cache en la página de login
-header("Cache-Control: no-cache, no-store, must-revalidate");
+// Headers más estrictos para prevenir cache
+header("Cache-Control: no-cache, no-store, must-revalidate, max-age=0");
 header("Pragma: no-cache");
-header("Expires: 0");
+header("Expires: -1");
+header("X-Content-Type-Options: nosniff");
+header("X-Frame-Options: DENY");
+header("X-XSS-Protection: 1; mode=block");
 
-// NO iniciar sesión aquí - ya se inicia en index.php
-// Solo verificar si ya está logueado para redirigir
+// Iniciar sesión si no está iniciada
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Destruir completamente la sesión anterior si existe
+if (isset($_SESSION['usuario_logged_in'])) {
+    session_unset();
+    session_destroy();
+    session_start();
+    session_regenerate_id(true);
+}
+
+// Verificar si ya está logueado para redirigir
 if (isset($_SESSION['usuario_logged_in']) && $_SESSION['usuario_logged_in'] === true) {
     header('Location: index.php?page=dashboard');
     exit;
@@ -20,7 +35,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['contrasena'] ?? '';
 
     try {
-        // CORREGIR: Usar la ruta correcta para database.php
         require_once __DIR__ . '/../../../config/database.php';
 
         // Verificar credenciales directamente en la base de datos
@@ -31,16 +45,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // En producción, usar password_hash y password_verify
         if ($user && $password === $user['contrasena']) {
+            // Regenerar ID de sesión para prevenir fixation attacks
+            session_regenerate_id(true);
+            
             $_SESSION['usuario_logged_in'] = true;
             $_SESSION['usuario_id'] = $user['id_usuario'];
             $_SESSION['usuario_nombre'] = $user['nombre_completo'];
             $_SESSION['usuario_rol'] = $user['rol'];
             $_SESSION['usuario_correo'] = $user['correo'];
+            $_SESSION['last_activity'] = time();
 
+            // Redirigir con headers que previenen cache
+            header("Cache-Control: no-cache, no-store, must-revalidate");
+            header("Pragma: no-cache");
+            header("Expires: 0");
             header('Location: index.php?page=dashboard');
             exit;
         } else {
             $error = 'Usuario o contraseña incorrectos';
+            // Pequeño delay para prevenir ataques de fuerza bruta
+            sleep(1);
         }
     } catch (PDOException $e) {
         $error = 'Error al conectar con la base de datos: ' . $e->getMessage();
@@ -54,16 +78,88 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>Login | Stock Nexus</title>
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
     <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
+    <meta http-equiv="Expires" content="-1">
+    <meta name="robots" content="noindex, nofollow">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <link rel="icon" href="public/img/StockNexus.png">
     <link rel="stylesheet" href="public/assets/style.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <!-- Script para prevenir cache y navegación atrás/adelante -->
+    <script>
+        // Prevenir cache del navegador
+        if (performance.navigation.type === 2) {
+            // Navigation type 2 = llegó desde cache (botón atrás)
+            window.location.replace(window.location.href);
+        }
+
+        // Limpiar cache cuando la página se carga desde cache
+        window.onpageshow = function(event) {
+            if (event.persisted) {
+                window.location.reload();
+            }
+        };
+
+        // Prevenir que el formulario se envíe múltiples veces
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            let submitted = false;
+            
+            form.addEventListener('submit', function(e) {
+                if (submitted) {
+                    e.preventDefault();
+                    return false;
+                }
+                submitted = true;
+                
+                // Deshabilitar el botón de submit
+                const submitBtn = form.querySelector('button[type="submit"]');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Verificando...';
+            });
+
+            // Script para el ojo de la contraseña
+            const togglePassword = document.getElementById('togglePassword');
+            const passwordInput = document.getElementById('contrasena');
+            const iconoOjo = document.getElementById('icono-ojo');
+
+            if (togglePassword && passwordInput && iconoOjo) {
+                togglePassword.addEventListener('click', () => {
+                    const tipo = passwordInput.type === 'password' ? 'text' : 'password';
+                    passwordInput.type = tipo;
+
+                    // Cambiar ícono
+                    iconoOjo.classList.toggle('bi-eye');
+                    iconoOjo.classList.toggle('bi-eye-slash');
+                });
+
+                // Prevenir envío del formulario con Enter en el botón de ojo
+                togglePassword.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                    }
+                });
+            }
+
+            // Limpiar campos si se recarga la página
+            window.onbeforeunload = function() {
+                if (!submitted) {
+                    form.reset();
+                }
+            };
+        });
+
+        // Prevenir navegación atrás/adelante
+        history.pushState(null, null, location.href);
+        window.onpopstate = function(event) {
+            history.go(1);
+        };
+    </script>
 </head>
 <body class="d-flex justify-content-center align-items-center vh-100">
-    <!-- ... resto del código HTML igual ... -->
     <div class="card p-4 shadow-lg" style="width: 25rem; border-radius: 1rem;
          background: rgba(255, 255, 255, 0.1); box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.18);">
         <div class="d-flex align-items-center justify-content-center mb-4">
@@ -81,7 +177,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         <?php endif; ?>        
 
-        <form method="POST" action="">
+        <form method="POST" action="" autocomplete="off">
             <!-- Usuario -->
             <div class="mb-3">
                 <label class="form-label text-white">Usuario</label>
@@ -91,7 +187,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </span>
                     <input type="text" name="usuario" class="form-control" 
                            value="<?= htmlspecialchars($_POST['usuario'] ?? '') ?>" 
-                           placeholder="Ingresa tu usuario" required>
+                           placeholder="Ingresa tu usuario" required autocomplete="username">
                 </div>
             </div>
 
@@ -103,7 +199,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <i class="bi bi-lock"></i>
                     </span>
                     <input type="password" id="contrasena" name="contrasena" 
-                           class="form-control" placeholder="Ingresa tu contraseña" required>
+                           class="form-control" placeholder="Ingresa tu contraseña" required 
+                           autocomplete="current-password">
                     <button type="button" class="input-group-text bg-white" id="togglePassword" 
                             style="cursor:pointer; border-left: none;">
                         <i class="bi bi-eye-slash" id="icono-ojo"></i>
@@ -135,44 +232,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 
-    <!-- Script para el ojo -->
-    <script>
-        const togglePassword = document.getElementById('togglePassword');
-        const passwordInput = document.getElementById('contrasena');
-        const iconoOjo = document.getElementById('icono-ojo');
-
-        togglePassword.addEventListener('click', () => {
-            const tipo = passwordInput.type === 'password' ? 'text' : 'password';
-            passwordInput.type = tipo;
-
-            // Cambiar ícono
-            iconoOjo.classList.toggle('bi-eye');
-            iconoOjo.classList.toggle('bi-eye-slash');
-        });
-
-        // Prevenir envío del formulario con Enter en el botón de ojo
-        togglePassword.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-            }
-        });
-    </script>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-
-<script>
-// Prevenir que el usuario regrese con el botón "atrás" del navegador
-if (performance.navigation.type === 2) {
-    // Navigation type 2 significa que llegó aquí desde cache (botón atrás)
-    window.location.reload(true); // Forzar recarga desde el servidor
-}
-
-// Limpiar el cache al cargar la página
-window.onpageshow = function(event) {
-    if (event.persisted) {
-        window.location.reload();
-    }
-};
-</script>
