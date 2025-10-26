@@ -179,7 +179,7 @@ try {
     <!-- Estado actual - solo pantalla -->
     <div class="d-flex row mb-4 mx-2 no-print">
         <div class="col-md-3 mb-3">
-            <div class="card text-white h-100">
+            <div class="card text-white h-100" style="border-left: 4px solid #4e73df !important;">
                 <div class="card-body">
                     <div class="text-center">
                         <h5>Ingresos Totales</h5>
@@ -190,7 +190,7 @@ try {
             </div>
         </div>
         <div class="col-md-3 mb-3">
-            <div class="card text-white h-100">
+            <div class="card text-white h-100" style="border-left: 4px solid #c8ff00ff !important;">
                 <div class="card-body">
                     <div class="text-center">
                         <h5>Utilidad Bruta</h5>
@@ -201,7 +201,7 @@ try {
             </div>
         </div>
         <div class="col-md-3 mb-3">
-            <div class="card text-white h-100">
+            <div class="card text-white h-100" style="border-left: 4px solid #c300ffff !important;">
                 <div class="card-body">
                     <div class="text-center">
                         <h5>Gastos Operativos</h5>
@@ -212,7 +212,7 @@ try {
             </div>
         </div>
         <div class="col-md-3 mb-3">
-            <div class="card text-white h-100">
+            <div class="card text-white h-100" style="border-left: 4px solid #ff4d00ff !important;">
                 <div class="card-body">
                     <div class="text-center">
                         <h5>Utilidad Neta</h5>

@@ -1,7 +1,7 @@
 <?php
 // app/views/reportes/reportes.php
 ?>
-<div class="container-fluid px-4 mb-5" style="margin-top:120px;">
+<div class="container-fluid px-4 mb-5" style="margin-top:180px;">
 
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
         <h1 class="h2"><i class="fas fa-chart-bar me-2"></i>Módulo de Reportes</h1>

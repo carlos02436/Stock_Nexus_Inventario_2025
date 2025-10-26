@@ -163,7 +163,7 @@ try {
     <!-- Balance actual - solo pantalla -->
     <div class="d-flex row mb-4 mx-2 no-print">
         <div class="col-md-4 mb-3">
-            <div class="card text-white h-100">
+            <div class="card text-white h-100" style="border-left: 4px solid #ffea00ff !important;">
                 <div class="card-body">
                     <div class="text-center">
                         <h5>Total Ingresos</h5>
@@ -174,7 +174,7 @@ try {
             </div>
         </div>
         <div class="col-md-4 mb-3">
-            <div class="card text-white h-100">
+            <div class="card text-white h-100" style="border-left: 4px solid #0dff00ff !important;">
                 <div class="card-body">
                     <div class="text-center">
                         <h5>Total Egresos</h5>
@@ -185,7 +185,7 @@ try {
             </div>
         </div>
         <div class="col-md-4 mb-3">
-            <div class="card text-white h-100">
+            <div class="card text-white h-100" style="border-left: 4px solid #ff006aff !important;">
                 <div class="card-body">
                     <div class="text-center">
                         <h5>Utilidad Neta</h5>
