@@ -46,7 +46,7 @@ $proveedores = $proveedorController->listar();
                         <input type="text" id="filtroCiudad" class="form-control text-black border-0" 
                             placeholder="Ciudad...">
                     </div>
-                    <div class="col-md-12 d-flex justify-content-end">
+                    <div class="col-md-12 d-flex justify-content-start">
                         <button type="button" id="btnLimpiarFiltrosProveedores" class="btn btn-danger">
                             <i class="fas fa-undo me-1"></i>Limpiar Filtros
                         </button>
