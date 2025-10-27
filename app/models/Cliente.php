@@ -20,7 +20,7 @@ class Cliente {
 
     public function obtenerPorIdentificacion($identificacion) {
         try {
-            $stmt = $this->db->prepare("SELECT * FROM clientes WHERE identificacion = :identificacion");
+            $stmt = $this->db->prepare("SELECT * FROM clientes WHERE identificacion = :identificacion AND estado = 'activo'");
             $stmt->bindParam(':identificacion', $identificacion);
             $stmt->execute();
             return $stmt->fetch();
@@ -32,10 +32,22 @@ class Cliente {
 
     public function listarTodos() {
         try {
-            $stmt = $this->db->query("SELECT * FROM clientes ORDER BY nombre_cliente");
+            $stmt = $this->db->query("SELECT * FROM clientes WHERE estado = 'activo' ORDER BY nombre_cliente");
             return $stmt->fetchAll();
         } catch (PDOException $e) {
             error_log("Error en listarTodos: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    public function listarConEstado($estado = 'activo') {
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM clientes WHERE estado = :estado ORDER BY nombre_cliente");
+            $stmt->bindParam(':estado', $estado);
+            $stmt->execute();
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            error_log("Error en listarConEstado: " . $e->getMessage());
             return [];
         }
     }
@@ -82,7 +94,8 @@ class Cliente {
         try {
             $stmt = $this->db->prepare("
                 SELECT * FROM clientes 
-                WHERE nombre_cliente LIKE :termino OR identificacion LIKE :termino
+                WHERE (nombre_cliente LIKE :termino OR identificacion LIKE :termino)
+                AND estado = 'activo'
                 ORDER BY nombre_cliente
             ");
             $termino = "%$termino%";
@@ -92,6 +105,18 @@ class Cliente {
         } catch (PDOException $e) {
             error_log("Error en buscar: " . $e->getMessage());
             return [];
+        }
+    }
+
+    public function cambiarEstado($id, $estado) {
+        try {
+            $stmt = $this->db->prepare("UPDATE clientes SET estado = :estado WHERE id_cliente = :id");
+            $stmt->bindParam(':estado', $estado);
+            $stmt->bindParam(':id', $id);
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            error_log("Error en cambiarEstado: " . $e->getMessage());
+            return false;
         }
     }
 }

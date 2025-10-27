@@ -8,10 +8,20 @@ class ClienteController {
 
     public function listar() {
         try {
-            $stmt = $this->db->query("SELECT * FROM clientes ORDER BY nombre_cliente");
+            $stmt = $this->db->query("SELECT * FROM clientes WHERE estado = 'activo' ORDER BY nombre_cliente");
             return $stmt->fetchAll();
         } catch (PDOException $e) {
             error_log("Error en listar clientes: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    public function listarTodos() {
+        try {
+            $stmt = $this->db->query("SELECT * FROM clientes ORDER BY nombre_cliente");
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            error_log("Error en listarTodos clientes: " . $e->getMessage());
             return [];
         }
     }
@@ -32,9 +42,9 @@ class ClienteController {
         try {
             $stmt = $this->db->prepare("
                 INSERT INTO clientes 
-                (nombre_cliente, identificacion, telefono, correo, direccion, ciudad) 
+                (nombre_cliente, identificacion, telefono, correo, direccion, ciudad, estado) 
                 VALUES 
-                (:nombre, :identificacion, :telefono, :correo, :direccion, :ciudad)
+                (:nombre, :identificacion, :telefono, :correo, :direccion, :ciudad, 'activo')
             ");
             
             return $stmt->execute([
@@ -78,34 +88,46 @@ class ClienteController {
 
     public function eliminar($id) {
         try {
-            // Verificar si hay ventas asociadas
-            $stmt = $this->db->prepare("SELECT COUNT(*) as total FROM ventas WHERE id_cliente = :id");
-            $stmt->bindParam(':id', $id);
-            $stmt->execute();
-            $result = $stmt->fetch();
-
-            if ($result['total'] > 0) {
-                return false; // No se puede eliminar si hay ventas asociadas
-            }
-
-            $stmt = $this->db->prepare("DELETE FROM clientes WHERE id_cliente = :id");
+            // En lugar de eliminar, marcamos como inactivo
+            $stmt = $this->db->prepare("UPDATE clientes SET estado = 'inactivo' WHERE id_cliente = :id");
             $stmt->bindParam(':id', $id);
             return $stmt->execute();
         } catch (PDOException $e) {
-            error_log("Error en eliminar cliente: " . $e->getMessage());
+            error_log("Error en eliminar (inactivar) cliente: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function activar($id) {
+        try {
+            $stmt = $this->db->prepare("UPDATE clientes SET estado = 'activo' WHERE id_cliente = :id");
+            $stmt->bindParam(':id', $id);
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            error_log("Error en activar cliente: " . $e->getMessage());
             return false;
         }
     }
 
     public function buscarPorIdentificacion($identificacion) {
         try {
-            $stmt = $this->db->prepare("SELECT * FROM clientes WHERE identificacion = :identificacion");
+            $stmt = $this->db->prepare("SELECT * FROM clientes WHERE identificacion = :identificacion AND estado = 'activo'");
             $stmt->bindParam(':identificacion', $identificacion);
             $stmt->execute();
             return $stmt->fetch();
         } catch (PDOException $e) {
             error_log("Error en buscarPorIdentificacion: " . $e->getMessage());
             return false;
+        }
+    }
+
+    public function listarInactivos() {
+        try {
+            $stmt = $this->db->query("SELECT * FROM clientes WHERE estado = 'inactivo' ORDER BY nombre_cliente");
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            error_log("Error en listarInactivos: " . $e->getMessage());
+            return [];
         }
     }
 }

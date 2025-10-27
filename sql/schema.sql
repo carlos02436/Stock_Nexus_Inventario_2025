@@ -71,14 +71,16 @@ INSERT INTO `categorias` (`id_categoria`, `nombre_categoria`, `descripcion`, `es
 --
 
 CREATE TABLE `clientes` (
-  `id_cliente` int(11) NOT NULL,
-  `nombre_cliente` varchar(100) NOT NULL,
-  `identificacion` varchar(30) DEFAULT NULL,
-  `telefono` varchar(20) DEFAULT NULL,
-  `correo` varchar(100) DEFAULT NULL,
-  `direccion` varchar(150) DEFAULT NULL,
-  `ciudad` varchar(100) DEFAULT NULL,
-  `fecha_registro` datetime DEFAULT current_timestamp()
+  `id_cliente` INT(11) NOT NULL AUTO_INCREMENT,
+  `nombre_cliente` VARCHAR(100) NOT NULL,
+  `identificacion` VARCHAR(30) DEFAULT NULL,
+  `telefono` VARCHAR(20) DEFAULT NULL,
+  `correo` VARCHAR(100) DEFAULT NULL,
+  `direccion` VARCHAR(150) DEFAULT NULL,
+  `ciudad` VARCHAR(100) DEFAULT NULL,
+  `estado` ENUM('activo', 'inactivo') DEFAULT 'activo',
+  `fecha_registro` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_cliente`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --

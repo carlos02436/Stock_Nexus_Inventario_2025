@@ -277,9 +277,25 @@ switch ($page) {
             header('Location: index.php?page=clientes');
             exit();
         } else {
-            include __DIR__ . '/app/views/clientes/crear_cliente.php';
+            include __DIR__ . '/app/views/Clientes/crear_cliente.php';
         }
         break;
+
+    case 'editar_cliente':
+        include __DIR__ . '/app/views/Clientes/editar_cliente.php';
+        break;
+        
+    case 'eliminar_cliente':
+        include __DIR__ . '/app/views/Clientes/eliminar_cliente.php';
+        break;  
+
+    case 'activar_cliente':
+        include __DIR__ . '/app/views/Clientes/activar_cliente.php';
+        break;  
+
+    case 'clientes_inactivos':
+        include __DIR__ . '/app/views/Clientes/clientes_inactivos.php';
+        break;        
 
     // ==================== MOVIMIENTOS DE BODEGA ====================
     case 'movimientos':
