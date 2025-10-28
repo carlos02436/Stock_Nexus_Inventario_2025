@@ -223,8 +223,8 @@ try {
                             <input type="text" class="form-control" id="filtroMes" placeholder="Ej: Enero, Febrero, Marzo...">
                         </div>
                         <div class="col-md-2">
-                            <button class="btn btn-danger w-100 mt-4" onclick="limpiarFiltros()">
-                                <i class="fas fa-undo me-1"></i>Limpiar
+                            <button class="btn btn-danger mt-4" onclick="limpiarFiltros()">
+                                <i class="fas fa-undo me-1"></i>Limpiar filtros
                             </button>
                         </div>
                     </div>

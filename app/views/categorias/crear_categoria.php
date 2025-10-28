@@ -83,10 +83,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <label for="descripcion" class="form-label fw-bold text-white">Descripción</label>
                             <textarea class="form-control" id="descripcion" name="descripcion" rows="3" 
                                       maxlength="500" placeholder="Descripción de la categoría"><?= htmlspecialchars($_POST['descripcion'] ?? '') ?></textarea>
-                            <div class="form-text">Máximo 500 caracteres</div>
+                            <div class="form-text text-white">Máximo 500 caracteres</div>
                         </div>
 
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4 pt-3 border-top">
+                        <div class="alert alert-success my-4">
+                            <small>
+                                <i class="fas fa-info-circle me-2"></i>
+                                Los campos marcados con * son obligatorios. La contraseña solo es necesaria si desea cambiarla.
+                            </small>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4 pt-3 border-top">
                             <button type="submit" class="btn btn-neon px-4">
                                 <i class="fas fa-save me-2"></i>Guardar Categoría
                             </button>

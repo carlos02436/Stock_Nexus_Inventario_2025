@@ -20,43 +20,44 @@ try {
     $resumen = $finanzaController->getResumenFinanciero();
     $ingresosVsEgresos = $finanzaController->getIngresosVsEgresos(12);
 
-    // Obtener datos del período seleccionado
+    // Obtener datos del período seleccionado - CORREGIDO: usar alias de tablas
     $queryVentasPeriodo = "
         SELECT 
-            codigo_venta,
-            fecha_venta,
-            total_venta,
-            metodo_pago,
-            estado,
-            nombre_cliente
-        FROM ventas 
-        LEFT JOIN clientes ON ventas.id_cliente = clientes.id_cliente
-        WHERE fecha_venta BETWEEN :fecha_inicio AND :fecha_fin
-        ORDER BY fecha_venta DESC
+            v.codigo_venta,
+            v.fecha_venta,
+            v.total_venta,
+            v.metodo_pago,
+            v.estado,
+            COALESCE(c.nombre_cliente, 'Cliente General') as nombre_cliente
+        FROM ventas v
+        LEFT JOIN clientes c ON v.id_cliente = c.id_cliente
+        WHERE v.fecha_venta BETWEEN :fecha_inicio AND :fecha_fin
+        ORDER BY v.fecha_venta DESC
     ";
     $stmtVentas = $db->prepare($queryVentasPeriodo);
     $stmtVentas->execute([
-        ':fecha_inicio' => $fecha_inicio,
-        ':fecha_fin' => $fecha_fin
+        ':fecha_inicio' => $fecha_inicio . ' 00:00:00',
+        ':fecha_fin' => $fecha_fin . ' 23:59:59'
     ]);
     $ventasPeriodo = $stmtVentas->fetchAll(PDO::FETCH_ASSOC);
 
+    // CORREGIDO: usar alias de tablas
     $queryComprasPeriodo = "
         SELECT 
-            codigo_compra,
-            fecha_compra,
-            total_compra,
-            estado,
-            nombre_proveedor
-        FROM compras 
-        LEFT JOIN proveedores ON compras.id_proveedor = proveedores.id_proveedor
-        WHERE fecha_compra BETWEEN :fecha_inicio AND :fecha_fin
-        ORDER BY fecha_compra DESC
+            c.codigo_compra,
+            c.fecha_compra,
+            c.total_compra,
+            c.estado,
+            COALESCE(p.nombre_proveedor, 'Proveedor General') as nombre_proveedor
+        FROM compras c
+        LEFT JOIN proveedores p ON c.id_proveedor = p.id_proveedor
+        WHERE c.fecha_compra BETWEEN :fecha_inicio AND :fecha_fin
+        ORDER BY c.fecha_compra DESC
     ";
     $stmtCompras = $db->prepare($queryComprasPeriodo);
     $stmtCompras->execute([
-        ':fecha_inicio' => $fecha_inicio,
-        ':fecha_fin' => $fecha_fin
+        ':fecha_inicio' => $fecha_inicio . ' 00:00:00',
+        ':fecha_fin' => $fecha_fin . ' 23:59:59'
     ]);
     $comprasPeriodo = $stmtCompras->fetchAll(PDO::FETCH_ASSOC);
 
@@ -74,8 +75,8 @@ try {
     ";
     $stmtMetodos = $db->prepare($queryMetodosPago);
     $stmtMetodos->execute([
-        ':fecha_inicio' => $fecha_inicio,
-        ':fecha_fin' => $fecha_fin
+        ':fecha_inicio' => $fecha_inicio . ' 00:00:00',
+        ':fecha_fin' => $fecha_fin . ' 23:59:59'
     ]);
     $metodosPago = $stmtMetodos->fetchAll(PDO::FETCH_ASSOC);
 
@@ -95,6 +96,12 @@ try {
     $ventasPagadasPeriodo = count(array_filter($ventasPeriodo, fn($v) => $v['estado'] == 'Pagada'));
     $ventasPendientesPeriodo = count(array_filter($ventasPeriodo, fn($v) => $v['estado'] == 'Pendiente'));
     $ventasAnuladasPeriodo = count(array_filter($ventasPeriodo, fn($v) => $v['estado'] == 'Anulada'));
+
+    // Calcular margen de utilidad de forma segura
+    $margenUtilidad = 0;
+    if ($ingresosPeriodo > 0) {
+        $margenUtilidad = ($utilidadPeriodo / $ingresosPeriodo) * 100;
+    }
 
     // Fecha actual
     $fecha_actual = date('d-m-Y');
@@ -186,7 +193,7 @@ try {
         </td>
         <td width="25%" style="background-color: #ffc107; color: black; padding: 8px; text-align: center;">
             <div style="font-size: 12px;">MARGEN DE UTILIDAD</div>
-            <div style="font-size: 20px; font-weight: bold;"><?= $ingresosPeriodo > 0 ? number_format(($utilidadPeriodo/$ingresosPeriodo)*100, 1) : 0 ?>%</div>
+            <div style="font-size: 20px; font-weight: bold;"><?= number_format($margenUtilidad, 1) ?>%</div>
             <div style="font-size: 10px;">Rentabilidad</div>
         </td>
     </tr>
@@ -209,12 +216,12 @@ try {
     </tr>
     <?php foreach ($ventasPeriodo as $venta): ?>
     <tr style="<?= $venta['estado'] == 'Anulada' ? 'background-color: #f8d7da;' : ($venta['estado'] == 'Pendiente' ? 'background-color: #fff3cd;' : 'background-color: #d4edda;') ?>">
-        <td class="text-center" style="border: 1px solid #ddd;"><?= $venta['codigo_venta'] ?></td>
+        <td class="text-center" style="border: 1px solid #ddd;"><?= htmlspecialchars($venta['codigo_venta']) ?></td>
         <td class="text-center" style="border: 1px solid #ddd;"><?= date('d/m/Y', strtotime($venta['fecha_venta'])) ?></td>
-        <td class="text-left" style="border: 1px solid #ddd;"><?= $venta['nombre_cliente'] ?: 'Cliente General' ?></td>
+        <td class="text-left" style="border: 1px solid #ddd;"><?= htmlspecialchars($venta['nombre_cliente']) ?></td>
         <td class="text-right" style="border: 1px solid #ddd; font-weight: bold; color: #28a745;">$<?= number_format($venta['total_venta'], 2) ?></td>
-        <td class="text-center" style="border: 1px solid #ddd;"><?= $venta['metodo_pago'] ?></td>
-        <td class="text-center" style="border: 1px solid #ddd; color: <?= $venta['estado'] == 'Anulada' ? '#dc3545' : ($venta['estado'] == 'Pendiente' ? '#856404' : '#155724') ?>; font-weight: bold;"><?= $venta['estado'] ?></td>
+        <td class="text-center" style="border: 1px solid #ddd;"><?= htmlspecialchars($venta['metodo_pago']) ?></td>
+        <td class="text-center" style="border: 1px solid #ddd; color: <?= $venta['estado'] == 'Anulada' ? '#dc3545' : ($venta['estado'] == 'Pendiente' ? '#856404' : '#155724') ?>; font-weight: bold;"><?= htmlspecialchars($venta['estado']) ?></td>
     </tr>
     <?php endforeach; ?>
     
@@ -243,11 +250,11 @@ try {
     </tr>
     <?php foreach ($comprasPeriodo as $compra): ?>
     <tr style="<?= $compra['estado'] == 'Anulada' ? 'background-color: #f8d7da;' : ($compra['estado'] == 'Pendiente' ? 'background-color: #fff3cd;' : 'background-color: #d4edda;') ?>">
-        <td class="text-center" style="border: 1px solid #ddd;"><?= $compra['codigo_compra'] ?></td>
+        <td class="text-center" style="border: 1px solid #ddd;"><?= htmlspecialchars($compra['codigo_compra']) ?></td>
         <td class="text-center" style="border: 1px solid #ddd;"><?= date('d/m/Y', strtotime($compra['fecha_compra'])) ?></td>
-        <td class="text-left" style="border: 1px solid #ddd;"><?= $compra['nombre_proveedor'] ?: 'Proveedor General' ?></td>
+        <td class="text-left" style="border: 1px solid #ddd;"><?= htmlspecialchars($compra['nombre_proveedor']) ?></td>
         <td class="text-right" style="border: 1px solid #ddd; font-weight: bold; color: #e74a3b;">$<?= number_format($compra['total_compra'], 2) ?></td>
-        <td class="text-center" style="border: 1px solid #ddd; color: <?= $compra['estado'] == 'Anulada' ? '#dc3545' : ($compra['estado'] == 'Pendiente' ? '#856404' : '#155724') ?>; font-weight: bold;"><?= $compra['estado'] ?></td>
+        <td class="text-center" style="border: 1px solid #ddd; color: <?= $compra['estado'] == 'Anulada' ? '#dc3545' : ($compra['estado'] == 'Pendiente' ? '#856404' : '#155724') ?>; font-weight: bold;"><?= htmlspecialchars($compra['estado']) ?></td>
     </tr>
     <?php endforeach; ?>
     
@@ -275,8 +282,8 @@ try {
     </tr>
     <?php foreach ($metodosPago as $metodo): ?>
     <tr>
-        <td class="text-center" style="border: 1px solid #ddd;"><?= $metodo['metodo_pago'] ?></td>
-        <td class="text-center" style="border: 1px solid #ddd;"><?= $metodo['cantidad'] ?></td>
+        <td class="text-center" style="border: 1px solid #ddd;"><?= htmlspecialchars($metodo['metodo_pago']) ?></td>
+        <td class="text-center" style="border: 1px solid #ddd;"><?= htmlspecialchars($metodo['cantidad']) ?></td>
         <td class="text-right" style="border: 1px solid #ddd; font-weight: bold; color: #28a745;">$<?= number_format($metodo['total'], 2) ?></td>
     </tr>
     <?php endforeach; ?>

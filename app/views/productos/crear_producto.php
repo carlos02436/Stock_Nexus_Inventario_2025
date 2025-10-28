@@ -14,7 +14,7 @@ $ultimosCodigos = $productoController->obtenerUltimosCodigosPorCategoria();
         <h1 class="h2"><i class="fas fa-plus me-2"></i>Crear Nuevo Producto</h1>
         <div class="btn-toolbar mb-2 mb-md-0">
             <a href="index.php?page=productos" class="btn btn-secondary">
-                <i class="fas fa-arrow-left me-2"></i>Volver
+                <i class="fas fa-arrow-left me-2"></i>Volver a Productos
             </a>
         </div>
     </div>
@@ -109,7 +109,14 @@ $ultimosCodigos = $productoController->obtenerUltimosCodigosPorCategoria();
                             </div>
                         </div>
 
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <div class="alert alert-success">
+                            <small>
+                                <i class="fas fa-info-circle me-2"></i>
+                                Los campos marcados con * son obligatorios.
+                            </small>
+                        </div>
+
+                        <div class="d-grid gap-3 d-md-flex justify-content-md-center">
                             <button type="submit" class="btn btn-neon">
                                 <i class="fas fa-save me-2"></i>Guardar Producto
                             </button>

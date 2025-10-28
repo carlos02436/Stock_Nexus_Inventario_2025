@@ -10,7 +10,7 @@ $productos = $productoController->listar();
         <h1 class="h2"><i class="fas fa-plus me-2"></i>Registrar Movimiento</h1>
         <div class="btn-toolbar mb-2 mb-md-0">
             <a href="index.php?page=movimientos" class="btn btn-secondary">
-                <i class="fas fa-arrow-left me-2"></i>Volver
+                <i class="fas fa-arrow-left me-2"></i>Volver a Movimientos
             </a>
         </div>
     </div>
@@ -62,9 +62,16 @@ $productos = $productoController->listar();
                                    placeholder="Motivo del movimiento" required>
                         </div>
 
+                        <div class="alert alert-success">
+                            <small>
+                                <i class="fas fa-info-circle me-2"></i>
+                                Los campos marcados con * son obligatorios.
+                            </small>
+                        </div>
+
                         <input type="hidden" name="id_usuario" value="<?= $_SESSION['usuario_id'] ?>">
 
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <div class="d-grid gap-3 d-md-flex justify-content-md-center">
                             <button type="submit" class="btn btn-neon">
                                 <i class="fas fa-save me-2"></i>Registrar Movimiento
                             </button>

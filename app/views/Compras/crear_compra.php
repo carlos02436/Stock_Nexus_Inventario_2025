@@ -212,7 +212,7 @@ function formatoCOP($numero) {
                             </button>
                         </div>
                     </div>
-                </div>
+                </div>        
 
                 <button type="button" id="agregar-producto" class="btn btn-neon btn-sm mt-2">
                     <i class="fas fa-plus"></i> Agregar Producto
@@ -273,6 +273,13 @@ function formatoCOP($numero) {
                     </div>
                 </div>
             </div>
+
+            <div class="alert alert-success my-4">
+                <small>
+                    <i class="fas fa-info-circle me-2"></i>
+                    Los campos marcados con * son obligatorios.
+                </small>
+            </div> 
 
             <div class="text-center mt-4">
                 <button type="submit" class="btn btn-neon btn-lg px-5">

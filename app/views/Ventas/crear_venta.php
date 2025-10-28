@@ -116,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <h1 class="h2"><i class="fas fa-plus me-2"></i>Registrar Nueva Venta</h1>
         <div class="btn-toolbar mb-2 mb-md-0">
             <a href="index.php?page=ventas" class="btn btn-secondary">
-                <i class="fas fa-arrow-left me-2"></i>Volver
+                <i class="fas fa-arrow-left me-2"></i>Volver a Ventas
             </a>
         </div>
     </div>
@@ -258,6 +258,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                 </div>
             </div>
+
+            <div class="alert alert-success my-4">
+                <small>
+                    <i class="fas fa-info-circle me-2"></i>
+                    Los campos marcados con * son obligatorios.
+                </small>
+            </div> 
 
             <div class="text-center mt-4">
                 <button type="submit" class="btn btn-neon btn-lg px-5">

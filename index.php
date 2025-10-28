@@ -433,17 +433,9 @@ switch ($page) {
         }
         break;
 
-    case 'eliminar_usuario':
-        if ($_SESSION['usuario_rol'] !== 'Administrador') {
-            header("Location: index.php?page=dashboard");
-            exit;
-        }
-        $id = $_GET['id'] ?? null;
-        if ($id) {
-            $usuarioController->eliminar($id);
-        }
-        header('Location: index.php?page=usuarios');
-        exit();
+    case 'inactivar_usuario':
+        include __DIR__ . '/app/views/Usuarios/inactivar_usuario.php';
+        break;
 
     // ==================== CONFIGURACIÓN ====================
     case 'configuracion':

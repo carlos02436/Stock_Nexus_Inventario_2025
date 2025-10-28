@@ -64,6 +64,13 @@
                             </div>
                         </div>
 
+                        <div class="alert alert-success my-3">
+                           <small>
+                               <i class="fas fa-info-circle me-2"></i>
+                               Los campos marcados con * son obligatorios.
+                            </small>
+                        </div> 
+
                         <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4">
                             <button type="submit" class="btn btn-neon">
                                 <i class="fas fa-save me-2"></i>Guardar Cliente

@@ -35,43 +35,44 @@ try {
     $resumen = $finanzaController->getResumenFinanciero();
     $ingresosVsEgresos = $finanzaController->getIngresosVsEgresos(12);
 
-    // Obtener datos del período seleccionado
+    // Obtener datos del período seleccionado - CORREGIDO: especificar tabla para estado
     $queryVentasPeriodo = "
         SELECT 
-            codigo_venta,
-            fecha_venta,
-            total_venta,
-            metodo_pago,
-            estado,
-            nombre_cliente
-        FROM ventas 
-        LEFT JOIN clientes ON ventas.id_cliente = clientes.id_cliente
-        WHERE fecha_venta BETWEEN :fecha_inicio AND :fecha_fin
-        ORDER BY fecha_venta DESC
+            v.codigo_venta,
+            v.fecha_venta,
+            v.total_venta,
+            v.metodo_pago,
+            v.estado,
+            COALESCE(c.nombre_cliente, 'Cliente General') as nombre_cliente
+        FROM ventas v
+        LEFT JOIN clientes c ON v.id_cliente = c.id_cliente
+        WHERE v.fecha_venta BETWEEN :fecha_inicio AND :fecha_fin
+        ORDER BY v.fecha_venta DESC
     ";
     $stmtVentas = $db->prepare($queryVentasPeriodo);
     $stmtVentas->execute([
-        ':fecha_inicio' => $fecha_inicio,
-        ':fecha_fin' => $fecha_fin
+        ':fecha_inicio' => $fecha_inicio . ' 00:00:00',
+        ':fecha_fin' => $fecha_fin . ' 23:59:59'
     ]);
     $ventasPeriodo = $stmtVentas->fetchAll(PDO::FETCH_ASSOC);
 
+    // CORREGIDO: especificar tabla para estado en compras
     $queryComprasPeriodo = "
         SELECT 
-            codigo_compra,
-            fecha_compra,
-            total_compra,
-            estado,
-            nombre_proveedor
-        FROM compras 
-        LEFT JOIN proveedores ON compras.id_proveedor = proveedores.id_proveedor
-        WHERE fecha_compra BETWEEN :fecha_inicio AND :fecha_fin
-        ORDER BY fecha_compra DESC
+            c.codigo_compra,
+            c.fecha_compra,
+            c.total_compra,
+            c.estado,
+            COALESCE(p.nombre_proveedor, 'Proveedor General') as nombre_proveedor
+        FROM compras c
+        LEFT JOIN proveedores p ON c.id_proveedor = p.id_proveedor
+        WHERE c.fecha_compra BETWEEN :fecha_inicio AND :fecha_fin
+        ORDER BY c.fecha_compra DESC
     ";
     $stmtCompras = $db->prepare($queryComprasPeriodo);
     $stmtCompras->execute([
-        ':fecha_inicio' => $fecha_inicio,
-        ':fecha_fin' => $fecha_fin
+        ':fecha_inicio' => $fecha_inicio . ' 00:00:00',
+        ':fecha_fin' => $fecha_fin . ' 23:59:59'
     ]);
     $comprasPeriodo = $stmtCompras->fetchAll(PDO::FETCH_ASSOC);
 
@@ -89,8 +90,8 @@ try {
     ";
     $stmtMetodos = $db->prepare($queryMetodosPago);
     $stmtMetodos->execute([
-        ':fecha_inicio' => $fecha_inicio,
-        ':fecha_fin' => $fecha_fin
+        ':fecha_inicio' => $fecha_inicio . ' 00:00:00',
+        ':fecha_fin' => $fecha_fin . ' 23:59:59'
     ]);
     $metodosPago = $stmtMetodos->fetchAll(PDO::FETCH_ASSOC);
 
@@ -110,6 +111,12 @@ try {
     $ventasPagadasPeriodo = count(array_filter($ventasPeriodo, fn($v) => $v['estado'] == 'Pagada'));
     $ventasPendientesPeriodo = count(array_filter($ventasPeriodo, fn($v) => $v['estado'] == 'Pendiente'));
     $ventasAnuladasPeriodo = count(array_filter($ventasPeriodo, fn($v) => $v['estado'] == 'Anulada'));
+
+    // Calcular margen de utilidad de forma segura
+    $margenUtilidad = 0;
+    if ($ingresosPeriodo > 0) {
+        $margenUtilidad = ($utilidadPeriodo / $ingresosPeriodo) * 100;
+    }
 
     // --- Capturar contenido HTML ---
     ob_start();
@@ -212,7 +219,7 @@ try {
         </div>
         <div class="estadistica-item">
             <div>Margen Utilidad</div>
-            <div class="estadistica-valor text-purple"><?= $ingresosPeriodo > 0 ? number_format(($utilidadPeriodo/$ingresosPeriodo)*100, 1) : 0 ?>%</div>
+            <div class="estadistica-valor text-purple"><?= number_format($margenUtilidad, 1) ?>%</div>
             <small>Rentabilidad</small>
         </div>
     </div>
@@ -233,14 +240,14 @@ try {
         <tbody>
         <?php foreach ($ventasPeriodo as $venta): ?>
             <tr>
-                <td><?= $venta['codigo_venta'] ?></td>
+                <td><?= htmlspecialchars($venta['codigo_venta']) ?></td>
                 <td><?= date('d/m/Y', strtotime($venta['fecha_venta'])) ?></td>
-                <td><?= $venta['nombre_cliente'] ?: 'Cliente General' ?></td>
+                <td><?= htmlspecialchars($venta['nombre_cliente']) ?></td>
                 <td class="text-green">$<?= number_format($venta['total_venta'], 2) ?></td>
-                <td><?= $venta['metodo_pago'] ?></td>
+                <td><?= htmlspecialchars($venta['metodo_pago']) ?></td>
                 <td>
                     <span class="badge badge-<?= $venta['estado'] == 'Pagada' ? 'success' : ($venta['estado'] == 'Pendiente' ? 'warning' : 'danger') ?>">
-                        <?= $venta['estado'] ?>
+                        <?= htmlspecialchars($venta['estado']) ?>
                     </span>
                 </td>
             </tr>
@@ -270,13 +277,13 @@ try {
         <tbody>
         <?php foreach ($comprasPeriodo as $compra): ?>
             <tr>
-                <td><?= $compra['codigo_compra'] ?></td>
+                <td><?= htmlspecialchars($compra['codigo_compra']) ?></td>
                 <td><?= date('d/m/Y', strtotime($compra['fecha_compra'])) ?></td>
-                <td><?= $compra['nombre_proveedor'] ?: 'Proveedor General' ?></td>
+                <td><?= htmlspecialchars($compra['nombre_proveedor']) ?></td>
                 <td class="text-red">$<?= number_format($compra['total_compra'], 2) ?></td>
                 <td>
                     <span class="badge badge-<?= $compra['estado'] == 'Pagada' ? 'success' : ($compra['estado'] == 'Pendiente' ? 'warning' : 'danger') ?>">
-                        <?= $compra['estado'] ?>
+                        <?= htmlspecialchars($compra['estado']) ?>
                     </span>
                 </td>
             </tr>
@@ -302,8 +309,8 @@ try {
         <tbody>
         <?php foreach ($metodosPago as $metodo): ?>
             <tr>
-                <td><?= $metodo['metodo_pago'] ?></td>
-                <td class="text-center"><?= $metodo['cantidad'] ?></td>
+                <td><?= htmlspecialchars($metodo['metodo_pago']) ?></td>
+                <td class="text-center"><?= htmlspecialchars($metodo['cantidad']) ?></td>
                 <td class="text-green">$<?= number_format($metodo['total'], 2) ?></td>
             </tr>
         <?php endforeach; ?>
@@ -323,7 +330,7 @@ try {
             <ul>
                 <li><strong>$<?= number_format($ingresosPeriodo, 2) ?></strong> en ingresos por ventas pagadas</li>
                 <li><strong>$<?= number_format($egresosPeriodo, 2) ?></strong> en egresos por compras pagadas</li>
-                <li><strong>$<?= number_format($utilidadPeriodo, 2) ?></strong> en utilidad neta (<?= $ingresosPeriodo > 0 ? number_format(($utilidadPeriodo/$ingresosPeriodo)*100, 1) : 0 ?>% de margen)</li>
+                <li><strong>$<?= number_format($utilidadPeriodo, 2) ?></strong> en utilidad neta (<?= number_format($margenUtilidad, 1) ?>% de margen)</li>
                 <li><strong><?= $ventasPagadasPeriodo ?> ventas pagadas</strong> de <?= count($ventasPeriodo) ?> totales</li>
                 <li><strong><?= $ventasPendientesPeriodo ?> ventas pendientes</strong> de pago</li>
                 <li><strong><?= $ventasAnuladasPeriodo ?> ventas anuladas</strong></li>

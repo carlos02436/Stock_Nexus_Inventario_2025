@@ -117,7 +117,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                       maxlength="150" placeholder="Dirección completa del proveedor"><?= htmlspecialchars($_POST['direccion'] ?? '') ?></textarea>
                         </div>
 
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4 pt-3 border-top">
+                        <div class="alert alert-success">
+                            <small>
+                                <i class="fas fa-info-circle me-2"></i>
+                                Los campos marcados con * son obligatorios.
+                            </small>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4 pt-3 border-top">
                             <button type="submit" class="btn btn-neon px-4">
                                 <i class="fas fa-save me-2"></i>Guardar Proveedor
                             </button>

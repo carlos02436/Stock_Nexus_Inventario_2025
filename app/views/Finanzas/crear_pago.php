@@ -67,9 +67,16 @@ $icono = $tipo == 'Ingreso' ? 'plus-circle' : 'minus-circle';
                                       placeholder="Descripción detallada del pago" required></textarea>
                         </div>
 
+                        <div class="alert alert-success">
+                            <small>
+                                <i class="fas fa-info-circle me-2"></i>
+                                Los campos marcados con * son obligatorios.
+                            </small>
+                        </div>
+
                         <input type="hidden" name="id_usuario" value="<?= $_SESSION['usuario_id'] ?>">
 
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4 pt-3 border-top">
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4 pt-3 border-top">
                             <button type="submit" class="btn btn-neon px-4">
                                 <i class="fas fa-save me-2"></i>Registrar <?= $tipo ?>
                             </button>

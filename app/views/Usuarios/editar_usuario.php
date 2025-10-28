@@ -1,6 +1,18 @@
 <?php
 // app/views/usuarios/editar_usuario.php
 
+// Verificar permisos de administrador
+if ($_SESSION['usuario_rol'] !== 'Administrador') {
+    header("Location: index.php?page=dashboard");
+    exit;
+}
+
+// Incluir el controlador
+require_once __DIR__ . '/../../controllers/UsuarioController.php';
+
+// Crear instancia del controlador
+$usuarioController = new UsuarioController($db);
+
 // Verificar si se recibió un ID de usuario
 $usuario_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
@@ -9,58 +21,169 @@ if ($usuario_id === 0) {
     return;
 }
 
-// Aquí iría la lógica para obtener los datos del usuario de la base de datos
-// Por ahora, simulamos datos vacíos
-$usuario = [
-    'id' => $usuario_id,
-    'nombre' => '',
-    'usuario' => '',
-    'email' => '',
-    'rol' => '',
-    'estado' => 'Activo'
-];
+// Procesar el formulario si se envió
+$mensaje_exito = '';
+$mensaje_error = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['actualizar'])) {
+    $id = intval($_POST['id']);
+    $nombre_completo = trim($_POST['nombre_completo']);
+    $usuario = trim($_POST['usuario']);
+    $correo = trim($_POST['correo']);
+    $rol = $_POST['rol'];
+    $estado = $_POST['estado'];
+    $contrasena = $_POST['contrasena'];
+    $confirmar_contrasena = $_POST['confirmar_contrasena'];
+
+    // Validaciones básicas
+    if (empty($nombre_completo) || empty($usuario) || empty($correo) || empty($rol) || empty($estado)) {
+        $mensaje_error = "Todos los campos obligatorios deben ser completados";
+    }
+    // Validar contraseñas si se proporcionaron
+    else if (!empty($contrasena) || !empty($confirmar_contrasena)) {
+        if ($contrasena !== $confirmar_contrasena) {
+            $mensaje_error = "Las contraseñas no coinciden";
+        } else if (strlen($contrasena) < 6) {
+            $mensaje_error = "La contraseña debe tener al menos 6 caracteres";
+        }
+    }
+
+    // Si no hay errores, proceder con la actualización
+    if (empty($mensaje_error)) {
+        // Preparar datos para actualización
+        $datos = [
+            'nombre_completo' => $nombre_completo,
+            'usuario' => $usuario,
+            'correo' => $correo,
+            'rol' => $rol,
+            'estado' => $estado
+        ];
+
+        // Si se proporcionó contraseña, incluirla en la actualización
+        if (!empty($contrasena)) {
+            // Necesitamos agregar un método al controlador para actualizar con contraseña
+            $query = "UPDATE usuarios 
+                     SET nombre_completo = :nombre, correo = :correo, usuario = :usuario, 
+                         rol = :rol, estado = :estado, contrasena = :contrasena 
+                     WHERE id_usuario = :id";
+            
+            try {
+                $stmt = $db->prepare($query);
+                $resultado = $stmt->execute([
+                    ':nombre' => $nombre_completo,
+                    ':correo' => $correo,
+                    ':usuario' => $usuario,
+                    ':rol' => $rol,
+                    ':estado' => $estado,
+                    ':contrasena' => $contrasena,
+                    ':id' => $id
+                ]);
+                
+                if ($resultado) {
+                    $mensaje_exito = "Usuario actualizado correctamente, incluyendo nueva contraseña";
+                } else {
+                    $mensaje_error = "Error al actualizar el usuario";
+                }
+            } catch (PDOException $e) {
+                $mensaje_error = "Error en la base de datos: " . $e->getMessage();
+            }
+        } else {
+            // Actualizar sin cambiar contraseña
+            if ($usuarioController->actualizar($id, $datos)) {
+                $mensaje_exito = "Usuario actualizado correctamente";
+            } else {
+                $mensaje_error = "Error al actualizar el usuario";
+            }
+        }
+    }
+}
+
+// Obtener los datos del usuario directamente de la base de datos
+try {
+    $query = "SELECT id_usuario, nombre_completo, usuario, correo, rol, estado 
+              FROM usuarios WHERE id_usuario = :id";
+    $stmt = $db->prepare($query);
+    $stmt->execute([':id' => $usuario_id]);
+    $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$usuario) {
+        echo "<div class='alert alert-danger'>Error: Usuario no encontrado</div>";
+        return;
+    }
+} catch (PDOException $e) {
+    echo "<div class='alert alert-danger'>Error al obtener datos del usuario: " . $e->getMessage() . "</div>";
+    return;
+}
 ?>
-<div class="container mt-4" style="margin-top:120px;">
-    <div class="row">
-        <div class="col-md-8 mx-auto">
+<div class="container-fluid px-4 pb-5" style="margin-top:180px;">
+
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2"><i class="fas fa-edit me-2"></i>Editar Usuario</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <a href="index.php?page=usuarios" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Volver a Usuarios
+            </a>
+        </div>
+    </div>
+
+    <!-- Mostrar mensajes -->
+    <?php if (!empty($mensaje_exito)): ?>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            <?php echo $mensaje_exito; ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <?php endif; ?>
+
+    <?php if (!empty($mensaje_error)): ?>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <?php echo $mensaje_error; ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <?php endif; ?>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-xl-6">
             <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">
-                        <i class="fas fa-edit"></i> Editar Usuario
-                    </h4>
+                <div class="card-header text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-user-edit me-2"></i>Editar Información del Usuario
+                    </h5>
                 </div>
                 <div class="card-body">
-                    <form id="formEditarUsuario" action="?action=actualizar_usuario" method="POST">
-                        <input type="hidden" name="id" value="<?php echo $usuario['id']; ?>">
+                    <form id="formEditarUsuario" method="POST">
+                        <input type="hidden" name="id" value="<?php echo $usuario['id_usuario']; ?>">
+                        <input type="hidden" name="actualizar" value="1">
                         
                         <div class="row">
                             <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="nombre">Nombre Completo:</label>
-                                    <input type="text" class="form-control" id="nombre" name="nombre" 
-                                           value="<?php echo htmlspecialchars($usuario['nombre']); ?>" required>
+                                <div class="mb-3 text-white">
+                                    <label for="nombre_completo" class="form-label">Nombre Completo *</label>
+                                    <input type="text" class="form-control" id="nombre_completo" name="nombre_completo" 
+                                           value="<?php echo htmlspecialchars($usuario['nombre_completo']); ?>" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="usuario">Nombre de Usuario:</label>
+                                <div class="mb-3 text-white">
+                                    <label for="usuario" class="form-label">Nombre de Usuario *</label>
                                     <input type="text" class="form-control" id="usuario" name="usuario" 
                                            value="<?php echo htmlspecialchars($usuario['usuario']); ?>" required>
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="form-group">
-                            <label for="email">Email:</label>
-                            <input type="email" class="form-control" id="email" name="email" 
-                                   value="<?php echo htmlspecialchars($usuario['email']); ?>" required>
+                        <div class="mb-3 text-white">
+                            <label for="correo" class="form-label">Email *</label>
+                            <input type="email" class="form-control" id="correo" name="correo" 
+                                   value="<?php echo htmlspecialchars($usuario['correo']); ?>" required>
                         </div>
                         
                         <div class="row">
                             <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="rol">Rol:</label>
-                                    <select class="form-control" id="rol" name="rol" required>
+                                <div class="mb-3 text-white">
+                                    <label for="rol" class="form-label">Rol *</label>
+                                    <select class="form-select" id="rol" name="rol" required>
                                         <option value="">Seleccionar Rol</option>
                                         <option value="Administrador" <?php echo $usuario['rol'] === 'Administrador' ? 'selected' : ''; ?>>Administrador</option>
                                         <option value="Vendedor" <?php echo $usuario['rol'] === 'Vendedor' ? 'selected' : ''; ?>>Vendedor</option>
@@ -70,9 +193,9 @@ $usuario = [
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="estado">Estado:</label>
-                                    <select class="form-control" id="estado" name="estado" required>
+                                <div class="mb-3 text-white">
+                                    <label for="estado" class="form-label">Estado *</label>
+                                    <select class="form-select" id="estado" name="estado" required>
                                         <option value="Activo" <?php echo $usuario['estado'] === 'Activo' ? 'selected' : ''; ?>>Activo</option>
                                         <option value="Inactivo" <?php echo $usuario['estado'] === 'Inactivo' ? 'selected' : ''; ?>>Inactivo</option>
                                     </select>
@@ -80,18 +203,48 @@ $usuario = [
                             </div>
                         </div>
                         
-                        <div class="form-group">
-                            <label for="password">Nueva Contraseña (dejar en blanco para no cambiar):</label>
-                            <input type="password" class="form-control" id="password" name="password">
-                            <small class="form-text text-muted">Mínimo 6 caracteres</small>
+                        <!-- Campos de contraseña -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3 text-white">
+                                    <label for="contrasena" class="form-label">Nueva Contraseña</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" id="contrasena" name="contrasena" 
+                                               placeholder="Dejar en blanco para no cambiar" value="">
+                                        <button type="button" class="btn btn-neon toggle-password" data-target="contrasena">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                    <div class="form-text text-white">Mínimo 6 caracteres</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3 text-white">
+                                    <label for="confirmar_contrasena" class="form-label">Confirmar Contraseña</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" id="confirmar_contrasena" name="confirmar_contrasena" 
+                                               placeholder="Repetir nueva contraseña" value="">
+                                        <button type="button" class="btn btn-neon toggle-password" data-target="confirmar_contrasena">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-success my-4">
+                            <small>
+                                <i class="fas fa-info-circle me-2"></i>
+                                Los campos marcados con * son obligatorios. La contraseña solo es necesaria si desea cambiarla.
+                            </small>
                         </div>
                         
-                        <div class="form-group text-center mt-4">
-                            <button type="submit" class="btn btn-success mr-2">
-                                <i class="fas fa-save"></i> Actualizar Usuario
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4">
+                            <button type="submit" class="btn btn-neon me-2">
+                                <i class="fas fa-save me-2"></i> Actualizar Usuario
                             </button>
-                            <a href="?action=usuarios" class="btn btn-secondary">
-                                <i class="fas fa-times"></i> Cancelar
+                            <a href="index.php?page=usuarios" class="btn btn-danger">
+                                <i class="fas fa-times me-2"></i> Cancelar
                             </a>
                         </div>
                     </form>
@@ -102,13 +255,112 @@ $usuario = [
 </div>
 
 <script>
-document.getElementById('formEditarUsuario').addEventListener('submit', function(e) {
-    const password = document.getElementById('password').value;
-    
-    if (password && password.length < 6) {
-        e.preventDefault();
-        alert('La contraseña debe tener al menos 6 caracteres');
-        return false;
+document.addEventListener('DOMContentLoaded', function() {
+    // Función para mostrar/ocultar contraseña
+    function togglePasswordVisibility(targetId, button) {
+        const passwordInput = document.getElementById(targetId);
+        const icon = button.querySelector('i');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+            button.setAttribute('title', 'Ocultar contraseña');
+        } else {
+            passwordInput.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+            button.setAttribute('title', 'Mostrar contraseña');
+        }
     }
+    
+    // Agregar event listeners a los botones de mostrar/ocultar contraseña
+    const toggleButtons = document.querySelectorAll('.toggle-password');
+    toggleButtons.forEach(button => {
+        // Agregar tooltip inicial
+        button.setAttribute('title', 'Mostrar contraseña');
+        
+        button.addEventListener('click', function() {
+            const targetId = this.getAttribute('data-target');
+            togglePasswordVisibility(targetId, this);
+        });
+    });
+    
+    // Validación del formulario
+    const form = document.getElementById('formEditarUsuario');
+    const contrasena = document.getElementById('contrasena');
+    const confirmarContrasena = document.getElementById('confirmar_contrasena');
+    
+    // Función para validar que las contraseñas coincidan
+    function validarContrasenas() {
+        if (contrasena.value !== '' && confirmarContrasena.value !== '') {
+            if (contrasena.value !== confirmarContrasena.value) {
+                confirmarContrasena.setCustomValidity('Las contraseñas no coinciden');
+                confirmarContrasena.classList.add('is-invalid');
+                return false;
+            } else {
+                confirmarContrasena.setCustomValidity('');
+                confirmarContrasena.classList.remove('is-invalid');
+                return true;
+            }
+        }
+        return true;
+    }
+    
+    // Función para validar longitud de contraseña
+    function validarLongitudContrasena() {
+        if (contrasena.value !== '' && contrasena.value.length < 6) {
+            contrasena.setCustomValidity('La contraseña debe tener al menos 6 caracteres');
+            contrasena.classList.add('is-invalid');
+            return false;
+        } else {
+            contrasena.setCustomValidity('');
+            contrasena.classList.remove('is-invalid');
+            return true;
+        }
+    }
+    
+    // Event listeners para validación en tiempo real
+    contrasena.addEventListener('input', function() {
+        validarLongitudContrasena();
+        validarContrasenas();
+    });
+    
+    confirmarContrasena.addEventListener('input', function() {
+        validarContrasenas();
+    });
+    
+    // Validación al enviar el formulario
+    form.addEventListener('submit', function(e) {
+        const longitudValida = validarLongitudContrasena();
+        const contrasenasCoinciden = validarContrasenas();
+        
+        if (!longitudValida || !contrasenasCoinciden) {
+            e.preventDefault();
+            if (!longitudValida) {
+                alert('La contraseña debe tener al menos 6 caracteres');
+            } else {
+                alert('Las contraseñas no coinciden');
+            }
+            return false;
+        }
+        
+        // Si ambos campos de contraseña están vacíos, no hay problema
+        // Si uno está lleno y el otro vacío, mostrar error
+        if ((contrasena.value === '' && confirmarContrasena.value !== '') || 
+            (contrasena.value !== '' && confirmarContrasena.value === '')) {
+            e.preventDefault();
+            alert('Debe completar ambos campos de contraseña o dejarlos vacíos');
+            return false;
+        }
+    });
+    
+    // Limpiar validación cuando el usuario empiece a escribir
+    const inputs = form.querySelectorAll('input');
+    inputs.forEach(input => {
+        input.addEventListener('input', function() {
+            this.classList.remove('is-invalid');
+        });
+    });
 });
 </script>
