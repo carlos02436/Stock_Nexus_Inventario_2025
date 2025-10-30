@@ -675,21 +675,21 @@ INSERT INTO `proveedores` (`id_proveedor`, `nombre_proveedor`, `nit`, `telefono`
 -- Estructura de tabla para la tabla `roles`
 --
 
-CREATE TABLE `roles` (
-  `id_rol` int(11) NOT NULL,
-  `nombre_rol` varchar(50) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE IF NOT EXISTS roles (
+    id_rol INT PRIMARY KEY AUTO_INCREMENT,
+    nombre_rol VARCHAR(50) NOT NULL UNIQUE,
+    estado TINYINT(1) DEFAULT 1 COMMENT '1=Activo, 0=Inactivo',
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
 
---
--- Volcado de datos para la tabla `roles`
---
-
-INSERT INTO `roles` (`id_rol`, `nombre_rol`) VALUES
-(1, 'Administrador'),
-(2, 'Vendedor'),
-(3, 'Contador'),
-(4, 'Comprador'),
-(5, 'Bodeguero');
+-- Insertar datos iniciales
+INSERT INTO roles (nombre_rol, estado) VALUES 
+('Administrador', 1),
+('Vendedor', 1),
+('Contador', 1),
+('Comprador', 1),
+('Bodeguero', 1);
 
 -- --------------------------------------------------------
 

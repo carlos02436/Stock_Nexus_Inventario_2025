@@ -14,6 +14,7 @@ require_once __DIR__ . '/app/models/MovimientoBodega.php';
 require_once __DIR__ . '/app/models/Pago.php';
 require_once __DIR__ . '/app/models/BalanceGeneral.php';
 require_once __DIR__ . '/app/models/Dashboard.php';
+require_once __DIR__ . '/app/models/Rol.php';
 
 // ==================== AUTOLOAD DE CONTROLADORES ====================
 require_once __DIR__ . '/app/controllers/UsuarioController.php';
@@ -27,11 +28,13 @@ require_once __DIR__ . '/app/controllers/InventarioController.php';
 require_once __DIR__ . '/app/controllers/FinanzaController.php';
 require_once __DIR__ . '/app/controllers/ReporteController.php';
 require_once __DIR__ . '/app/controllers/DashboardController.php';
+require_once __DIR__ . '/app/controllers/RolController.php';
 
 // Instanciar controladores principales
 $usuarioController = new UsuarioController($db);
 $productoController = new ProductoController($db);
 $dashboardController = new DashboardController($db);
+$rolController = new RolController($db);
 
 // ==================== LÓGICA DE LOGIN ====================
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['usuario'], $_POST['contrasena'])) {
@@ -453,14 +456,32 @@ switch ($page) {
 
     case 'PdfGenerator':
         include __DIR__ . '/app/helpers/PdfGenerator.php';
-        break;     
+        break;  
+        
+    // ===================== ROLES =====================
+    case 'roles':
+        include __DIR__ . '/app/views/roles/roles.php';
+        break;
 
+    case 'crear_rol':
+        include __DIR__ . '/app/views/roles/crear_rol.php';
+        break;
+
+    case 'editar_rol':
+        include __DIR__ . '/app/views/roles/editar_rol.php';
+        break;
+
+    case 'cambiar_estado_rol':
+        include __DIR__ . '/app/views/roles/cambiar_estado_rol.php';
+        break;
+
+   // ===================================================
 
     default:
         echo "<section class='container py-5 text-center' style='margin-top:100px;'>
                 <h2 class='text-danger'>404 - Página no encontrada</h2>
                 <p>Lo sentimos, la página que buscas no existe.</p>
-                <a href='index.php?page=dashboard' class='btn btn-primary mt-3'>Volver al dashboard</a>
+                <a href='index.php?page=dashboard' class='btn btn-neon mt-3'>Volver al dashboard</a>
               </section>";
         break;
 }

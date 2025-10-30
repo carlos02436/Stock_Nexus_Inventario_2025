@@ -1,11 +1,24 @@
 </main>
 <!-- Footer -->
+<?php
+// ==== Evitar errores si las variables son arrays o no están definidas ====
+if (!isset($rol)) $rol = 'Invitado';
+if (!isset($nombreUsuario)) $nombreUsuario = 'Desconocido';
+
+if (is_array($rol)) {
+    $rol = implode(', ', $rol);
+}
+if (is_array($nombreUsuario)) {
+    $nombreUsuario = implode(' ', $nombreUsuario);
+}
+?>
+
 <footer class="py-4 footer" style="color: white; background-color: #1a1a1a;">
     <div class="container">
-        <div class="row text-start"> <!-- Cambiado a text-start para alinear todo a la izquierda -->
-            <!-- LOGO DEL PROYECTO (PRIMERA COLUMNA) -->
+        <div class="row text-start">
+            <!-- LOGO DEL PROYECTO -->
             <div class="col-6 col-md-3 mb-4 mb-md-0">
-                <div class="text-start"> <!-- Alineado a la izquierda -->
+                <div class="text-start">
                     <img src="public/img/StockNexus.png" alt="StockNexus" style="width: 80px; height: auto; margin-bottom: 10px;">
                     <div class="navbar-brand mb-0">
                         <small style="color: #ccc; display: block;">
@@ -19,21 +32,18 @@
             <!-- MÓDULOS PRINCIPALES -->
             <div class="col-6 col-md-3 mb-4 mb-md-0">
                 <p class="navbar-brand mb-2">MÓDULOS</p>
-                <ul class="list-unstyled text-start"> <!-- Alineado a la izquierda -->
+                <ul class="list-unstyled text-start">
                     <li class="mb-1"><a href="index.php?page=dashboard" style="color: white; text-decoration: none; font-size: 0.9rem;">Dashboard</a></li>
                     <li class="mb-1"><a href="index.php?page=inventario" style="color: white; text-decoration: none; font-size: 0.9rem;">Inventario</a></li>
-                    
-                    <!-- Finanzas -->
+
                     <?php if (!in_array($rol, ['Vendedor', 'Compras', 'Contador', 'Bodeguero'])): ?>
                         <li class="mb-1"><a href="index.php?page=finanzas" style="color: white; text-decoration: none; font-size: 0.9rem;">Finanzas</a></li>
                     <?php endif; ?>
 
-                    <!-- Proveedores -->
                     <?php if (in_array($rol, ['Administrador', 'Compras', 'Contador'])): ?>
                         <li class="mb-1"><a href="index.php?page=proveedores" style="color: white; text-decoration: none; font-size: 0.9rem;">Proveedores</a></li>
                     <?php endif; ?>
 
-                    <!-- Reportes -->
                     <?php if (!in_array($rol, ['Vendedor', 'Compras', 'Contador', 'Bodeguero'])): ?>
                         <li class="mb-1"><a href="index.php?page=reportes" style="color: white; text-decoration: none; font-size: 0.9rem;">Reportes</a></li>
                     <?php endif; ?>
@@ -44,7 +54,7 @@
             <div class="col-6 col-md-3 mb-4 mb-md-0">
                 <?php if ($rol === 'Administrador'): ?>
                     <p class="navbar-brand mb-2">CONFIGURACIÓN</p>
-                    <ul class="list-unstyled text-start"> <!-- Alineado a la izquierda -->
+                    <ul class="list-unstyled text-start">
                         <li class="mb-1"><a href="index.php?page=usuarios" style="color: white; text-decoration: none; font-size: 0.9rem;">Usuarios</a></li>
                         <li class="mb-1"><a href="index.php?page=roles" style="color: white; text-decoration: none; font-size: 0.9rem;">Roles</a></li>
                         <li class="mb-1"><a href="index.php?page=parametros" style="color: white; text-decoration: none; font-size: 0.9rem;">Parámetros</a></li>
@@ -53,16 +63,13 @@
                     </ul>
                 <?php else: ?>
                     <p class="navbar-brand mb-2">OPERACIONES</p>
-                    <ul class="list-unstyled text-start"> <!-- Alineado a la izquierda -->
-                        <!-- Compras -->
+                    <ul class="list-unstyled text-start">
                         <?php if (in_array($rol, ['Administrador', 'Compras', 'Contador'])): ?>
                             <li class="mb-1"><a href="index.php?page=compras" style="color: white; text-decoration: none; font-size: 0.9rem;">Compras</a></li>
                         <?php endif; ?>
 
-                        <!-- Ventas (visible para todos) -->
                         <li class="mb-1"><a href="index.php?page=ventas" style="color: white; text-decoration: none; font-size: 0.9rem;">Ventas</a></li>
 
-                        <!-- Clientes (solo admin) -->
                         <?php if ($rol === 'Administrador'): ?>
                             <li class="mb-1"><a href="index.php?page=clientes" style="color: white; text-decoration: none; font-size: 0.9rem;">Clientes</a></li>
                         <?php endif; ?>
@@ -73,7 +80,7 @@
             <!-- CONTACTO / SOPORTE -->
             <div class="col-6 col-md-3 mb-4 mb-md-0">
                 <p class="navbar-brand mb-2">CONTACTO</p>
-                <ul class="list-unstyled text-start"> <!-- Alineado a la izquierda -->
+                <ul class="list-unstyled text-start">
                     <li class="mb-1">
                         <a href="tel:+57 312 473 2236" style="color: white; text-decoration: none; font-size: 0.9rem;">
                             (+57) 312 473 22 36
@@ -96,7 +103,7 @@
         <!-- LÍNEA Y COPYRIGHT -->
         <div class="row">
             <div class="col-12">
-                <div class="text-center"> <!-- Contenedor centrado para la línea -->
+                <div class="text-center">
                     <hr style="border-top: 1px solid #00ff00; margin: 20px auto; max-width: 95%;">
                 </div>
                 <div class="text-center">
