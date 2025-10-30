@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <h1 class="h2"><i class="fas fa-edit me-2"></i>Editar Producto</h1>
         <div class="btn-toolbar mb-2 mb-md-0">
             <a href="index.php?page=productos" class="btn btn-secondary">
-                <i class="fas fa-arrow-left me-2"></i>Volver
+                <i class="fas fa-arrow-left me-2"></i>Volver a Productos
             </a>
         </div>
     </div>

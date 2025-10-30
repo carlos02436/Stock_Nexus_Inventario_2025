@@ -48,21 +48,9 @@ $nombreUsuario = $_SESSION['usuario_nombre'] ?? 'Usuario';
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item me-4"><a class="nav-link text-white" href="index.php?page=dashboard">Dashboard</a></li>
                     <li class="nav-item me-4"><a class="nav-link text-white" href="index.php?page=inventario">Inventario</a></li>
-
-                    <!-- Finanzas -->
-                    <?php if (!in_array($rol, ['Vendedor', 'Compras', 'Contador', 'Bodeguero'])): ?>
-                        <li class="nav-item me-4"><a class="nav-link text-white" href="index.php?page=finanzas">Finanzas</a></li>
-                    <?php endif; ?>
-
-                    <!-- Proveedores (solo admin, compras y contador) -->
-                    <?php if (in_array($rol, ['Administrador', 'Compras', 'Contador'])): ?>
-                        <li class="nav-item me-4"><a class="nav-link text-white" href="index.php?page=proveedores">Proveedores</a></li>
-                    <?php endif; ?>
-
-                    <!-- Reportes -->
-                    <?php if (!in_array($rol, ['Vendedor', 'Compras', 'Contador', 'Bodeguero'])): ?>
-                        <li class="nav-item me-4"><a class="nav-link text-white" href="index.php?page=reportes">Reportes</a></li>
-                    <?php endif; ?>
+                    <li class="nav-item me-4"><a class="nav-link text-white" href="index.php?page=finanzas">Finanzas</a></li>
+                    <li class="nav-item me-4"><a class="nav-link text-white" href="index.php?page=proveedores">Proveedores</a></li>
+                    <li class="nav-item me-4"><a class="nav-link text-white" href="index.php?page=reportes">Reportes</a></li>
 
                     <!-- Menú desplegable "Más" -->
                     <li class="nav-item dropdown me-4">
@@ -70,24 +58,14 @@ $nombreUsuario = $_SESSION['usuario_nombre'] ?? 'Usuario';
                             Más
                         </a>
                         <ul class="dropdown-menu dropdown-menu-start bg-dark ms-n2">
-
-                            <!-- Compras -->
-                            <?php if (in_array($rol, ['Administrador', 'Compras', 'Contador'])): ?>
-                                <li><a class="dropdown-item text-white bg-dark" href="index.php?page=compras">Compras</a></li>
-                            <?php endif; ?>
-
-                            <!-- Ventas (visible para todos) -->
+                            <li><a class="dropdown-item text-white bg-dark" href="index.php?page=compras">Compras</a></li>
                             <li><a class="dropdown-item text-white bg-dark" href="index.php?page=ventas">Ventas</a></li>
-
-                            <!-- Solo para Administrador -->
-                            <?php if ($rol === 'Administrador'): ?>
-                                <li><a class="dropdown-item text-white bg-dark" href="index.php?page=clientes">Clientes</a></li>
-                                <li><a class="dropdown-item text-white bg-dark" href="index.php?page=usuarios">Usuarios</a></li>
-                                <li><a class="dropdown-item text-white bg-dark" href="index.php?page=roles">Roles</a></li>
-                                <li><a class="dropdown-item text-white bg-dark" href="index.php?page=categorias">Categorías</a></li>
-                                <li><a class="dropdown-item text-white bg-dark" href="index.php?page=permisos">Permisos</a></li>
-                                <li><a class="dropdown-item text-white bg-dark" href="index.php?page=parametros">Parámetros</a></li>
-                            <?php endif; ?>
+                            <li><a class="dropdown-item text-white bg-dark" href="index.php?page=clientes">Clientes</a></li>
+                            <li><a class="dropdown-item text-white bg-dark" href="index.php?page=usuarios">Usuarios</a></li>
+                            <li><a class="dropdown-item text-white bg-dark" href="index.php?page=roles">Roles</a></li>
+                            <li><a class="dropdown-item text-white bg-dark" href="index.php?page=categorias">Categorías</a></li>
+                            <li><a class="dropdown-item text-white bg-dark" href="index.php?page=permisos">Permisos</a></li>
+                            <li><a class="dropdown-item text-white bg-dark" href="index.php?page=modulos">Módulos</a></li>
                         </ul>
                     </li>
 

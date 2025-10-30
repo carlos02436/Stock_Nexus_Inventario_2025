@@ -1,29 +1,27 @@
 </main>
-<!-- Footer -->
+
 <?php
-// ==== Evitar errores si las variables son arrays o no están definidas ====
-if (!isset($rol)) $rol = 'Invitado';
-if (!isset($nombreUsuario)) $nombreUsuario = 'Desconocido';
+$rol = $_SESSION['usuario_rol'] ?? 'Invitado';
+$nombreUsuario = $_SESSION['usuario_nombre'] ?? 'Usuario';
 
-if (is_array($rol)) {
-    $rol = implode(', ', $rol);
-}
-if (is_array($nombreUsuario)) {
-    $nombreUsuario = implode(' ', $nombreUsuario);
-}
+$rol = htmlspecialchars($rol);
+$nombreUsuario = htmlspecialchars($nombreUsuario);
 ?>
-
 <footer class="py-4 footer" style="color: white; background-color: #1a1a1a;">
     <div class="container">
         <div class="row text-start">
+            
             <!-- LOGO DEL PROYECTO -->
             <div class="col-6 col-md-3 mb-4 mb-md-0">
                 <div class="text-start">
-                    <img src="public/img/StockNexus.png" alt="StockNexus" style="width: 80px; height: auto; margin-bottom: 10px;">
+                    <img src="public/img/StockNexus.png" 
+                        alt="StockNexus" 
+                        style="width: 80px; height: auto; margin-bottom: 10px;">
+                        
                     <div class="navbar-brand mb-0">
                         <small style="color: #ccc; display: block;">
-                            Rol: <?= htmlspecialchars($rol) ?><br>
-                            Usuario: <?= htmlspecialchars($nombreUsuario) ?>
+                            Rol: <?= $rol ?><br>
+                            Usuario: <?= $nombreUsuario ?>
                         </small>
                     </div>
                 </div>
@@ -33,85 +31,43 @@ if (is_array($nombreUsuario)) {
             <div class="col-6 col-md-3 mb-4 mb-md-0">
                 <p class="navbar-brand mb-2">MÓDULOS</p>
                 <ul class="list-unstyled text-start">
-                    <li class="mb-1"><a href="index.php?page=dashboard" style="color: white; text-decoration: none; font-size: 0.9rem;">Dashboard</a></li>
-                    <li class="mb-1"><a href="index.php?page=inventario" style="color: white; text-decoration: none; font-size: 0.9rem;">Inventario</a></li>
-
-                    <?php if (!in_array($rol, ['Vendedor', 'Compras', 'Contador', 'Bodeguero'])): ?>
-                        <li class="mb-1"><a href="index.php?page=finanzas" style="color: white; text-decoration: none; font-size: 0.9rem;">Finanzas</a></li>
-                    <?php endif; ?>
-
-                    <?php if (in_array($rol, ['Administrador', 'Compras', 'Contador'])): ?>
-                        <li class="mb-1"><a href="index.php?page=proveedores" style="color: white; text-decoration: none; font-size: 0.9rem;">Proveedores</a></li>
-                    <?php endif; ?>
-
-                    <?php if (!in_array($rol, ['Vendedor', 'Compras', 'Contador', 'Bodeguero'])): ?>
-                        <li class="mb-1"><a href="index.php?page=reportes" style="color: white; text-decoration: none; font-size: 0.9rem;">Reportes</a></li>
-                    <?php endif; ?>
+                    <li><a href="index.php?page=dashboard" style="color:white;text-decoration:none;font-size:0.9rem;">Dashboard</a></li>
+                    <li><a href="index.php?page=inventario" style="color:white;text-decoration:none;font-size:0.9rem;">Inventario</a></li>
+                    <li><a href="index.php?page=finanzas" style="color:white;text-decoration:none;font-size:0.9rem;">Finanzas</a></li>
+                    <li><a href="index.php?page=proveedores" style="color:white;text-decoration:none;font-size:0.9rem;">Proveedores</a></li>
+                    <li><a href="index.php?page=reportes" style="color:white;text-decoration:none;font-size:0.9rem;">Reportes</a></li>
                 </ul>
             </div>
 
-            <!-- CONFIGURACIÓN / OPERACIONES -->
+            <!-- CONFIGURACIÓN -->
             <div class="col-6 col-md-3 mb-4 mb-md-0">
-                <?php if ($rol === 'Administrador'): ?>
-                    <p class="navbar-brand mb-2">CONFIGURACIÓN</p>
-                    <ul class="list-unstyled text-start">
-                        <li class="mb-1"><a href="index.php?page=usuarios" style="color: white; text-decoration: none; font-size: 0.9rem;">Usuarios</a></li>
-                        <li class="mb-1"><a href="index.php?page=roles" style="color: white; text-decoration: none; font-size: 0.9rem;">Roles</a></li>
-                        <li class="mb-1"><a href="index.php?page=parametros" style="color: white; text-decoration: none; font-size: 0.9rem;">Parámetros</a></li>
-                        <li class="mb-1"><a href="index.php?page=categorias" style="color: white; text-decoration: none; font-size: 0.9rem;">Categorías</a></li>
-                        <li class="mb-1"><a href="index.php?page=permisos" style="color: white; text-decoration: none; font-size: 0.9rem;">Permisos</a></li>
-                    </ul>
-                <?php else: ?>
-                    <p class="navbar-brand mb-2">OPERACIONES</p>
-                    <ul class="list-unstyled text-start">
-                        <?php if (in_array($rol, ['Administrador', 'Compras', 'Contador'])): ?>
-                            <li class="mb-1"><a href="index.php?page=compras" style="color: white; text-decoration: none; font-size: 0.9rem;">Compras</a></li>
-                        <?php endif; ?>
-
-                        <li class="mb-1"><a href="index.php?page=ventas" style="color: white; text-decoration: none; font-size: 0.9rem;">Ventas</a></li>
-
-                        <?php if ($rol === 'Administrador'): ?>
-                            <li class="mb-1"><a href="index.php?page=clientes" style="color: white; text-decoration: none; font-size: 0.9rem;">Clientes</a></li>
-                        <?php endif; ?>
-                    </ul>
-                <?php endif; ?>
+                <p class="navbar-brand mb-2">CONFIGURACIÓN</p>
+                <ul class="list-unstyled text-start">
+                    <li><a href="index.php?page=usuarios" style="color:white;text-decoration:none;font-size:0.9rem;">Usuarios</a></li>
+                    <li><a href="index.php?page=roles" style="color:white;text-decoration:none;font-size:0.9rem;">Roles</a></li>
+                    <li><a href="index.php?page=parametros" style="color:white;text-decoration:none;font-size:0.9rem;">Parámetros</a></li>
+                    <li><a href="index.php?page=categorias" style="color:white;text-decoration:none;font-size:0.9rem;">Categorías</a></li>
+                    <li><a href="index.php?page=permisos" style="color:white;text-decoration:none;font-size:0.9rem;">Permisos</a></li>
+                    <li><a href="index.php?page=modulos" style="color:white;text-decoration:none;font-size:0.9rem;">Módulos</a></li>
+                </ul>
             </div>
 
-            <!-- CONTACTO / SOPORTE -->
+            <!-- CONTACTO -->
             <div class="col-6 col-md-3 mb-4 mb-md-0">
                 <p class="navbar-brand mb-2">CONTACTO</p>
                 <ul class="list-unstyled text-start">
-                    <li class="mb-1">
-                        <a href="tel:+57 312 473 2236" style="color: white; text-decoration: none; font-size: 0.9rem;">
-                            (+57) 312 473 22 36
-                        </a>
-                    </li>
-                    <li class="mb-1">
-                        <a href="mailto:soporte@stocknexus.com" style="color: white; text-decoration: none; font-size: 0.9rem;">
-                            soporte@stocknexus.com
-                        </a>
-                    </li>
-                    <li class="mb-1">
-                        <span style="color: white; font-size: 0.9rem;">
-                            La Jagua de Ibirico, Cesar, Colombia
-                        </span>
-                    </li>
+                    <li><a href="tel:+57 312 473 2236" style="color:white;text-decoration:none;font-size:0.9rem;">(+57) 312 473 22 36</a></li>
+                    <li><a href="mailto:soporte@stocknexus.com" style="color:white;text-decoration:none;font-size:0.9rem;">soporte@stocknexus.com</a></li>
+                    <li><span style="color:white;font-size:0.9rem;">La Jagua de Ibirico, Cesar, Colombia</span></li>
                 </ul>
             </div>
         </div>
 
-        <!-- LÍNEA Y COPYRIGHT -->
-        <div class="row">
-            <div class="col-12">
-                <div class="text-center">
-                    <hr style="border-top: 1px solid #00ff00; margin: 20px auto; max-width: 95%;">
-                </div>
-                <div class="text-center">
-                    <p class="navbar-brand mb-0" style="font-size: 0.72rem;">
-                        &copy; 2025 StockNexus. | Todos los Derechos Reservados.
-                    </p>
-                </div>
-            </div>
+        <div class="text-center mt-4">
+            <hr style="border-top: 1px solid #00ff00; max-width: 95%;">
+            <p class="navbar-brand mb-0" style="font-size:0.72rem;">
+                &copy; 2025 StockNexus | Todos los Derechos Reservados.
+            </p>
         </div>
     </div>
 </footer>

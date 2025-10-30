@@ -42,7 +42,7 @@ $ultimosCodigos = $productoController->obtenerUltimosCodigosPorCategoria();
                                 <div class="mb-3">
                                     <label for="codigo_producto" class="form-label text-white">Código del Producto *</label>
                                     <input type="text" class="form-control" id="codigo_producto" name="codigo_producto" required readonly>
-                                    <small class="form-text text-muted">Código generado automáticamente</small>
+                                    <small class="form-text text-white">Código generado automáticamente</small>
                                 </div>
                             </div>
                         </div>

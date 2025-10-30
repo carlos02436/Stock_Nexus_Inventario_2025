@@ -77,39 +77,50 @@ $roles = $rolController->listar();
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($roles as $rol): ?>
-                            <tr>
-                                <td><?= htmlspecialchars($rol['nombre_rol']) ?></td>
-                                <td>
-                                    <span class="badge bg-<?= $rol['estado'] == 1 ? 'success' : 'secondary' ?>">
-                                        <?= $rol['estado'] == 1 ? 'Activo' : 'Inactivo' ?>
-                                    </span>
-                                </td>
-                                <td><?= date('d/m/Y', strtotime($rol['fecha_creacion'])) ?></td>
-                                <td>
-                                    <div class="btn-group btn-group-sm">
-                                        <a href="index.php?page=editar_rol&id=<?= $rol['id_rol'] ?>" 
-                                           class="btn btn-warning" title="Editar">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <button type="button" 
-                                                class="btn btn-<?= $rol['estado'] == 1 ? 'danger' : 'success' ?> btnModalEstado" 
-                                                data-bs-toggle="modal" 
-                                                data-bs-target="#modalConfirmar" 
-                                                data-id="<?= $rol['id_rol'] ?>"
-                                                data-nombre="<?= htmlspecialchars($rol['nombre_rol']) ?>"
-                                                data-accion="<?= $rol['estado'] == 1 ? 'inactivar' : 'activar' ?>">
-                                            <i class="fas <?= $rol['estado'] == 1 ? 'fa-ban' : 'fa-check' ?>"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <?php endforeach; ?>
+                            <?php if (count($roles) > 0): ?>
+                                <?php foreach ($roles as $rol): ?>
+                                <tr>
+                                    <td><?= htmlspecialchars($rol['nombre_rol']) ?></td>
+                                    <td>
+                                        <span class="badge bg-<?= $rol['estado'] == 1 ? 'success' : 'secondary' ?>">
+                                            <?= $rol['estado'] == 1 ? 'Activo' : 'Inactivo' ?>
+                                        </span>
+                                    </td>
+                                    <td><?= date('d/m/Y', strtotime($rol['fecha_creacion'])) ?></td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="index.php?page=editar_rol&id=<?= $rol['id_rol'] ?>" 
+                                               class="btn btn-warning" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button" 
+                                                    class="btn btn-<?= $rol['estado'] == 1 ? 'danger' : 'success' ?> btnModalEstado" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#modalConfirmar" 
+                                                    data-id="<?= $rol['id_rol'] ?>"
+                                                    data-nombre="<?= htmlspecialchars($rol['nombre_rol']) ?>"
+                                                    data-accion="<?= $rol['estado'] == 1 ? 'inactivar' : 'activar' ?>">
+                                                <i class="fas <?= $rol['estado'] == 1 ? 'fa-ban' : 'fa-check' ?>"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <!-- Mostrar mensaje cuando no hay roles en la base de datos -->
+                                <tr>
+                                    <td colspan="4" class="text-center py-4">
+                                        <div class="text-dark fw-bold py-3">
+                                            <i class="fas fa-info-circle me-2"></i>No hay roles registrados en el sistema.
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endif; ?>
                         </tbody>
                     </table>
 
-                    <!-- Mensaje "sin resultados" -->
-                    <div id="mensajeSinResultados" class="text-center bg-white rounded-3 text-dark fw-bold py-3">
+                    <!-- Mensaje "sin resultados" - OCULTO POR DEFECTO -->
+                    <div id="mensajeSinResultados" class="text-center bg-white rounded-3 text-dark fw-bold py-3" style="display: none;">
                         ⚠️ No se encontraron resultados para la búsqueda realizada.
                     </div>
                 </div>
@@ -150,7 +161,7 @@ $roles = $rolController->listar();
                     <button type="button" class="btn btn-danger px-4" data-bs-dismiss="modal">
                         <i class="fas fa-times me-2"></i>Cancelar
                     </button>
-                    <button type="submit" form="formEstado" class="btn btn-neon px-4" id="btnConfirmar">
+                    <button type="submit" form="formEstado" class="btn btn-success px-4" id="btnConfirmar">
                         <i class="fas fa-check me-2"></i>Confirmar
                     </button>
                 </div>
@@ -169,6 +180,7 @@ $roles = $rolController->listar();
         const contador = document.getElementById('contadorResultados');
         const mensajeSinResultados = document.getElementById('mensajeSinResultados');
         const btnLimpiar = document.getElementById('btnLimpiarFiltros');
+        const tabla = document.querySelector('table');
 
         function filtrarTabla() {
             let contadorVisible = 0;
@@ -177,6 +189,9 @@ $roles = $rolController->listar();
             const fecha = filtroFecha.value.toLowerCase();
 
             filas.forEach(fila => {
+                // Saltar la fila del mensaje "no hay roles"
+                if (fila.cells.length === 1) return;
+                
                 const columnas = fila.querySelectorAll('td');
                 if (columnas.length === 0) return;
 
@@ -194,7 +209,15 @@ $roles = $rolController->listar();
             });
 
             contador.textContent = `Mostrando ${contadorVisible} rol(es)`;
-            mensajeSinResultados.style.display = contadorVisible === 0 ? 'block' : 'none';
+            
+            // Mostrar/ocultar mensaje y tabla según resultados
+            if (contadorVisible === 0) {
+                mensajeSinResultados.style.display = 'block';
+                tabla.style.display = 'none';
+            } else {
+                mensajeSinResultados.style.display = 'none';
+                tabla.style.display = 'table';
+            }
         }
 
         [filtroNombre, filtroEstado, filtroFecha].forEach(f => {
@@ -208,6 +231,9 @@ $roles = $rolController->listar();
             filtroFecha.value = '';
             filtrarTabla();
         });
+
+        // Inicializar estado al cargar la página
+        filtrarTabla();
 
         // --- Configurar modal dinámicamente ---
         const modalConfirmar = document.getElementById('modalConfirmar');
@@ -247,4 +273,4 @@ $roles = $rolController->listar();
         });
     });
     </script>
-<main>
+</main>

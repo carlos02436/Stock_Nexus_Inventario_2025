@@ -15,6 +15,8 @@ require_once __DIR__ . '/app/models/Pago.php';
 require_once __DIR__ . '/app/models/BalanceGeneral.php';
 require_once __DIR__ . '/app/models/Dashboard.php';
 require_once __DIR__ . '/app/models/Rol.php';
+require_once __DIR__ . '/app/models/PermisoModel.php';
+require_once __DIR__ . '/app/models/ModuloModel.php';
 
 // ==================== AUTOLOAD DE CONTROLADORES ====================
 require_once __DIR__ . '/app/controllers/UsuarioController.php';
@@ -29,12 +31,16 @@ require_once __DIR__ . '/app/controllers/FinanzaController.php';
 require_once __DIR__ . '/app/controllers/ReporteController.php';
 require_once __DIR__ . '/app/controllers/DashboardController.php';
 require_once __DIR__ . '/app/controllers/RolController.php';
+require_once __DIR__ . '/app/controllers/PermisoController.php';
+require_once __DIR__ . '/app/controllers/ModuloController.php';
 
 // Instanciar controladores principales
 $usuarioController = new UsuarioController($db);
 $productoController = new ProductoController($db);
 $dashboardController = new DashboardController($db);
 $rolController = new RolController($db);
+$moduloController = new ModuloController($db);
+$permisoController = new PermisoController($db);
 
 // ==================== LÓGICA DE LOGIN ====================
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['usuario'], $_POST['contrasena'])) {
@@ -473,6 +479,40 @@ switch ($page) {
 
     case 'cambiar_estado_rol':
         include __DIR__ . '/app/views/roles/cambiar_estado_rol.php';
+        break;
+
+    // ==================== PERMISOS ====================
+    case 'permisos':
+        include __DIR__ . '/app/views/Permisos/permisos.php';
+        break;
+
+    case 'crear_permisos':
+        include __DIR__ . '/app/views/Permisos/crear_permisos.php';
+        break;
+
+    case 'editar_permisos':
+        include __DIR__ . '/app/views/Permisos/editar_permisos.php';
+        break; 
+
+    case 'cambiar_estado_permiso':
+        include __DIR__ . '/app/views/Permisos/cambiar_estado_permiso.php';
+        break; 
+
+    // ==================== MÓDULOS DEL SISTEMA ====================
+    case 'modulos':
+        include __DIR__ . '/app/views/Modulos/modulos.php';
+        break;
+
+    case 'crear_modulo':
+        include __DIR__ . '/app/views/Modulos/crear_modulo.php';
+        break;
+
+    case 'editar_modulo':
+        include __DIR__ . '/app/views/Modulos/editar_modulo.php';
+        break;
+
+    case 'cambiar_estado_modulo':
+        include __DIR__ . '/app/views/Modulos/cambiar_estado_modulo.php';
         break;
 
    // ===================================================

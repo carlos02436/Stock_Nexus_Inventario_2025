@@ -49,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                id="nombre_rol" 
                                name="nombre_rol" 
                                required 
-                               placeholder="Ejemplo: Recepcionista, Administrador...">
+                               placeholder="Ejemplo: Administrador, Vendedor...">
                     </div>
 
                     <div class="mb-4">
@@ -58,6 +58,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <option value="1" selected>Activo</option>
                             <option value="0">Inactivo</option>
                         </select>
+                    </div>
+
+                    <div class="alert alert-success my-4">
+                        <small>
+                            <i class="fas fa-info-circle me-2"></i>
+                            Los campos marcados con * son obligatorios.
+                        </small>
                     </div>
 
                     <div class="d-flex justify-content-center">
