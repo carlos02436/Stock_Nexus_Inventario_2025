@@ -111,10 +111,10 @@ $modulos = $moduloController->listarTodos();
                     </form>
                 </div>
                 <div class="modal-footer justify-content-center border-0 pb-4">
-                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">
+                    <button type="button" class="btn btn-danger px-4" data-bs-dismiss="modal">
                         <i class="fas fa-times me-2"></i>Cancelar
                     </button>
-                    <button type="submit" form="formEstado" class="btn btn-neon px-4" id="btnConfirmar">
+                    <button type="submit" form="formEstado" class="btn btn-success px-4" id="btnConfirmar">
                         <i class="fas fa-check me-2"></i>Confirmar
                     </button>
                 </div>
