@@ -5,7 +5,7 @@
      style="margin-top:180px;">
     <h1 class="h2"><i class="fas fa-plus-circle me-2"></i>Crear Nuevo Gasto</h1>
     <a href="index.php?page=gastos" class="btn btn-secondary">
-        <i class="fas fa-arrow-left me-2"></i>Volver
+        <i class="fas fa-arrow-left me-2"></i>Volver a Gastos
     </a>
 </div>
 
