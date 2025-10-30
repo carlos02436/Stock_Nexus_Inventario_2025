@@ -114,8 +114,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                                 <div class="col-12">
                                     <hr class="text-white">
-                                    <div class="d-flex justify-content-between">
-                                        <a href="index.php?page=modulos" class="btn btn-secondary">
+                                    <div class="d-flex justify-content-center gap-3">
+                                        <a href="index.php?page=modulos" class="btn btn-danger">
                                             <i class="fas fa-times me-2"></i>Cancelar
                                         </a>
                                         <button type="submit" class="btn btn-neon">
