@@ -187,11 +187,35 @@ class PermisoModel {
      * Verificar si un rol tiene permiso para una acción específica en un módulo
      */
     public function verificarPermiso($id_rol, $modulo, $accion) {
-        $query = "SELECT pr.{$accion} as tiene_permiso
-                  FROM {$this->table} pr
-                  INNER JOIN modulos_sistema m ON pr.id_modulo = m.id_modulo
-                  WHERE pr.id_rol = :id_rol 
-                  AND m.nombre_modulo = :modulo";
+        // Mapear acciones a nombres de columna reales
+        $columnasPermitidas = [
+            'puede_ver', 'puede_crear', 'puede_editar', 'puede_eliminar'
+        ];
+        
+        $columnasMap = [
+            'ver' => 'puede_ver',
+            'crear' => 'puede_crear', 
+            'editar' => 'puede_editar',
+            'eliminar' => 'puede_eliminar'
+        ];
+        
+        // Obtener el nombre real de la columna
+        $columna = $columnasMap[$accion] ?? null;
+        
+        // Validar que la columna sea permitida (seguridad)
+        if (!$columna || !in_array($columna, $columnasPermitidas)) {
+            return false;
+        }
+        
+        $query = "SELECT 
+                    pr.puede_ver,
+                    pr.puede_crear, 
+                    pr.puede_editar,
+                    pr.puede_eliminar
+                FROM {$this->table} pr
+                INNER JOIN modulos_sistema m ON pr.id_modulo = m.id_modulo
+                WHERE pr.id_rol = :id_rol 
+                AND m.nombre_modulo = :modulo";
 
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':id_rol', $id_rol, PDO::PARAM_INT);
@@ -200,7 +224,18 @@ class PermisoModel {
         
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         
-        return $result && $result['tiene_permiso'] == 1;
+        if (!$result) {
+            return false;
+        }
+        
+        // Verificar el permiso específico
+        switch($accion) {
+            case 'ver': return $result['puede_ver'] == 1;
+            case 'crear': return $result['puede_crear'] == 1;
+            case 'editar': return $result['puede_editar'] == 1;
+            case 'eliminar': return $result['puede_eliminar'] == 1;
+            default: return false;
+        }
     }
 
     /**

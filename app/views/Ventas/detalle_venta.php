@@ -20,7 +20,7 @@ if (!$venta) {
         <h1 class="h2"><i class="fas fa-eye me-2"></i>Detalle de Venta</h1>
         <div class="btn-toolbar mb-2 mb-md-0">
             <a href="index.php?page=ventas" class="btn btn-secondary">
-                <i class="fas fa-arrow-left me-2"></i>Volver
+                <i class="fas fa-arrow-left me-2"></i>Volver a Ventas
             </a>
         </div>
     </div>

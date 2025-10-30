@@ -34,6 +34,11 @@ require_once __DIR__ . '/app/controllers/RolController.php';
 require_once __DIR__ . '/app/controllers/PermisoController.php';
 require_once __DIR__ . '/app/controllers/ModuloController.php';
 
+// ==================== MIDDLEWARE Y BASE CONTROLLER ====================
+require_once __DIR__ . '/app/controllers/BaseController.php';
+require_once __DIR__ . '/app/middleware/AuthMiddleware.php';
+require_once __DIR__ . '/app/helpers/PermisoHelper.php';
+
 // Instanciar controladores principales
 $usuarioController = new UsuarioController($db);
 $productoController = new ProductoController($db);
@@ -58,6 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['usuario'], $_POST['co
         $_SESSION['usuario_nombre'] = $user['nombre_completo'];
         $_SESSION['usuario_rol'] = $user['rol'];
         $_SESSION['usuario_correo'] = $user['correo'];
+        $_SESSION['id_rol'] = $user['id_rol']; // ← IMPORTANTE: Agregar id_rol para permisos
         
         header("Location: index.php?page=dashboard");
         exit;
@@ -74,7 +80,7 @@ $public_pages = ['login', 'forgot_password', 'reset_password'];
 $protected_pages = [
     'dashboard', 'inventario', 'productos', 'categorias', 'proveedores',
     'compras', 'ventas', 'clientes', 'finanzas', 'reportes', 'usuarios',
-    'movimientos', 'balance', 'pagos'
+    'movimientos', 'balance', 'pagos', 'roles', 'permisos', 'modulos'
 ];
 
 // Verificar acceso a páginas protegidas
@@ -84,11 +90,35 @@ if (!in_array($page, $public_pages)) {
         exit;
     }
     
-    // Verificar permisos de rol para páginas administrativas
-    $admin_pages = ['usuarios', 'balance', 'reportes_avanzados'];
-    if (in_array($page, $admin_pages) && $_SESSION['usuario_rol'] !== 'Administrador') {
-        header("Location: index.php?page=dashboard");
-        exit;
+    // ========== VERIFICACIÓN DE PERMISOS CON MIDDLEWARE ==============
+    // Crear instancia del middleware de autenticación
+    $authMiddleware = new AuthMiddleware($db);
+    
+    // Mapeo de páginas a módulos del sistema
+    $pageToModuleMap = [
+        'dashboard' => 'Dashboard',
+        'inventario' => 'Inventario',
+        'productos' => 'Inventario',
+        'categorias' => 'Categorías',
+        'proveedores' => 'Proveedores',
+        'compras' => 'Compras',
+        'ventas' => 'Ventas',
+        'clientes' => 'Clientes',
+        'finanzas' => 'Finanzas',
+        'reportes' => 'Reportes',
+        'usuarios' => 'Usuarios',
+        'movimientos' => 'Inventario',
+        'balance' => 'Finanzas',
+        'pagos' => 'Finanzas',
+        'roles' => 'Roles',
+        'permisos' => 'Permisos',
+        'modulos' => 'Módulos'
+    ];
+    
+    // Verificar permiso para la página actual
+    if (isset($pageToModuleMap[$page])) {
+        $modulo = $pageToModuleMap[$page];
+        $authMiddleware->verificarPermiso($modulo, 'ver');
     }
 }
 
@@ -144,6 +174,8 @@ switch ($page) {
         break;
 
     case 'crear_producto':
+        // Verificar permiso para crear
+        $authMiddleware->verificarPermiso('Inventario', 'crear');
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $productoController->crear($_POST);
             header('Location: index.php?page=productos');
@@ -154,6 +186,8 @@ switch ($page) {
         break;
 
     case 'editar_producto':
+        // Verificar permiso para editar
+        $authMiddleware->verificarPermiso('Inventario', 'editar');
         $id = $_GET['id'] ?? null;
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && $id) {
             $productoController->actualizar($id, $_POST);
@@ -165,6 +199,8 @@ switch ($page) {
         break;
 
     case 'eliminar_producto':
+        // Verificar permiso para eliminar
+        $authMiddleware->verificarPermiso('Inventario', 'eliminar');
         $id = $_GET['id'] ?? null;
         if ($id) {
             $productoController->eliminar($id);
@@ -178,14 +214,17 @@ switch ($page) {
         break;
 
     case 'crear_categoria':
+        $authMiddleware->verificarPermiso('Categorías', 'crear');
         include __DIR__ . '/app/views/categorias/crear_categoria.php';
         break;
 
     case 'editar_categoria':
+        $authMiddleware->verificarPermiso('Categorías', 'editar');
         include __DIR__ . '/app/views/categorias/editar_categoria.php';
         break;
 
     case 'eliminar_categoria':
+        $authMiddleware->verificarPermiso('Categorías', 'eliminar');
         include __DIR__ . '/app/views/categorias/eliminar_categoria.php';
         break;
 
@@ -195,14 +234,17 @@ switch ($page) {
         break;
 
     case 'crear_proveedor':
+        $authMiddleware->verificarPermiso('Proveedores', 'crear');
         include __DIR__ . '/app/views/Proveedores/crear_proveedor.php';
         break;
 
     case 'editar_proveedor':
+        $authMiddleware->verificarPermiso('Proveedores', 'editar');
         include __DIR__ . '/app/views/Proveedores/editar_proveedor.php';
         break;
 
     case 'eliminar_proveedor':
+        $authMiddleware->verificarPermiso('Proveedores', 'eliminar');
         include __DIR__ . '/app/views/Proveedores/eliminar_proveedor.php';
         break;
 
@@ -212,6 +254,7 @@ switch ($page) {
         break;
 
     case 'crear_compra':
+        $authMiddleware->verificarPermiso('Compras', 'crear');
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $compraController = new CompraController($db);
             $compraController->crear($_POST);
@@ -227,14 +270,17 @@ switch ($page) {
         break;
 
     case 'marcar_compra_pagada':
+        $authMiddleware->verificarPermiso('Compras', 'editar');
         include __DIR__ . '/app/views/compras/marcar_compra_pagada.php';
         break;
 
     case 'reanudar_compra':
+        $authMiddleware->verificarPermiso('Compras', 'editar');
         include __DIR__ . '/app/views/Compras/reanudar_compra.php';
         break;
 
     case 'anular_compra':
+        $authMiddleware->verificarPermiso('Compras', 'eliminar');
         include __DIR__ . '/app/views/Compras/anular_compra.php';
         break;
 
@@ -244,6 +290,7 @@ switch ($page) {
         break;
 
     case 'crear_venta':
+        $authMiddleware->verificarPermiso('Ventas', 'crear');
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $ventaController = new VentaController($db);
             $ventaController->crear($_POST);
@@ -259,18 +306,22 @@ switch ($page) {
         break;
 
     case 'marcar_venta_pagada':
+        $authMiddleware->verificarPermiso('Ventas', 'editar');
         include __DIR__ . '/app/views/ventas/marcar_venta_pagada.php';
         break;
 
     case 'actualizar_estado_venta':
+        $authMiddleware->verificarPermiso('Ventas', 'editar');
         include __DIR__ . '/app/views/ventas/actualizar_estado_venta.php';
         break;
 
     case 'anular_venta':
+        $authMiddleware->verificarPermiso('Ventas', 'eliminar');
         include __DIR__ . '/app/views/ventas/anular_venta.php';
         break;
 
     case 'revertir_anulacion':
+        $authMiddleware->verificarPermiso('Ventas', 'editar');
         include __DIR__ . '/app/views/ventas/revertir_anulacion.php';
         break;
 
@@ -280,6 +331,7 @@ switch ($page) {
         break;
 
     case 'crear_cliente':
+        $authMiddleware->verificarPermiso('Clientes', 'crear');
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $clienteController = new ClienteController($db);
             $clienteController->crear($_POST);
@@ -291,14 +343,17 @@ switch ($page) {
         break;
 
     case 'editar_cliente':
+        $authMiddleware->verificarPermiso('Clientes', 'editar');
         include __DIR__ . '/app/views/Clientes/editar_cliente.php';
         break;
         
     case 'eliminar_cliente':
+        $authMiddleware->verificarPermiso('Clientes', 'eliminar');
         include __DIR__ . '/app/views/Clientes/eliminar_cliente.php';
         break;  
 
     case 'activar_cliente':
+        $authMiddleware->verificarPermiso('Clientes', 'editar');
         include __DIR__ . '/app/views/Clientes/activar_cliente.php';
         break;  
 
@@ -312,6 +367,7 @@ switch ($page) {
         break;
 
     case 'crear_movimiento':
+        $authMiddleware->verificarPermiso('Inventario', 'crear');
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $inventarioController = new InventarioController($db);
             $inventarioController->crearMovimiento($_POST);
@@ -332,6 +388,7 @@ switch ($page) {
         break;
 
     case 'crear_pago':
+        $authMiddleware->verificarPermiso('Finanzas', 'crear');
         include __DIR__ . '/app/views/Finanzas/crear_pago.php';
         break;
 
@@ -406,18 +463,12 @@ switch ($page) {
 
     // ==================== USUARIOS ====================
     case 'usuarios':
-        if ($_SESSION['usuario_rol'] !== 'Administrador') {
-            header("Location: index.php?page=dashboard");
-            exit;
-        }
+        $authMiddleware->verificarPermiso('Usuarios', 'ver');
         include __DIR__ . '/app/views/usuarios/usuarios.php';
         break;
 
     case 'crear_usuario':
-        if ($_SESSION['usuario_rol'] !== 'Administrador') {
-            header("Location: index.php?page=dashboard");
-            exit;
-        }
+        $authMiddleware->verificarPermiso('Usuarios', 'crear');
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $usuarioController->crear($_POST);
             header('Location: index.php?page=usuarios');
@@ -428,10 +479,7 @@ switch ($page) {
         break;
 
     case 'editar_usuario':
-        if ($_SESSION['usuario_rol'] !== 'Administrador') {
-            header("Location: index.php?page=dashboard");
-            exit;
-        }
+        $authMiddleware->verificarPermiso('Usuarios', 'editar');
         $id = $_GET['id'] ?? null;
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && $id) {
             $usuarioController->actualizar($id, $_POST);
@@ -443,6 +491,7 @@ switch ($page) {
         break;
 
     case 'inactivar_usuario':
+        $authMiddleware->verificarPermiso('Usuarios', 'eliminar');
         include __DIR__ . '/app/views/Usuarios/inactivar_usuario.php';
         break;
 
@@ -466,52 +515,64 @@ switch ($page) {
         
     // ===================== ROLES =====================
     case 'roles':
+        $authMiddleware->verificarPermiso('Roles', 'ver');
         include __DIR__ . '/app/views/roles/roles.php';
         break;
 
     case 'crear_rol':
+        $authMiddleware->verificarPermiso('Roles', 'crear');
         include __DIR__ . '/app/views/roles/crear_rol.php';
         break;
 
     case 'editar_rol':
+        $authMiddleware->verificarPermiso('Roles', 'editar');
         include __DIR__ . '/app/views/roles/editar_rol.php';
         break;
 
     case 'cambiar_estado_rol':
+        $authMiddleware->verificarPermiso('Roles', 'editar');
         include __DIR__ . '/app/views/roles/cambiar_estado_rol.php';
         break;
 
     // ==================== PERMISOS ====================
     case 'permisos':
+        $authMiddleware->verificarPermiso('Permisos', 'ver');
         include __DIR__ . '/app/views/Permisos/permisos.php';
         break;
 
     case 'crear_permisos':
+        $authMiddleware->verificarPermiso('Permisos', 'crear');
         include __DIR__ . '/app/views/Permisos/crear_permisos.php';
         break;
 
     case 'editar_permisos':
+        $authMiddleware->verificarPermiso('Permisos', 'editar');
         include __DIR__ . '/app/views/Permisos/editar_permisos.php';
         break; 
 
     case 'cambiar_estado_permiso':
+        $authMiddleware->verificarPermiso('Permisos', 'eliminar');
         include __DIR__ . '/app/views/Permisos/cambiar_estado_permiso.php';
         break; 
 
     // ==================== MÓDULOS DEL SISTEMA ====================
     case 'modulos':
+        $authMiddleware->verificarPermiso('Módulos', 'ver');
         include __DIR__ . '/app/views/Modulos/modulos.php';
         break;
 
     case 'crear_modulo':
+        $authMiddleware->verificarPermiso('Módulos', 'crear');
         include __DIR__ . '/app/views/Modulos/crear_modulo.php';
         break;
 
     case 'editar_modulo':
+        $authMiddleware->verificarPermiso('Módulos', 'editar');
         include __DIR__ . '/app/views/Modulos/editar_modulo.php';
         break;
 
     case 'cambiar_estado_modulo':
+        $authMiddleware->verificarPermiso('Módulos', 'eliminar');
         include __DIR__ . '/app/views/Modulos/cambiar_estado_modulo.php';
         break;
 
