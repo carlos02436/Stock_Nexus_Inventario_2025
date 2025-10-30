@@ -17,6 +17,7 @@ require_once __DIR__ . '/app/models/Dashboard.php';
 require_once __DIR__ . '/app/models/Rol.php';
 require_once __DIR__ . '/app/models/PermisoModel.php';
 require_once __DIR__ . '/app/models/ModuloModel.php';
+require_once __DIR__ . '/app/models/GastoOperativo.php';
 
 // ==================== AUTOLOAD DE CONTROLADORES ====================
 require_once __DIR__ . '/app/controllers/UsuarioController.php';
@@ -33,6 +34,8 @@ require_once __DIR__ . '/app/controllers/DashboardController.php';
 require_once __DIR__ . '/app/controllers/RolController.php';
 require_once __DIR__ . '/app/controllers/PermisoController.php';
 require_once __DIR__ . '/app/controllers/ModuloController.php';
+require_once __DIR__ . '/app/controllers/AuthController.php';
+require_once __DIR__ . '/app/controllers/GastoController.php';
 
 // ==================== MIDDLEWARE Y BASE CONTROLLER ====================
 require_once __DIR__ . '/app/controllers/BaseController.php';
@@ -46,6 +49,8 @@ $dashboardController = new DashboardController($db);
 $rolController = new RolController($db);
 $moduloController = new ModuloController($db);
 $permisoController = new PermisoController($db);
+$authController = new AuthController($db);
+$gastoController = new GastoController($db);
 
 // ==================== LÓGICA DE LOGIN ====================
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['usuario'], $_POST['contrasena'])) {
@@ -80,7 +85,8 @@ $public_pages = ['login', 'forgot_password', 'reset_password'];
 $protected_pages = [
     'dashboard', 'inventario', 'productos', 'categorias', 'proveedores',
     'compras', 'ventas', 'clientes', 'finanzas', 'reportes', 'usuarios',
-    'movimientos', 'balance', 'pagos', 'roles', 'permisos', 'modulos'
+    'movimientos', 'balance', 'pagos', 'gastos', 'crear_gasto', 'editar_gasto', 'eliminar_gasto',
+    'roles', 'permisos', 'modulos'
 ];
 
 // Verificar acceso a páginas protegidas
@@ -110,6 +116,10 @@ if (!in_array($page, $public_pages)) {
         'movimientos' => 'Inventario',
         'balance' => 'Finanzas',
         'pagos' => 'Finanzas',
+        'gastos' => 'Finanzas',
+        'crear_gasto' => 'Finanzas',
+        'editar_gasto' => 'Finanzas',
+        'eliminar_gasto' => 'Finanzas', 
         'roles' => 'Roles',
         'permisos' => 'Permisos',
         'modulos' => 'Módulos'
@@ -163,6 +173,47 @@ switch ($page) {
     case 'dashboard':
         include __DIR__ . '/app/views/Dashboard/dashboard.php';
         break;
+
+    // ==================== GASTOS ====================
+    case 'gastos':
+        $gastoController = new GastoController($db);
+        $gastoController->listar();
+        break;
+
+    case 'crear_gasto':
+        $authMiddleware->verificarPermiso('Finanzas', 'crear');
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $gastoController = new GastoController($db);
+            $gastoController->crear($_POST);
+            header('Location: index.php?page=gastos');
+            exit();
+        } else {
+            include __DIR__ . '/app/views/Finanzas/crear_gasto.php';
+        }
+        break;
+
+    case 'editar_gasto':
+        $authMiddleware->verificarPermiso('Finanzas', 'editar');
+        $id = $_GET['id'] ?? null;
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && $id) {
+            $gastoController = new GastoController($db);
+            $gastoController->actualizar($id, $_POST);
+            header('Location: index.php?page=gastos');
+            exit();
+        } else {
+            include __DIR__ . '/app/views/Finanzas/editar_gasto.php';
+        }
+        break;
+
+    case 'eliminar_gasto':
+        $authMiddleware->verificarPermiso('Finanzas', 'eliminar');
+        $id = $_GET['id'] ?? null;
+        if ($id) {
+            $gastoController = new GastoController($db);
+            $gastoController->eliminar($id);
+        }
+        header('Location: index.php?page=gastos');
+        exit();
 
     // ==================== INVENTARIO ====================
     case 'inventario':
