@@ -54,7 +54,7 @@ $estadosUnicos = array_unique(array_column($categorias, 'estado'));
                 <div class="col-12">
                     <div class="d-flex gap-2 justify-content-start">
                         <button type="button" id="btnLimpiarFiltros" class="btn btn-danger rounded-3 px-3 py-2">
-                            <i class="fas fa-broom me-2"></i>Limpiar Filtros
+                            <i class="fas fa-undo me-1"></i>Limpiar filtros
                         </button>
                     </div>
                 </div>

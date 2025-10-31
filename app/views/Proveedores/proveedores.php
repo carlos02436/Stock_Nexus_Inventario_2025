@@ -48,7 +48,7 @@ $proveedores = $proveedorController->listar();
                     </div>
                     <div class="col-md-12 d-flex justify-content-start">
                         <button type="button" id="btnLimpiarFiltrosProveedores" class="btn btn-danger">
-                            <i class="fas fa-undo me-1"></i>Limpiar Filtros
+                            <i class="fas fa-undo me-1"></i>Limpiar filtros
                         </button>
                     </div>
                 </form>

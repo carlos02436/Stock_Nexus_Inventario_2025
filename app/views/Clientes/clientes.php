@@ -62,7 +62,7 @@ $clientes = $clienteController->listar(); // Esto ahora solo trae clientes activ
                 </div>
                 <div class="col-md-12 text-start">
                     <button type="button" class="btn btn-danger" id="limpiarFiltros">
-                        <i class="fas fa-undo me-1"></i>Limpiar Filtros
+                        <i class="fas fa-undo me-1"></i>Limpiar filtros
                     </button>
                 </div>
             </div>

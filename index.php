@@ -194,26 +194,32 @@ switch ($page) {
 
     case 'editar_gasto':
         $authMiddleware->verificarPermiso('Finanzas', 'editar');
+        $gastoController = new GastoController($db);
         $id = $_GET['id'] ?? null;
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && $id) {
-            $gastoController = new GastoController($db);
             $gastoController->actualizar($id, $_POST);
-            header('Location: index.php?page=gastos');
-            exit();
+        } else if ($id) {
+            $gastoController->mostrarEditar($id);
         } else {
-            include __DIR__ . '/app/views/Finanzas/editar_gasto.php';
+            header('Location: index.php?page=gastos');
         }
         break;
 
-    case 'eliminar_gasto':
-        $authMiddleware->verificarPermiso('Finanzas', 'eliminar');
+    case 'activar_gasto':
         $id = $_GET['id'] ?? null;
         if ($id) {
             $gastoController = new GastoController($db);
-            $gastoController->eliminar($id);
+            $gastoController->activar($id);
         }
-        header('Location: index.php?page=gastos');
-        exit();
+        break;
+
+    case 'inactivar_gasto':
+        $id = $_GET['id'] ?? null;
+        if ($id) {
+            $gastoController = new GastoController($db);
+            $gastoController->inactivar($id);
+        }
+        break;
 
     // ==================== INVENTARIO ====================
     case 'inventario':

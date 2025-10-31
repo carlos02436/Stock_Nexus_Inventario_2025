@@ -8,7 +8,7 @@ class GastoOperativo {
     }
 
     /**
-     * Obtener todos los gastos operativos
+     * Obtener todos los gastos operativos (solo activos)
      */
     public function obtenerTodos() {
         $query = "SELECT * FROM {$this->table} ORDER BY fecha DESC, id_gasto DESC";
@@ -18,7 +18,27 @@ class GastoOperativo {
     }
 
     /**
-     * Obtener gasto por ID
+     * Activar gasto operativo (cambiar estado)
+     */
+    public function activar($id_gasto) {
+        $query = "UPDATE {$this->table} SET estado = 'Activo' WHERE id_gasto = :id_gasto";
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':id_gasto', $id_gasto, PDO::PARAM_INT);
+        return $stmt->execute();
+    }
+
+    /**
+     * Inactivar gasto operativo (cambiar estado)
+     */
+    public function inactivar($id_gasto) {
+        $query = "UPDATE {$this->table} SET estado = 'Inactivo' WHERE id_gasto = :id_gasto";
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':id_gasto', $id_gasto, PDO::PARAM_INT);
+        return $stmt->execute();
+    }
+
+    /**
+     * Obtener gasto por ID (incluyendo inactivos)
      */
     public function obtenerPorId($id_gasto) {
         $query = "SELECT * FROM {$this->table} WHERE id_gasto = :id_gasto";

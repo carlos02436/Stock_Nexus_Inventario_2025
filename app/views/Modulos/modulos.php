@@ -18,6 +18,47 @@ $modulos = $moduloController->listarTodos();
             </div>
         </div>
 
+        <!-- FILTRO DE BÚSQUEDA -->
+        <div class="card mb-4">
+            <div class="card-header text-white py-3">
+                <h5 class="card-title mb-0"><i class="fas fa-filter me-2"></i>Filtrar Módulos</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-3 text-white">
+                        <label for="filtroNombre" class="form-label small">Nombre</label>
+                        <input type="text" id="filtroNombre" class="form-control form-control-sm" 
+                               placeholder="Buscar por nombre...">
+                    </div>
+                    <div class="col-md-3 text-white">
+                        <label for="filtroDescripcion" class="form-label small">Descripción</label>
+                        <input type="text" id="filtroDescripcion" class="form-control form-control-sm" 
+                               placeholder="Buscar por descripción...">
+                    </div>
+                    <div class="col-md-3 text-white">
+                        <label for="filtroRuta" class="form-label small">Ruta</label>
+                        <input type="text" id="filtroRuta" class="form-control form-control-sm" 
+                               placeholder="Buscar por ruta...">
+                    </div>
+                    <div class="col-md-3 text-white">
+                        <label for="filtroEstado" class="form-label small">Estado</label>
+                        <select id="filtroEstado" class="form-select form-select-sm">
+                            <option value="">Todos los estados</option>
+                            <option value="Activo">Activo</option>
+                            <option value="Inactivo">Inactivo</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-12 text-start">
+                        <button id="btnLimpiarFiltros" class="btn btn-danger btn-sm">
+                            <i class="fas fa-undo me-1"></i>Limpiar filtros
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- TABLA DE MÓDULOS -->
         <div class="card">
             <div class="card-header text-white py-3">
@@ -25,7 +66,7 @@ $modulos = $moduloController->listarTodos();
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-striped table-hover align-middle">
+                    <table class="table table-striped table-hover align-middle" id="tablaModulos">
                         <thead class="table-dark">
                             <tr>
                                 <th>Orden</th>
@@ -82,6 +123,10 @@ $modulos = $moduloController->listarTodos();
                             <?php endif; ?>
                         </tbody>
                     </table>
+                </div>
+                <!-- Mensaje cuando no hay resultados -->
+                <div id="mensajeNoResultados" class="alert alert-warning text-center d-none mt-3">
+                    <i class="fas fa-search me-2"></i>No se encontraron módulos que coincidan con los filtros aplicados.
                 </div>
             </div>
         </div>
@@ -158,6 +203,89 @@ $modulos = $moduloController->listarTodos();
                 modal.show();
             });
         });
+
+        // FILTRADO DE LA TABLA
+        const filtroNombre = document.getElementById('filtroNombre');
+        const filtroDescripcion = document.getElementById('filtroDescripcion');
+        const filtroRuta = document.getElementById('filtroRuta');
+        const filtroEstado = document.getElementById('filtroEstado');
+        const btnLimpiar = document.getElementById('btnLimpiarFiltros');
+        const tabla = document.getElementById('tablaModulos');
+        const filas = tabla.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+        const mensajeNoResultados = document.getElementById('mensajeNoResultados');
+
+        function filtrarTabla() {
+            const nombreFiltro = filtroNombre.value.toLowerCase();
+            const descripcionFiltro = filtroDescripcion.value.toLowerCase();
+            const rutaFiltro = filtroRuta.value.toLowerCase();
+            const estadoFiltro = filtroEstado.value;
+            
+            let resultadosEncontrados = 0;
+            let hayFilasVisibles = false;
+
+            for (let i = 0; i < filas.length; i++) {
+                const celdas = filas[i].getElementsByTagName('td');
+                let mostrarFila = true;
+                
+                // Verificar si es la fila de "no hay módulos"
+                if (celdas.length === 1 && celdas[0].colSpan === 7) {
+                    filas[i].style.display = 'none';
+                    continue;
+                }
+                
+                if (celdas.length >= 6) {
+                    const nombre = celdas[1].textContent.toLowerCase();
+                    const descripcion = celdas[2].textContent.toLowerCase();
+                    const ruta = celdas[4].textContent.toLowerCase();
+                    const estado = celdas[5].textContent.trim();
+                    
+                    // Aplicar filtros
+                    if (nombreFiltro && !nombre.includes(nombreFiltro)) {
+                        mostrarFila = false;
+                    }
+                    if (mostrarFila && descripcionFiltro && !descripcion.includes(descripcionFiltro)) {
+                        mostrarFila = false;
+                    }
+                    if (mostrarFila && rutaFiltro && !ruta.includes(rutaFiltro)) {
+                        mostrarFila = false;
+                    }
+                    if (mostrarFila && estadoFiltro && estado !== estadoFiltro) {
+                        mostrarFila = false;
+                    }
+                }
+                
+                filas[i].style.display = mostrarFila ? '' : 'none';
+                if (mostrarFila) {
+                    resultadosEncontrados++;
+                    hayFilasVisibles = true;
+                }
+            }
+
+            // Mostrar/ocultar mensaje de no resultados
+            if (resultadosEncontrados === 0) {
+                mensajeNoResultados.classList.remove('d-none');
+            } else {
+                mensajeNoResultados.classList.add('d-none');
+            }
+        }
+
+        // Event listeners para los filtros
+        filtroNombre.addEventListener('keyup', filtrarTabla);
+        filtroDescripcion.addEventListener('keyup', filtrarTabla);
+        filtroRuta.addEventListener('keyup', filtrarTabla);
+        filtroEstado.addEventListener('change', filtrarTabla);
+
+        // Botón limpiar filtros
+        btnLimpiar.addEventListener('click', function() {
+            filtroNombre.value = '';
+            filtroDescripcion.value = '';
+            filtroRuta.value = '';
+            filtroEstado.value = '';
+            filtrarTabla();
+        });
+
+        // Inicializar la tabla
+        filtrarTabla();
     });
     </script>
 <main>

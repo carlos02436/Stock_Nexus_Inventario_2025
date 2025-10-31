@@ -74,7 +74,7 @@ $metodosUnicos = array_unique(array_column($pagos, 'metodo_pago'));
                 <div class="col-12">
                     <div class="d-flex gap-2 justify-content-start">
                         <button type="button" id="btnLimpiarFiltros" class="btn btn-danger rounded-3 px-3 py-2">
-                            <i class="fas fa-broom me-2"></i>Limpiar Filtros
+                            <i class="fas fa-undo me-1"></i>Limpiar filtros
                         </button>
                     </div>
                 </div>
@@ -132,17 +132,10 @@ $metodosUnicos = array_unique(array_column($pagos, 'metodo_pago'));
                         <?php endforeach; ?>
                     </tbody>
                 </table>
-                
+
                 <!-- Mensaje cuando no hay resultados -->
-                <div id="mensajeNoResultados" class="text-center py-5 d-none">
-                    <div class="mb-3">
-                        <i class="fas fa-search fa-3x text-muted"></i>
-                    </div>
-                    <h4 class="text-white">No hay coincidencias de búsqueda</h4>
-                    <p class="text-white">Intenta ajustar los filtros para ver más resultados.</p>
-                    <button type="button" id="btnLimpiarDesdeMensaje" class="btn btn-neon mt-2">
-                        <i class="fas fa-broom me-2 text-white"></i>Limpiar todos los filtros
-                    </button>
+                <div id="mensajeNoResultados" class="alert bg-white text-center d-none mt-3">
+                    <i class="fas fa-search fa-1x text-dark"></i> No se encontraron resultados que coincidan con los filtros aplicados.
                 </div>
             </div>
         </div>

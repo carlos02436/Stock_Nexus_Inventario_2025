@@ -73,7 +73,7 @@ sort($categoriasUnicas);
             <div class="row mt-3">
                 <div class="col-12">
                     <button type="button" class="btn btn-danger" id="btnLimpiarFiltros">
-                        <i class="fas fa-times me-2"></i>Limpiar Filtros
+                        <i class="fas fa-undo me-1"></i>Limpiar filtros
                     </button>
                 </div>
             </div>

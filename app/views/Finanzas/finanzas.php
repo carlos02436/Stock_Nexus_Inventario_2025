@@ -70,6 +70,9 @@ try {
                 <a href="index.php?page=pagos" class="btn btn-warning rounded-3 px-3 py-2 text-center">
                     <i class="fas fa-credit-card me-2"></i>Pagos
                 </a>
+                <a href="index.php?page=gastos" class="btn btn-danger rounded-3 px-3 py-2 text-center">
+                    <i class="fas fa-credit-card me-2"></i>Gastos
+                </a>
                 <a href="index.php?page=estado_resultado" class="btn btn-success rounded-3 px-3 py-2 text-center">
                     <i class="fas fa-file-invoice-dollar me-2"></i>Estado de Resultados
                 </a>

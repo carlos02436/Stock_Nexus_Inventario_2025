@@ -63,7 +63,7 @@ $estados = ['Todos' => '', 'Pagada' => 'Pagada', 'Pendiente' => 'Pendiente', 'An
                 </div>
                 <div class="col-md-2">
                     <button id="btn-limpiar" class="btn btn-danger btn-sm w-90" title="Limpiar todos los filtros">
-                        <i class="fas fa-undo me-1"></i>Limpiar Filtros
+                        <i class="fas fa-undo me-1"></i>Limpiar filtros
                     </button>
                 </div>
             </div>

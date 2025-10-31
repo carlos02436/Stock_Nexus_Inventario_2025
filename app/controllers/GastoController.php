@@ -130,19 +130,44 @@ class GastoController extends BaseController {
     }
 
     /**
-     * Eliminar gasto
+     * Activar gasto (cambiar estado)
      */
-    public function eliminar($id_gasto) {
+    public function activar($id_gasto) {
         $this->requerirPermiso('Finanzas', 'eliminar');
         
         try {
-            $resultado = $this->gastoModel->eliminar($id_gasto);
+            $resultado = $this->gastoModel->activar($id_gasto);
             
             if ($resultado) {
-                $_SESSION['mensaje'] = 'Gasto eliminado exitosamente';
+                $_SESSION['mensaje'] = 'Gasto activado exitosamente';
                 $_SESSION['tipo_mensaje'] = 'success';
             } else {
-                $_SESSION['mensaje'] = 'Error al eliminar el gasto';
+                $_SESSION['mensaje'] = 'Error al activar el gasto';
+                $_SESSION['tipo_mensaje'] = 'error';
+            }
+        } catch (Exception $e) {
+            $_SESSION['mensaje'] = 'Error del sistema: ' . $e->getMessage();
+            $_SESSION['tipo_mensaje'] = 'error';
+        }
+        
+        header('Location: index.php?page=gastos');
+        exit();
+    }
+
+    /**
+     * Inactivar gasto (cambiar estado)
+     */
+    public function inactivar($id_gasto) {
+        $this->requerirPermiso('Finanzas', 'eliminar');
+        
+        try {
+            $resultado = $this->gastoModel->inactivar($id_gasto);
+            
+            if ($resultado) {
+                $_SESSION['mensaje'] = 'Gasto inactivado exitosamente';
+                $_SESSION['tipo_mensaje'] = 'success';
+            } else {
+                $_SESSION['mensaje'] = 'Error al inactivar el gasto';
                 $_SESSION['tipo_mensaje'] = 'error';
             }
         } catch (Exception $e) {

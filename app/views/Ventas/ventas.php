@@ -34,17 +34,17 @@ $ventas = $ventaController->listar();
                 <div class="col-md-2">
                     <label for="filtroCodigo" class="form-label small text-white">Código</label>
                     <input type="text" id="filtroCodigo" class="form-control form-control-sm" 
-                           placeholder="Código venta...">
+                        placeholder="Código venta...">
                 </div>
                 <div class="col-md-3">
                     <label for="filtroCliente" class="form-label small text-white">Cliente</label>
                     <input type="text" id="filtroCliente" class="form-control form-control-sm" 
-                           placeholder="Nombre cliente...">
+                        placeholder="Nombre cliente...">
                 </div>
                 <div class="col-md-2">
                     <label for="filtroFecha" class="form-label small text-white">Fecha</label>
                     <input type="text" id="filtroFecha" class="form-control form-control-sm" 
-                           placeholder="dd/mm/aaaa...">
+                        placeholder="dd/mm/aaaa...">
                 </div>
                 <div class="col-md-2">
                     <label for="filtroMetodoPago" class="form-label small text-white">Método Pago</label>
@@ -65,10 +65,11 @@ $ventas = $ventaController->listar();
                         <option value="Anulada">Anulada</option>
                     </select>
                 </div>
-                <div class="col-md-1">
-                    <label class="form-label small d-block">&nbsp;</label>
-                    <button id="btnLimpiarFiltros" class="btn btn-danger w-150">
-                        <i class="fas fa-undo me-1"></i>Limpiar
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-12 text-start">
+                    <button id="btnLimpiarFiltros" class="btn btn-danger btn-sm">
+                        <i class="fas fa-undo me-1"></i>Limpiar filtros
                     </button>
                 </div>
             </div>
