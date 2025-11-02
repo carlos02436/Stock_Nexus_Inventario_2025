@@ -25,64 +25,64 @@ if (!$compra) {
         </div>
     </div>
 
-    <div class="row mx-1">
-        <div class="col-md-6">
-            <div class="card mb-4 py-3">
-                <div class="card-header text-white">
-                    <h5 class="card-title mb-0">Información de la Compra</h5>
-                </div>
-                <div class="card-body">
-                    <table class="table table-sm">
-                        <tr>
-                            <th>Código:</th>
-                            <td><?= $compra['codigo_compra'] ?></td>
-                        </tr>
-                        <tr>
-                            <th>Proveedor:</th>
-                            <td><?= $compra['nombre_proveedor'] ?></td>
-                        </tr>
-                        <tr>
-                            <th>Fecha:</th>
-                            <td><?= date('d/m/Y H:i', strtotime($compra['fecha_compra'])) ?></td>
-                        </tr>
-                        <tr>
-                            <th>Estado:</th>
-                            <td>
-                                <span class="badge bg-<?= 
-                                    $compra['estado'] == 'Pagada' ? 'success' : 
-                                    ($compra['estado'] == 'Pendiente' ? 'warning' : 'danger') 
-                                ?>">
-                                    <?= $compra['estado'] ?>
-                                </span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>Registrado por:</th>
-                            <td><?= $compra['usuario_nombre'] ?></td>
-                        </tr>
-                    </table>
+<div class="row mx-1">
+    <div class="col-md-12">
+        <div class="card mb-4 py-3">
+            <div class="card-header text-white d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Información de la Compra</h5>
+                <div class="text-end">
+                    <div class="h4 text-warning mb-0">$<?= number_format($compra['total_compra'], 2) ?></div>
+                    <small class="text-white-50">Total Compra</small>
                 </div>
             </div>
-        </div>
-        
-        <div class="col-md-6">
-            <div class="card mb-4 py-3">
-                <div class="card-header text-white">
-                    <h5 class="card-title mb-0">Resumen de Costos</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-6 text-white">
-                            <strong>Total Compra:</strong>
-                        </div>
-                        <div class="col-6 text-end">
-                            <h3 class="text-primary">$<?= number_format($compra['total_compra'], 2) ?></h3>
-                        </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-sm">
+                            <tr>
+                                <th width="40%">Código:</th>
+                                <td><?= $compra['codigo_compra'] ?></td>
+                            </tr>
+                            <tr>
+                                <th>Factura:</th>
+                                <td>
+                                    <span class="badge bg-secondary"><?= $compra['factura'] ?? 'N/A' ?></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Proveedor:</th>
+                                <td><?= $compra['nombre_proveedor'] ?></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-sm">
+                            <tr>
+                                <th width="40%">Fecha:</th>
+                                <td><?= date('d/m/Y H:i', strtotime($compra['fecha_compra'])) ?></td>
+                            </tr>
+                            <tr>
+                                <th>Estado:</th>
+                                <td>
+                                    <span class="badge bg-<?= 
+                                        $compra['estado'] == 'Pagada' ? 'success' : 
+                                        ($compra['estado'] == 'Pendiente' ? 'warning' : 'danger') 
+                                    ?>">
+                                        <?= $compra['estado'] ?>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Registrado por:</th>
+                                <td><?= $compra['usuario_nombre'] ?></td>
+                            </tr>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
     <div class="card mx-1 py-3">
         <div class="card-header text-white">

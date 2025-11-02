@@ -83,6 +83,7 @@ $estados = ['Todos' => '', 'Pagada' => 'Pagada', 'Pendiente' => 'Pendiente', 'An
                     <thead class="table-dark">
                         <tr>
                             <th>Código</th>
+                            <th>Factura</th>
                             <th>Proveedor</th>
                             <th>Fecha</th>
                             <th>Estado</th>
@@ -96,6 +97,7 @@ $estados = ['Todos' => '', 'Pagada' => 'Pagada', 'Pendiente' => 'Pendiente', 'An
                             data-fecha="<?= date('Y-m-d', strtotime($compra['fecha_compra'])) ?>" 
                             data-estado="<?= $compra['estado'] ?>">
                             <td><?= $compra['codigo_compra'] ?></td>
+                            <td><?= $compra['factura'] ?? 'N/A' ?></td>
                             <td><?= $compra['nombre_proveedor'] ?></td>
                             <td><?= date('d/m/Y', strtotime($compra['fecha_compra'])) ?></td>
                             <td>
@@ -114,24 +116,34 @@ $estados = ['Todos' => '', 'Pagada' => 'Pagada', 'Pendiente' => 'Pendiente', 'An
                                         <i class="fas fa-eye"></i>
                                     </a>
                                     <?php if ($compra['estado'] == 'Pendiente'): ?>
-                                    <a href="index.php?page=marcar_compra_pagada&id=<?= $compra['id_compra'] ?>" 
-                                       class="btn btn-success" title="Marcar como Pagada">
+                                    <button type="button" 
+                                            class="btn btn-success btnMarcarCompraPagada" 
+                                            data-id="<?= $compra['id_compra'] ?>"
+                                            data-codigo="<?= $compra['codigo_compra'] ?>"
+                                            data-proveedor="<?= $compra['nombre_proveedor'] ?>"
+                                            title="Marcar como Pagada">
                                         <i class="fas fa-check"></i>
-                                    </a>
+                                    </button>
                                     <?php endif; ?>
                                     
                                     <?php if ($compra['estado'] != 'Anulada'): ?>
-                                    <a href="index.php?page=anular_compra&id=<?= $compra['id_compra'] ?>" 
-                                       class="btn btn-danger" title="Anular Compra" 
-                                       onclick="return confirm('¿Está seguro de anular esta compra? Se restará del inventario.')">
+                                    <button type="button" 
+                                            class="btn btn-danger btnAnularCompra" 
+                                            data-id="<?= $compra['id_compra'] ?>"
+                                            data-codigo="<?= $compra['codigo_compra'] ?>"
+                                            data-proveedor="<?= $compra['nombre_proveedor'] ?>"
+                                            title="Anular Compra">
                                         <i class="fas fa-ban"></i>
-                                    </a>
+                                    </button>
                                     <?php else: ?>
-                                    <a href="index.php?page=reanudar_compra&id=<?= $compra['id_compra'] ?>" 
-                                       class="btn btn-success" title="Reanudar Compra" 
-                                       onclick="return confirm('¿Está seguro de reanudar esta compra? Se sumará al inventario.')">
+                                    <button type="button" 
+                                            class="btn btn-success btnReanudarCompra" 
+                                            data-id="<?= $compra['id_compra'] ?>"
+                                            data-codigo="<?= $compra['codigo_compra'] ?>"
+                                            data-proveedor="<?= $compra['nombre_proveedor'] ?>"
+                                            title="Reanudar Compra">
                                         <i class="fas fa-redo"></i>
-                                    </a>
+                                    </button>
                                     <?php endif; ?>
                                 </div>
                             </td>
@@ -139,13 +151,106 @@ $estados = ['Todos' => '', 'Pagada' => 'Pagada', 'Pendiente' => 'Pendiente', 'An
                         <?php endforeach; ?>
                         <?php if (empty($compras)): ?>
                         <tr>
-                            <td colspan="5" class="text-center text-muted py-4">
+                            <td colspan="6" class="text-center text-muted py-4">
                                 <i class="fas fa-info-circle me-2"></i>No hay compras registradas
                             </td>
                         </tr>
                         <?php endif; ?>
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL PARA MARCAR COMPRA COMO PAGADA -->
+<div class="modal fade" id="modalMarcarCompraPagada" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-check-circle me-2"></i>Marcar Compra como Pagada
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center text-dark">
+                <p>¿Está seguro que desea marcar la siguiente compra como <strong>PAGADA</strong>?</p>
+                <div class="alert alert-info">
+                    <p id="detalleCompraPagada" class="mb-0 fw-bold">Cargando información...</p>
+                </div>
+                <p class="text-muted small">Esta acción cambiará el estado de la compra a "Pagada".</p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Cancelar
+                </button>
+                <a href="#" id="btnConfirmarCompraPagada" class="btn btn-success">
+                    <i class="fas fa-check me-1"></i>Confirmar Pago
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL PARA ANULAR COMPRA -->
+<div class="modal fade" id="modalAnularCompra" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-ban me-2"></i>Anular Compra
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-dark text-center">
+                <p>¿Está seguro que desea <strong>ANULAR</strong> la siguiente compra?</p>
+                <div class="alert alert-warning">
+                    <p id="detalleCompraAnular" class="mb-0 fw-bold">Cargando información...</p>
+                </div>
+                <p class="text-danger small">
+                    <i class="fas fa-exclamation-triangle me-1"></i>
+                    Esta acción se puede revertir, por el momento afectará el inventario.
+                </p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Cancelar
+                </button>
+                <a href="#" id="btnConfirmarAnularCompra" class="btn btn-danger">
+                    <i class="fas fa-ban me-1"></i>Confirmar Anulación
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL PARA REANUDAR COMPRA -->
+<div class="modal fade" id="modalReanudarCompra" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title">
+                    <i class="fas fa-redo me-2"></i>Reanudar Compra
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-dark text-center">
+                <p>¿Está seguro que desea <strong>REANUDAR</strong> la siguiente compra anulada?</p>
+                <div class="alert alert-info">
+                    <p id="detalleCompraReanudar" class="mb-0 fw-bold">Cargando información...</p>
+                </div>
+                <p class="text-muted small">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Esta acción restaurará la compra y actualizará el inventario.
+                </p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Cancelar
+                </button>
+                <a href="#" id="btnConfirmarReanudarCompra" class="btn btn-warning">
+                    <i class="fas fa-redo me-1"></i>Reanudar Compra
+                </a>
             </div>
         </div>
     </div>
@@ -197,7 +302,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const filaMensaje = document.createElement('tr');
                 filaMensaje.id = 'mensaje-no-resultados';
                 filaMensaje.innerHTML = `
-                    <td colspan="5" class="text-center text-muted py-4">
+                    <td colspan="6" class="text-center text-muted py-4">
                         <i class="fas fa-search me-2"></i>No se encontraron compras con los filtros aplicados
                     </td>
                 `;
@@ -232,6 +337,71 @@ document.addEventListener('DOMContentLoaded', function() {
             filtroCodigo.value = '';
             filtrarCompras();
         }
+    });
+
+    // Configurar modales de compras
+    const btnMarcarCompraPagada = document.querySelectorAll('.btnMarcarCompraPagada');
+    const btnAnularCompra = document.querySelectorAll('.btnAnularCompra');
+    const btnReanudarCompra = document.querySelectorAll('.btnReanudarCompra');
+    
+    // Modal Marcar Compra como Pagada
+    btnMarcarCompraPagada.forEach(boton => {
+        boton.addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            const codigo = this.getAttribute('data-codigo');
+            const proveedor = this.getAttribute('data-proveedor');
+            
+            // Actualizar detalles en el modal
+            document.getElementById('detalleCompraPagada').textContent = 
+                `Código: ${codigo} - Proveedor: ${proveedor}`;
+            
+            // Actualizar enlace de confirmación
+            document.getElementById('btnConfirmarCompraPagada').href = 
+                `index.php?page=marcar_compra_pagada&id=${id}`;
+            
+            const modal = new bootstrap.Modal(document.getElementById('modalMarcarCompraPagada'));
+            modal.show();
+        });
+    });
+    
+    // Modal Anular Compra
+    btnAnularCompra.forEach(boton => {
+        boton.addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            const codigo = this.getAttribute('data-codigo');
+            const proveedor = this.getAttribute('data-proveedor');
+            
+            // Actualizar detalles en el modal
+            document.getElementById('detalleCompraAnular').textContent = 
+                `Código: ${codigo} - Proveedor: ${proveedor}`;
+            
+            // Actualizar enlace de confirmación
+            document.getElementById('btnConfirmarAnularCompra').href = 
+                `index.php?page=anular_compra&id=${id}`;
+            
+            const modal = new bootstrap.Modal(document.getElementById('modalAnularCompra'));
+            modal.show();
+        });
+    });
+    
+    // Modal Reanudar Compra
+    btnReanudarCompra.forEach(boton => {
+        boton.addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            const codigo = this.getAttribute('data-codigo');
+            const proveedor = this.getAttribute('data-proveedor');
+            
+            // Actualizar detalles en el modal
+            document.getElementById('detalleCompraReanudar').textContent = 
+                `Código: ${codigo} - Proveedor: ${proveedor}`;
+            
+            // Actualizar enlace de confirmación
+            document.getElementById('btnConfirmarReanudarCompra').href = 
+                `index.php?page=reanudar_compra&id=${id}`;
+            
+            const modal = new bootstrap.Modal(document.getElementById('modalReanudarCompra'));
+            modal.show();
+        });
     });
 
     // Filtrar inicialmente para asegurar que todo funcione

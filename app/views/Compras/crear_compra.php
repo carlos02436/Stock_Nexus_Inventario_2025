@@ -291,7 +291,7 @@ function formatoCOP($numero) {
 </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", function() {
     const contenedor = document.getElementById("productos-container");
     const btnAgregar = document.getElementById("agregar-producto");
     const btnLimpiar = document.getElementById("limpiar-formulario");
@@ -455,64 +455,68 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Seleccionar producto - Auto-completar precio
-    contenedor.addEventListener("change", e => {
-        if (e.target.classList.contains("producto-select")) {
-            const opt = e.target.selectedOptions[0];
+    function configurarSelectProducto(select) {
+        select.addEventListener("change", function() {
+            const opt = this.selectedOptions[0];
             const precio = parseFloat(opt.getAttribute("data-precio")) || 0;
-            const item = e.target.closest(".producto-item");
+            const item = this.closest(".producto-item");
             
             if (precio > 0) {
-                item.querySelector(".precio").value = formatoCOP(precio);
+                const precioInput = item.querySelector(".precio");
+                precioInput.value = formatoCOP(precio);
+                
                 // Calcular subtotal automáticamente si hay cantidad
                 const cantidad = parseFloat(item.querySelector(".cantidad").value) || 0;
                 if (cantidad > 0) {
                     actualizarTotales();
                 }
             }
-        }
-    });
+        });
+    }
 
-    // Cambiar cantidad - Recalcular automáticamente
-    contenedor.addEventListener("input", e => {
-        if (e.target.classList.contains("cantidad")) {
-            const item = e.target.closest(".producto-item");
+    // Configurar eventos para cantidad
+    function configurarCantidad(input) {
+        input.addEventListener("input", function() {
+            const item = this.closest(".producto-item");
             const precio = copANumero(item.querySelector(".precio").value) || 0;
-            const cantidad = parseFloat(e.target.value) || 0;
+            const cantidad = parseFloat(this.value) || 0;
             
             if (cantidad > 0 && precio > 0) {
                 const subtotalProducto = cantidad * precio;
                 item.querySelector(".subtotal").value = formatoCOP(subtotalProducto);
                 actualizarTotales();
+            } else {
+                item.querySelector(".subtotal").value = "$0,00";
+                actualizarTotales();
             }
-        }
-    });
+        });
+    }
 
-    // Cambiar precio - Recalcular automáticamente
-    contenedor.addEventListener("input", e => {
-        if (e.target.classList.contains("precio")) {
-            const item = e.target.closest(".producto-item");
+    // Configurar eventos para precio
+    function configurarPrecio(input) {
+        formatearInputCOP(input);
+        
+        input.addEventListener("input", function() {
+            const item = this.closest(".producto-item");
             const cantidad = parseFloat(item.querySelector(".cantidad").value) || 0;
-            const precio = copANumero(e.target.value) || 0;
+            const precio = copANumero(this.value) || 0;
             
             if (cantidad > 0 && precio > 0) {
                 const subtotalProducto = cantidad * precio;
                 item.querySelector(".subtotal").value = formatoCOP(subtotalProducto);
                 actualizarTotales();
+            } else {
+                item.querySelector(".subtotal").value = "$0,00";
+                actualizarTotales();
             }
-        }
-    });
-
-    // También recalcular cuando se pierde el foco en precio
-    contenedor.addEventListener("blur", e => {
-        if (e.target.classList.contains("precio")) {
-            actualizarTotales();
-        }
-    });
+        });
+    }
 
     // Agregar producto
-    btnAgregar.addEventListener("click", () => {
-        const index = contenedor.querySelectorAll(".producto-item").length;
-        const nuevo = contenedor.firstElementChild.cloneNode(true);
+    btnAgregar.addEventListener("click", function() {
+        const items = contenedor.querySelectorAll(".producto-item");
+        const index = items.length;
+        const nuevo = items[0].cloneNode(true);
         
         // Actualizar nombres de los inputs
         nuevo.querySelectorAll("input, select").forEach(el => {
@@ -532,56 +536,16 @@ document.addEventListener("DOMContentLoaded", () => {
         
         contenedor.appendChild(nuevo);
         
-        // Aplicar formato COP al nuevo input de precio
-        formatearInputCOP(nuevo.querySelector('.precio'));
+        // Configurar eventos para el nuevo producto
+        configurarSelectProducto(nuevo.querySelector('.producto-select'));
+        configurarCantidad(nuevo.querySelector('.cantidad'));
+        configurarPrecio(nuevo.querySelector('.precio'));
         
-        // Agregar event listeners al nuevo producto
-        agregarEventListenersProducto(nuevo);
+        actualizarTotales();
     });
 
-    // Función para agregar event listeners a productos nuevos
-    function agregarEventListenersProducto(productoItem) {
-        const cantidadInput = productoItem.querySelector('.cantidad');
-        const precioInput = productoItem.querySelector('.precio');
-        const productoSelect = productoItem.querySelector('.producto-select');
-        
-        cantidadInput.addEventListener('input', function() {
-            const cantidad = parseFloat(this.value) || 0;
-            const precio = copANumero(precioInput.value) || 0;
-            if (cantidad > 0 && precio > 0) {
-                const subtotal = cantidad * precio;
-                productoItem.querySelector('.subtotal').value = formatoCOP(subtotal);
-                actualizarTotales();
-            }
-        });
-        
-        precioInput.addEventListener('input', function() {
-            const precio = copANumero(this.value) || 0;
-            const cantidad = parseFloat(cantidadInput.value) || 0;
-            if (cantidad > 0 && precio > 0) {
-                const subtotal = cantidad * precio;
-                productoItem.querySelector('.subtotal').value = formatoCOP(subtotal);
-                actualizarTotales();
-            }
-        });
-        
-        productoSelect.addEventListener('change', function() {
-            const opt = this.selectedOptions[0];
-            const precio = parseFloat(opt.getAttribute("data-precio")) || 0;
-            if (precio > 0) {
-                precioInput.value = formatoCOP(precio);
-                const cantidad = parseFloat(cantidadInput.value) || 0;
-                if (cantidad > 0) {
-                    const subtotal = cantidad * precio;
-                    productoItem.querySelector('.subtotal').value = formatoCOP(subtotal);
-                    actualizarTotales();
-                }
-            }
-        });
-    }
-
     // Eliminar producto
-    contenedor.addEventListener("click", e => {
+    contenedor.addEventListener("click", function(e) {
         if (e.target.closest(".eliminar-producto")) {
             const items = contenedor.querySelectorAll(".producto-item");
             if (items.length > 1) {
@@ -638,11 +602,12 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Aplicar formato COP a los inputs de precio existentes
-    document.querySelectorAll('.precio').forEach(formatearInputCOP);
-    
-    // Agregar event listeners a los productos iniciales
-    document.querySelectorAll('.producto-item').forEach(agregarEventListenersProducto);
+    // Configurar eventos para los productos iniciales
+    document.querySelectorAll('.producto-item').forEach(item => {
+        configurarSelectProducto(item.querySelector('.producto-select'));
+        configurarCantidad(item.querySelector('.cantidad'));
+        configurarPrecio(item.querySelector('.precio'));
+    });
 
     // Calcular totales iniciales
     actualizarTotales();

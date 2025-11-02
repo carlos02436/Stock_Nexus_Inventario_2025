@@ -9,11 +9,23 @@ class PermisoController {
     }
 
     /**
-     * Listar todos los permisos con información completa
+     * Listar todos los permisos con información completa (activos e inactivos)
+     */
+    public function listarTodosPermisosCompletos() {
+        try {
+            return $this->permisoModel->obtenerPermisosCompletos();
+        } catch (Exception $e) {
+            error_log("Error en PermisoController::listarTodosPermisosCompletos: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Listar solo permisos activos con información completa
      */
     public function listarPermisosCompletos() {
         try {
-            return $this->permisoModel->obtenerPermisosCompletos();
+            return $this->permisoModel->obtenerPermisosActivosCompletos();
         } catch (Exception $e) {
             error_log("Error en PermisoController::listarPermisosCompletos: " . $e->getMessage());
             return [];
@@ -42,6 +54,11 @@ class PermisoController {
                 return false;
             }
 
+            // Asegurar que el estado esté definido
+            if (!isset($datos['estado'])) {
+                $datos['estado'] = 'activo';
+            }
+
             return $this->permisoModel->crear($datos);
         } catch (Exception $e) {
             error_log("Error en PermisoController::crear: " . $e->getMessage());
@@ -59,6 +76,11 @@ class PermisoController {
                 return false;
             }
 
+            // Asegurar que el estado esté definido
+            if (!isset($datos['estado'])) {
+                $datos['estado'] = 'activo';
+            }
+
             return $this->permisoModel->actualizar($id_permiso, $datos);
         } catch (Exception $e) {
             error_log("Error en PermisoController::actualizar: " . $e->getMessage());
@@ -67,17 +89,42 @@ class PermisoController {
     }
 
     /**
-     * Cambiar estado de permiso
+     * Cambiar estado de permiso (activo/inactivo)
      */
-    public function cambiarEstado($id_permiso, $accion) {
+    public function cambiarEstado($id_permiso, $estado) {
         try {
-            // Como no hay campo estado, eliminamos el permiso si se quiere "inactivar"
-            if ($accion === 'inactivar') {
-                return $this->permisoModel->eliminar($id_permiso);
+            // Validar que el estado sea válido
+            if (!in_array($estado, ['activo', 'inactivo'])) {
+                return false;
             }
-            return false;
+
+            return $this->permisoModel->cambiarEstado($id_permiso, $estado);
         } catch (Exception $e) {
             error_log("Error en PermisoController::cambiarEstado: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * "Eliminar" permiso (cambiar estado a inactivo)
+     */
+    public function eliminar($id_permiso) {
+        try {
+            return $this->cambiarEstado($id_permiso, 'inactivo');
+        } catch (Exception $e) {
+            error_log("Error en PermisoController::eliminar: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Reactivar permiso
+     */
+    public function reactivar($id_permiso) {
+        try {
+            return $this->cambiarEstado($id_permiso, 'activo');
+        } catch (Exception $e) {
+            error_log("Error en PermisoController::reactivar: " . $e->getMessage());
             return false;
         }
     }
@@ -95,7 +142,7 @@ class PermisoController {
     }
 
     /**
-     * Obtener permisos por rol
+     * Obtener permisos por rol (solo activos)
      */
     public function obtenerPermisosPorRol($id_rol) {
         try {
@@ -103,6 +150,32 @@ class PermisoController {
         } catch (Exception $e) {
             error_log("Error en PermisoController::obtenerPermisosPorRol: " . $e->getMessage());
             return [];
+        }
+    }
+
+    /**
+     * Obtener módulos disponibles para un rol
+     */
+    public function obtenerModulosDisponibles($id_rol) {
+        try {
+            return $this->permisoModel->obtenerModulosDisponibles($id_rol);
+        } catch (Exception $e) {
+            error_log("Error en PermisoController::obtenerModulosDisponibles: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Verificar si existe un permiso duplicado activo
+     */
+    public function verificarPermisoDuplicado($id_rol, $id_modulo, $id_permiso_excluir = null) {
+        try {
+            // Esta verificación ahora se hace internamente en el modelo
+            // Solo exponemos el método si es necesario
+            return false;
+        } catch (Exception $e) {
+            error_log("Error en PermisoController::verificarPermisoDuplicado: " . $e->getMessage());
+            return true; // Por seguridad, asumimos que existe duplicado si hay error
         }
     }
 }

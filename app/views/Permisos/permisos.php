@@ -6,8 +6,8 @@ if ($_SESSION['usuario_rol'] !== 'Administrador') {
 
 $permisoController = new PermisoController($db);
 
-// Obtener permisos con información de roles y módulos
-$permisos = $permisoController->listarPermisosCompletos();
+// Obtener todos los permisos (activos e inactivos)
+$permisos = $permisoController->listarTodosPermisosCompletos();
 ?>
 <body>
     <div class="container-fluid px-4 mb-5" style="margin-top:180px;">
@@ -59,6 +59,14 @@ $permisos = $permisoController->listarPermisosCompletos();
                             ?>
                         </select>
                     </div>
+                    <div class="col-md-4 text-white">
+                        <label for="filtroEstado" class="form-label">Estado</label>
+                        <select class="form-select filtro" id="filtroEstado">
+                            <option value="">Todos los estados</option>
+                            <option value="activo">Activo</option>
+                            <option value="inactivo">Inactivo</option>
+                        </select>
+                    </div>
                     <div class="col-md-12">
                         <hr>
                         <div class="d-flex justify-content-between align-items-center">
@@ -90,6 +98,7 @@ $permisos = $permisoController->listarPermisosCompletos();
                                 <th>Crear</th>
                                 <th>Editar</th>
                                 <th>Eliminar</th>
+                                <th>Estado</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -120,24 +129,40 @@ $permisos = $permisoController->listarPermisosCompletos();
                                         </span>
                                     </td>
                                     <td>
+                                        <span class="badge bg-<?= $permiso['estado'] == 'activo' ? 'success' : 'danger' ?>">
+                                            <?= ucfirst($permiso['estado']) ?>
+                                        </span>
+                                    </td>
+                                    <td>
                                         <div class="btn-group btn-group-sm">
                                             <a href="index.php?page=editar_permisos&id=<?= $permiso['id_permiso'] ?>" 
                                                class="btn btn-warning" title="Editar">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <button type="button" 
-                                                    class="btn btn-danger btnEliminarPermiso" 
-                                                    data-id="<?= $permiso['id_permiso'] ?>"
-                                                    data-nombre="Permiso: <?= htmlspecialchars($permiso['nombre_rol']) ?> - <?= htmlspecialchars($permiso['nombre_modulo']) ?>">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
+                                            <?php if ($permiso['estado'] == 'activo'): ?>
+                                                <button type="button" 
+                                                        class="btn btn-danger btnCambiarEstado" 
+                                                        data-id="<?= $permiso['id_permiso'] ?>"
+                                                        data-nombre="Permiso: <?= htmlspecialchars($permiso['nombre_rol']) ?> - <?= htmlspecialchars($permiso['nombre_modulo']) ?>"
+                                                        data-accion="inactivar">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            <?php else: ?>
+                                                <button type="button" 
+                                                        class="btn btn-success btnCambiarEstado" 
+                                                        data-id="<?= $permiso['id_permiso'] ?>"
+                                                        data-nombre="Permiso: <?= htmlspecialchars($permiso['nombre_rol']) ?> - <?= htmlspecialchars($permiso['nombre_modulo']) ?>"
+                                                        data-accion="activar">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                            <?php endif; ?>
                                         </div>
                                     </td>
                                 </tr>
                                 <?php endforeach; ?>
                             <?php else: ?>
                                 <tr>
-                                    <td colspan="7" class="text-center py-4">
+                                    <td colspan="8" class="text-center py-4">
                                         <div class="text-dark fw-bold py-3">
                                             <i class="fas fa-info-circle me-2"></i>No hay permisos registrados en el sistema.
                                         </div>
@@ -156,40 +181,102 @@ $permisos = $permisoController->listarPermisosCompletos();
         </div>
     </div>
 
-    <!-- MODAL DE CONFIRMACIÓN PARA ELIMINAR -->
-    <div class="modal fade" id="modalEliminarPermiso" tabindex="-1" aria-labelledby="modalLabelEliminar" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content shadow-lg border-0 rounded-4 animate__animated animate__zoomIn">
-                <div class="modal-header text-white bg-danger py-3">
-                    <h5 class="modal-title fw-bold" id="modalLabelEliminar">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        Confirmar Eliminación
-                    </h5>
-                    <button type="button" class="btn-close btn-light" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body text-center py-4">
-                    <div class="mb-3 fs-1">
-                        <i class="fas fa-trash-alt text-danger"></i>
+    <!-- MODAL DE CONFIRMACIÓN PROFESIONAL -->
+    <div class="modal fade" id="modalCambiarEstadoPermiso" tabindex="-1" aria-labelledby="modalLabelCambiarEstado" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow">
+                <!-- Header dinámico -->
+                <div class="modal-header text-white py-4" id="modalHeaderCambiarEstado">
+                    <div class="d-flex align-items-center w-100">
+                        <div class="flex-shrink-0">
+                            <div class="bg-white bg-opacity-25 rounded-circle p-3 me-3">
+                                <i class="fas fa-shield-alt fa-lg" id="modalHeaderIcon"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h4 class="modal-title fw-bold mb-1" id="modalLabelCambiarEstado">
+                                Confirmar Cambio de Estado
+                            </h4>
+                            <p class="mb-0 opacity-75" id="modalSubtitle">Gestión de Permisos del Sistema</p>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white flex-shrink-0" data-bs-dismiss="modal"></button>
                     </div>
-                    <p class="fs-5 text-muted mb-2">
-                        ¿Estás seguro de que deseas eliminar el permiso 
-                        <strong class="text-dark" id="nombrePermisoEliminar"></strong>?
-                    </p>
-                    <p class="text-warning">
-                        <i class="fas fa-exclamation-circle me-2"></i>
-                        Esta acción no se puede deshacer.
-                    </p>
-                    <form id="formEliminarPermiso" method="POST" action="index.php?page=eliminar_permiso">
-                        <input type="hidden" name="id" id="permisoIdEliminar">
+                </div>
+                
+                <!-- Body del modal -->
+                <div class="modal-body p-5">
+                    <div class="row align-items-center">
+                        <div class="col-md-3 text-center">
+                            <div class="bg-light rounded-circle p-4 d-inline-block mb-3">
+                                <i class="fas fa-trash-alt fa-2x text-danger" id="modalStatusIcon"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-9">
+                            <h5 class="fw-bold text-dark mb-3" id="modalActionTitle">
+                                <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                                Inactivar Permiso
+                            </h5>
+                            
+                            <p class="text-muted mb-4">
+                                Está a punto de <span class="fw-bold text-dark" id="accionTexto">inactivar</span> un permiso del sistema. 
+                                Por favor confirme esta acción.
+                            </p>
+                            
+                            <div class="card border-warning mb-4">
+                                <div class="card-body bg-warning bg-opacity-10">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-key text-warning fa-lg me-3"></i>
+                                        <div>
+                                            <h6 class="fw-bold text-dark mb-1">Detalles del Permiso</h6>
+                                            <p class="text-dark mb-0" id="nombrePermisoCambiarEstado">
+                                                Permiso: Administrador - Categorías
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="alert alert-info border-0 bg-light">
+                                <div class="d-flex">
+                                    <i class="fas fa-info-circle text-info mt-1 me-3"></i>
+                                    <div>
+                                        <small class="text-muted">
+                                            <span class="fw-bold">Nota importante:</span> 
+                                            Los permisos inactivos no estarán disponibles en el sistema. 
+                                            Puede reactivar este permiso en cualquier momento desde la lista de permisos.
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <form id="formCambiarEstadoPermiso" method="POST" action="index.php?page=cambiar_estado_permiso">
+                        <input type="hidden" name="id" id="permisoIdCambiarEstado">
+                        <input type="hidden" name="accion" id="permisoAccionCambiarEstado">
                     </form>
                 </div>
-                <div class="modal-footer justify-content-center border-0 pb-4">
-                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-2"></i>Cancelar
-                    </button>
-                    <button type="submit" form="formEliminarPermiso" class="btn btn-danger px-4">
-                        <i class="fas fa-trash me-2"></i>Eliminar
-                    </button>
+                
+                <!-- Footer del modal -->
+                <div class="modal-footer border-top py-4">
+                    <div class="w-100 d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted">
+                                <i class="fas fa-clock me-1"></i>
+                                Esta acción es reversible
+                            </small>
+                        </div>
+                        <div>
+                            <button type="button" class="btn btn-outline-secondary btn-lg px-4 me-2" data-bs-dismiss="modal">
+                                <i class="fas fa-times me-2"></i>
+                                Cancelar
+                            </button>
+                            <button type="submit" form="formCambiarEstadoPermiso" class="btn btn-lg px-4" id="btnConfirmarCambioEstado">
+                                <i class="fas fa-check me-2"></i>
+                                <span id="btnConfirmText">Inactivar</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -197,8 +284,78 @@ $permisos = $permisoController->listarPermisosCompletos();
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // ... código de filtrado anterior ...
+
+        // Configurar modal de cambio de estado PROFESIONAL
+        const modalCambiarEstado = document.getElementById('modalCambiarEstadoPermiso');
+        const botonesCambiarEstado = document.querySelectorAll('.btnCambiarEstado');
+        
+        botonesCambiarEstado.forEach(boton => {
+            boton.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                const nombre = this.getAttribute('data-nombre');
+                const accion = this.getAttribute('data-accion');
+                
+                document.getElementById('permisoIdCambiarEstado').value = id;
+                document.getElementById('permisoAccionCambiarEstado').value = accion;
+                document.getElementById('nombrePermisoCambiarEstado').textContent = nombre;
+                
+                // Configurar el modal según la acción
+                const esInactivar = accion === 'inactivar';
+                const accionTexto = esInactivar ? 'inactivar' : 'activar';
+                const accionTextoCapitalized = esInactivar ? 'Inactivar' : 'Activar';
+                const colorHeader = esInactivar ? 'bg-danger' : 'bg-success';
+                const colorBtn = esInactivar ? 'btn-danger' : 'btn-success';
+                const iconoPrincipal = esInactivar ? 'fa-trash-alt text-danger' : 'fa-check-circle text-success';
+                const iconoHeader = esInactivar ? 'fa-exclamation-triangle' : 'fa-check-circle';
+                const tituloAccion = esInactivar ? 'Inactivar Permiso' : 'Activar Permiso';
+                const subtitulo = esInactivar ? 'Deshabilitar acceso temporalmente' : 'Habilitar acceso al sistema';
+                
+                // Actualizar textos
+                document.getElementById('accionTexto').textContent = accionTexto;
+                document.getElementById('btnConfirmText').textContent = accionTextoCapitalized;
+                document.getElementById('modalActionTitle').innerHTML = `<i class="fas ${iconoHeader} me-2"></i>${tituloAccion}`;
+                document.getElementById('modalSubtitle').textContent = subtitulo;
+                
+                // Actualizar colores e iconos
+                const header = document.getElementById('modalHeaderCambiarEstado');
+                header.className = `modal-header text-white py-4 ${colorHeader}`;
+                
+                const iconoPrincipalElement = document.getElementById('modalStatusIcon');
+                iconoPrincipalElement.className = `fas ${iconoPrincipal} fa-2x`;
+                
+                const btnConfirmar = document.getElementById('btnConfirmarCambioEstado');
+                btnConfirmar.className = `btn btn-lg px-4 ${colorBtn}`;
+                
+                // Actualizar mensaje informativo según la acción
+                const infoAlert = document.querySelector('.alert-info small');
+                if (esInactivar) {
+                    infoAlert.innerHTML = `
+                        <span class="fw-bold">Nota importante:</span> 
+                        Los permisos inactivos no estarán disponibles en el sistema. 
+                        Puede reactivar este permiso en cualquier momento desde la lista de permisos.
+                    `;
+                } else {
+                    infoAlert.innerHTML = `
+                        <span class="fw-bold">Nota importante:</span> 
+                        Los permisos activos estarán disponibles inmediatamente en el sistema. 
+                        Puede desactivar este permiso en cualquier momento si es necesario.
+                    `;
+                }
+                
+                // Mostrar el modal
+                const modal = new bootstrap.Modal(modalCambiarEstado);
+                modal.show();
+            });
+        });
+    });
+    </script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
         const filtroRol = document.getElementById('filtroRol');
         const filtroModulo = document.getElementById('filtroModulo');
+        const filtroEstado = document.getElementById('filtroEstado');
         const filas = document.querySelectorAll('tbody tr');
         const contador = document.getElementById('contadorResultados');
         const mensajeSinResultados = document.getElementById('mensajeSinResultados');
@@ -210,6 +367,7 @@ $permisos = $permisoController->listarPermisosCompletos();
             let contadorVisible = 0;
             const rol = filtroRol.value.toLowerCase();
             const modulo = filtroModulo.value.toLowerCase();
+            const estado = filtroEstado.value.toLowerCase();
 
             filas.forEach(fila => {
                 if (fila.cells.length === 1) return;
@@ -219,10 +377,12 @@ $permisos = $permisoController->listarPermisosCompletos();
 
                 const nombreRol = columnas[0].textContent.toLowerCase();
                 const nombreModulo = columnas[1].textContent.toLowerCase();
+                const estadoPermiso = columnas[6].textContent.toLowerCase();
 
                 const coincide =
                     (rol === '' || nombreRol.includes(rol)) &&
-                    (modulo === '' || nombreModulo.includes(modulo));
+                    (modulo === '' || nombreModulo.includes(modulo)) &&
+                    (estado === '' || estadoPermiso.includes(estado));
 
                 fila.style.display = coincide ? '' : 'none';
                 if (coincide) contadorVisible++;
@@ -239,30 +399,53 @@ $permisos = $permisoController->listarPermisosCompletos();
             }
         }
 
-        [filtroRol, filtroModulo].forEach(f => {
+        [filtroRol, filtroModulo, filtroEstado].forEach(f => {
             f.addEventListener('change', filtrarTabla);
         });
 
         btnLimpiar.addEventListener('click', () => {
             filtroRol.value = '';
             filtroModulo.value = '';
+            filtroEstado.value = '';
             filtrarTabla();
         });
 
-        // Configurar modal de eliminación
-        const modalEliminar = document.getElementById('modalEliminarPermiso');
-        const botonesEliminar = document.querySelectorAll('.btnEliminarPermiso');
+        // Configurar modal de cambio de estado
+        const modalCambiarEstado = document.getElementById('modalCambiarEstadoPermiso');
+        const botonesCambiarEstado = document.querySelectorAll('.btnCambiarEstado');
         
-        botonesEliminar.forEach(boton => {
+        botonesCambiarEstado.forEach(boton => {
             boton.addEventListener('click', function() {
                 const id = this.getAttribute('data-id');
                 const nombre = this.getAttribute('data-nombre');
+                const accion = this.getAttribute('data-accion');
                 
-                document.getElementById('permisoIdEliminar').value = id;
-                document.getElementById('nombrePermisoEliminar').textContent = nombre;
+                document.getElementById('permisoIdCambiarEstado').value = id;
+                document.getElementById('permisoAccionCambiarEstado').value = accion;
+                document.getElementById('nombrePermisoCambiarEstado').textContent = nombre;
+                
+                // Configurar el modal según la acción
+                const accionTexto = accion === 'inactivar' ? 'inactivar' : 'activar';
+                const textoBoton = accion === 'inactivar' ? 'Inactivar' : 'Activar';
+                const colorHeader = accion === 'inactivar' ? 'bg-danger' : 'bg-success';
+                const iconoHeader = accion === 'inactivar' ? 'fa-exclamation-triangle' : 'fa-check-circle';
+                const iconoPrincipal = accion === 'inactivar' ? 'fa-trash text-danger' : 'fa-check text-success';
+                
+                document.getElementById('accionTexto').textContent = accionTexto;
+                document.getElementById('btnConfirmarCambioEstado').innerHTML = `<i class="fas fa-check me-2"></i>${textoBoton}`;
+                
+                // Cambiar colores según la acción
+                const header = document.getElementById('modalHeaderCambiarEstado');
+                header.className = `modal-header text-white ${colorHeader} py-3`;
+                
+                const iconoHeaderElement = header.querySelector('i');
+                iconoHeaderElement.className = `${iconoHeader} me-2`;
+                
+                const iconoPrincipalElement = document.getElementById('modalIconCambiarEstado').querySelector('i');
+                iconoPrincipalElement.className = iconoPrincipal;
                 
                 // Mostrar el modal
-                const modal = new bootstrap.Modal(modalEliminar);
+                const modal = new bootstrap.Modal(modalCambiarEstado);
                 modal.show();
             });
         });

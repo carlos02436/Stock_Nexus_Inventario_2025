@@ -11,13 +11,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $accion = $_POST['accion'] ?? '';
     
     if (!empty($id_permiso) && !empty($accion)) {
-        $resultado = $permisoController->cambiarEstado($id_permiso, $accion);
+        if ($accion === 'activar') {
+            $resultado = $permisoController->reactivar($id_permiso);
+            $mensaje_accion = 'activado';
+        } else {
+            $resultado = $permisoController->eliminar($id_permiso);
+            $mensaje_accion = 'inactivado';
+        }
         
         if ($resultado) {
-            $_SESSION['mensaje'] = "Permiso {$accion}do exitosamente";
+            $_SESSION['mensaje'] = "Permiso {$mensaje_accion} exitosamente";
             $_SESSION['mensaje_tipo'] = 'success';
         } else {
-            $_SESSION['mensaje'] = "Error al {$accion} el permiso";
+            $_SESSION['mensaje'] = "Error al {$mensaje_accion} el permiso";
             $_SESSION['mensaje_tipo'] = 'danger';
         }
     } else {

@@ -20,7 +20,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'puede_ver' => isset($_POST['puede_ver']) ? 1 : 0,
         'puede_crear' => isset($_POST['puede_crear']) ? 1 : 0,
         'puede_editar' => isset($_POST['puede_editar']) ? 1 : 0,
-        'puede_eliminar' => isset($_POST['puede_eliminar']) ? 1 : 0
+        'puede_eliminar' => isset($_POST['puede_eliminar']) ? 1 : 0,
+        'estado' => isset($_POST['estado']) && $_POST['estado'] == 'activo' ? 'activo' : 'inactivo'
     ];
 
     $resultado = $permisoController->crear($datos);
@@ -125,6 +126,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         <input class="form-check-input" type="checkbox" id="puede_eliminar" name="puede_eliminar" value="1">
                                         <label class="form-check-label text-white" for="puede_eliminar">
                                             Puede Eliminar
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="estado" name="estado" value="activo" checked>
+                                        <label class="form-check-label text-white" for="estado">
+                                            Estado Activo
                                         </label>
                                     </div>
                                 </div>

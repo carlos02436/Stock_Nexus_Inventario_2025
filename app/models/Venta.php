@@ -84,12 +84,13 @@ class Venta {
 
             // 🧾 Insertar la venta principal
             $sql = "
-                INSERT INTO ventas (codigo_venta, id_cliente, id_usuario, metodo_pago, total_venta, estado)
-                VALUES (:codigo, :cliente, :usuario, :metodo_pago, :total, :estado)
+                INSERT INTO ventas (codigo_venta, factura, id_cliente, id_usuario, metodo_pago, total_venta, estado)
+                VALUES (:codigo, :factura, :cliente, :usuario, :metodo_pago, :total, :estado)
             ";
             $stmt = $this->db->prepare($sql);
             $stmt->execute([
                 ':codigo' => $datos['codigo_venta'],
+                ':factura' => $datos['factura'],
                 ':cliente' => $datos['id_cliente'],
                 ':usuario' => $datos['id_usuario'],
                 ':metodo_pago' => $datos['metodo_pago'],
@@ -146,7 +147,7 @@ class Venta {
                 $stmt->execute([
                     ':producto' => $producto['id_producto'],
                     ':cantidad' => $producto['cantidad'],
-                    ':descripcion' => 'Venta #' . $datos['codigo_venta'],
+                    ':descripcion' => 'Venta #' . $datos['codigo_venta'] . ' - Factura: ' . $datos['factura'],
                     ':usuario' => $datos['id_usuario']
                 ]);
             }
@@ -187,6 +188,20 @@ class Venta {
             return $row ? $row['codigo_venta'] : null;
         } catch (PDOException $e) {
             error_log("Error al obtener último código: " . $e->getMessage());
+            return null;
+        }
+    }
+
+    /** ==============================
+     *  🧾 OBTENER ÚLTIMA FACTURA
+     *  ============================== */
+    public function obtenerUltimaFactura() {
+        try {
+            $stmt = $this->db->query("SELECT factura FROM ventas WHERE factura IS NOT NULL ORDER BY id_venta DESC LIMIT 1");
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $row ? $row['factura'] : null;
+        } catch (PDOException $e) {
+            error_log("Error al obtener última factura: " . $e->getMessage());
             return null;
         }
     }

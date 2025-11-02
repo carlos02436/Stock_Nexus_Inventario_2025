@@ -64,47 +64,72 @@ class VentaController {
                     @session_start();
                 }
 
-                // Procesar total
-                $rawTotal = $_POST['total_venta'] ?? ($_POST['total_venta_limpio'] ?? '0');
-                $totalLimpio = str_replace(['$', ' '], ['', ''], $rawTotal);
-                $totalLimpio = str_replace('.', '', $totalLimpio);
-                $totalLimpio = str_replace(',', '.', $totalLimpio);
-                $total = floatval($totalLimpio);
+                // DEBUG: Ver qué está llegando
+                error_log("=== DATOS POST RECIBIDOS ===");
+                error_log("Total venta: " . ($_POST['total_venta'] ?? 'NO RECIBIDO'));
+                error_log("Total venta limpio: " . ($_POST['total_venta_limpio'] ?? 'NO RECIBIDO'));
+                error_log("Productos: " . print_r($_POST['productos'] ?? 'NO RECIBIDOS', true));
+                error_log("Usuario ID: " . ($_POST['id_usuario'] ?? ($_SESSION['id_usuario'] ?? 'NO ENCONTRADO')));
+
+                // Procesar total - método más robusto
+                $totalLimpio = 0;
+                if (isset($_POST['total_venta_limpio']) && is_numeric($_POST['total_venta_limpio'])) {
+                    $totalLimpio = floatval($_POST['total_venta_limpio']);
+                } else if (isset($_POST['total_venta'])) {
+                    $rawTotal = $_POST['total_venta'];
+                    $totalLimpio = str_replace(['$', ' ', '.'], '', $rawTotal);
+                    $totalLimpio = str_replace(',', '.', $totalLimpio);
+                    $totalLimpio = floatval($totalLimpio);
+                }
+
+                error_log("Total procesado: " . $totalLimpio);
 
                 // Procesar productos
                 $productos = [];
                 if (!empty($_POST['productos']) && is_array($_POST['productos'])) {
-                    foreach ($_POST['productos'] as $p) {
+                    foreach ($_POST['productos'] as $index => $p) {
                         if (!empty($p['id_producto']) && !empty($p['cantidad']) && $p['cantidad'] > 0) {
+                            // Procesar precio unitario
                             $precio = $p['precio_unitario'] ?? 0;
                             if (is_string($precio)) {
                                 $precio = str_replace(',', '.', $precio);
                             }
-
+                            
                             $productos[] = [
                                 'id_producto' => $p['id_producto'],
-                                'cantidad' => (float) $p['cantidad'],
+                                'cantidad' => intval($p['cantidad']),
                                 'precio_unitario' => floatval($precio)
                             ];
+                            
+                            error_log("Producto {$index}: ID={$p['id_producto']}, Cantidad={$p['cantidad']}, Precio={$precio}");
                         }
                     }
                 }
 
                 $metodo_pago = $_POST['metodo_pago'] ?? 'Efectivo';
+                $codigo_venta = $_POST['codigo_venta'] ?? null;
+                $factura = $_POST['factura'] ?? null;
+                $id_cliente = !empty($_POST['id_cliente']) ? $_POST['id_cliente'] : null;
+                $id_usuario = $_POST['id_usuario'] ?? ($_SESSION['id_usuario'] ?? null);
 
                 // Estado automático según el tipo de pago
                 $estado_venta = in_array(strtolower($metodo_pago), ['efectivo', 'transferencia', 'tarjeta'])
                     ? 'Pagada'
                     : 'Pendiente';
 
+                // Procesar descuento
+                $descuentoAplicado = floatval($_POST['descuento_aplicado'] ?? 0);
+                $porcentajeDescuento = floatval($_POST['porcentaje_descuento'] ?? 0);
+
                 $datos = [
-                    'codigo_venta' => $_POST['codigo_venta'] ?? null,
-                    'id_cliente' => !empty($_POST['id_cliente']) ? $_POST['id_cliente'] : null,
-                    'id_usuario' => $_POST['id_usuario'] ?? ($_SESSION['id_usuario'] ?? null),
+                    'codigo_venta' => $codigo_venta,
+                    'factura' => $factura,
+                    'id_cliente' => $id_cliente,
+                    'id_usuario' => $id_usuario,
                     'metodo_pago' => $metodo_pago,
-                    'total_venta' => $total,
-                    'descuento_aplicado' => floatval($_POST['descuento_aplicado'] ?? 0),
-                    'porcentaje_descuento' => floatval($_POST['porcentaje_descuento'] ?? 0),
+                    'total_venta' => $totalLimpio,
+                    'descuento_aplicado' => $descuentoAplicado,
+                    'porcentaje_descuento' => $porcentajeDescuento,
                     'estado' => $estado_venta,
                     'productos' => $productos
                 ];
@@ -112,62 +137,52 @@ class VentaController {
 
             // Validaciones básicas
             if (empty($datos['id_usuario'])) {
-                throw new Exception("Falta id_usuario (verifica la sesión o el campo oculto id_usuario).");
+                throw new Exception("Falta id_usuario. Sesión: " . print_r($_SESSION, true));
             }
+            
             if (empty($datos['productos']) || !is_array($datos['productos']) || count($datos['productos']) === 0) {
                 throw new Exception("No se recibieron productos para la venta.");
             }
+            
             if ($datos['total_venta'] <= 0) {
-                throw new Exception("El total de la venta debe ser mayor a cero.");
+                throw new Exception("El total de la venta debe ser mayor a cero. Total recibido: " . $datos['total_venta']);
             }
 
-            // Generar código único
+            // Generar código único si no viene
             if (empty($datos['codigo_venta'])) {
                 $datos['codigo_venta'] = $this->generarCodigoUnico();
             }
 
-            $this->db->beginTransaction();
-
-            $codigo = $datos['codigo_venta'];
-            $attempt = 0;
-            $maxAttempts = 50;
-
-            // Insertar venta con manejo de códigos duplicados
-            while (true) {
-                try {
-                    $stmt = $this->db->prepare("
-                        INSERT INTO ventas 
-                        (codigo_venta, id_cliente, id_usuario, metodo_pago, total_venta, estado, descuento_aplicado, porcentaje_descuento)
-                        VALUES (:codigo, :cliente, :usuario, :metodo_pago, :total, :estado, :descuento, :porcentaje)
-                    ");
-                    $stmt->execute([
-                        ':codigo' => $codigo,
-                        ':cliente' => $datos['id_cliente'],
-                        ':usuario' => $datos['id_usuario'],
-                        ':metodo_pago' => $datos['metodo_pago'],
-                        ':total' => $datos['total_venta'],
-                        ':estado' => $datos['estado'],
-                        ':descuento' => $datos['descuento_aplicado'],
-                        ':porcentaje' => $datos['porcentaje_descuento']
-                    ]);
-                    break;
-                } catch (PDOException $e) {
-                    $sqlState = $e->getCode();
-                    $errorNo = $e->errorInfo[1] ?? null;
-                    if (($sqlState == '23000' || $errorNo == 1062) && $attempt < $maxAttempts) {
-                        // Código duplicado, generar uno nuevo
-                        $num = (int) filter_var($codigo, FILTER_SANITIZE_NUMBER_INT);
-                        $num++;
-                        $codigo = 'VENTA' . str_pad($num, 3, '0', STR_PAD_LEFT);
-                        $attempt++;
-                        continue;
-                    }
-                    error_log("Error SQL crear venta: " . $e->getMessage());
-                    throw $e;
-                }
+            // Generar factura única si no viene
+            if (empty($datos['factura'])) {
+                $datos['factura'] = $this->generarFacturaUnica();
             }
 
+            error_log("Iniciando transacción con datos: " . print_r($datos, true));
+
+            $this->db->beginTransaction();
+
+            // Insertar venta principal
+            $stmt = $this->db->prepare("
+                INSERT INTO ventas 
+                (codigo_venta, factura, id_cliente, id_usuario, metodo_pago, total_venta, estado, descuento_aplicado, porcentaje_descuento, fecha_venta)
+                VALUES (:codigo, :factura, :cliente, :usuario, :metodo_pago, :total, :estado, :descuento, :porcentaje, NOW())
+            ");
+            
+            $stmt->execute([
+                ':codigo' => $datos['codigo_venta'],
+                ':factura' => $datos['factura'],
+                ':cliente' => $datos['id_cliente'],
+                ':usuario' => $datos['id_usuario'],
+                ':metodo_pago' => $datos['metodo_pago'],
+                ':total' => $datos['total_venta'],
+                ':estado' => $datos['estado'],
+                ':descuento' => $datos['descuento_aplicado'],
+                ':porcentaje' => $datos['porcentaje_descuento']
+            ]);
+
             $id_venta = $this->db->lastInsertId();
+            error_log("Venta insertada. ID: " . $id_venta);
 
             // Insertar detalles y actualizar stock
             foreach ($datos['productos'] as $producto) {
@@ -187,6 +202,7 @@ class VentaController {
                 if (!$productoInfo) {
                     throw new Exception("El producto con id {$idProd} no existe.");
                 }
+                
                 if ($productoInfo['stock_actual'] < $cantidad) {
                     throw new Exception("Stock insuficiente para el producto '{$productoInfo['nombre_producto']}'. Stock disponible: {$productoInfo['stock_actual']}, solicitado: {$cantidad}.");
                 }
@@ -213,25 +229,28 @@ class VentaController {
 
                 // Registrar movimiento de bodega
                 $stmt = $this->db->prepare("
-                    INSERT INTO movimientos_bodega (id_producto, tipo_movimiento, cantidad, descripcion, id_usuario)
-                    VALUES (:producto, 'Salida', :cantidad, :descripcion, :usuario)
+                    INSERT INTO movimientos_bodega (id_producto, tipo_movimiento, cantidad, descripcion, id_usuario, fecha_movimiento)
+                    VALUES (:producto, 'Salida', :cantidad, :descripcion, :usuario, NOW())
                 ");
                 $stmt->execute([
                     ':producto' => $idProd,
                     ':cantidad' => $cantidad,
-                    ':descripcion' => "Venta #" . $codigo,
+                    ':descripcion' => "Venta #" . $datos['codigo_venta'] . " - Factura: " . $datos['factura'],
                     ':usuario' => $datos['id_usuario']
                 ]);
+                
+                error_log("Producto procesado: {$productoInfo['nombre_producto']} - Cantidad: {$cantidad}");
             }
 
             $this->db->commit();
+            error_log("Venta completada exitosamente. ID: " . $id_venta);
             return $id_venta;
 
         } catch (Exception $e) {
             if ($this->db->inTransaction()) {
                 $this->db->rollBack();
             }
-            error_log("ERROR crear venta: " . $e->getMessage());
+            error_log("ERROR al crear venta: " . $e->getMessage());
             error_log("Datos de la venta: " . print_r($datos, true));
             return false;
         }
@@ -269,6 +288,38 @@ class VentaController {
         throw new Exception("No se pudo generar un código único después de $maxAttempts intentos");
     }
 
+    private function generarFacturaUnica() {
+        $attempt = 0;
+        $maxAttempts = 100;
+
+        while ($attempt < $maxAttempts) {
+            // Obtener la última factura
+            $stmt = $this->db->query("SELECT factura FROM ventas WHERE factura IS NOT NULL ORDER BY id_venta DESC LIMIT 1");
+            $ultima = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($ultima && preg_match('/FACT(\d+)/', $ultima['factura'], $matches)) {
+                $num = (int)$matches[1] + 1;
+            } else {
+                $num = 1;
+            }
+
+            $nuevaFactura = 'FACT' . str_pad($num, 7, '0', STR_PAD_LEFT);
+
+            // Verificar si la factura ya existe
+            $stmt = $this->db->prepare("SELECT COUNT(*) as count FROM ventas WHERE factura = ?");
+            $stmt->execute([$nuevaFactura]);
+            $existe = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($existe['count'] == 0) {
+                return $nuevaFactura;
+            }
+
+            $attempt++;
+        }
+
+        throw new Exception("No se pudo generar una factura única después de $maxAttempts intentos");
+    }
+
     public function actualizarEstado($id, $estado) {
         try {
             $stmt = $this->db->prepare("
@@ -293,4 +344,16 @@ class VentaController {
             return null;
         }
     }
+
+    public function obtenerUltimaFactura() {
+        try {
+            $stmt = $this->db->query("SELECT factura FROM ventas WHERE factura IS NOT NULL ORDER BY id_venta DESC LIMIT 1");
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $row ? $row['factura'] : null;
+        } catch (PDOException $e) {
+            error_log("Error en obtenerUltimaFactura: " . $e->getMessage());
+            return null;
+        }
+    }
 }
+?>

@@ -81,25 +81,36 @@ class CompraController {
         try {
             $this->db->beginTransaction();
 
-            // Insertar compra - CORREGIR los nombres de las columnas
+            // Obtener el próximo número de factura
+            $stmt = $this->db->query("
+                SELECT MAX(CAST(SUBSTRING(factura, 5) AS UNSIGNED)) as ultimo_numero 
+                FROM compras 
+                WHERE factura LIKE 'FACT%'
+            ");
+            $resultado = $stmt->fetch();
+            $proximoNumeroFactura = ($resultado['ultimo_numero'] ?? 0) + 1;
+            $factura = "FACT" . str_pad($proximoNumeroFactura, 7, '0', STR_PAD_LEFT);
+
+            // Insertar compra - INCLUYENDO el campo factura
             $stmt = $this->db->prepare("
-                INSERT INTO compras (codigo_compra, id_proveedor, id_usuario, total_compra, estado, descuento_aplicado, porcentaje_descuento)
-                VALUES (:codigo, :proveedor, :usuario, :total, :estado, :descuento_aplicado, :porcentaje_descuento)
+                INSERT INTO compras (codigo_compra, factura, id_proveedor, id_usuario, total_compra, estado, descuento_aplicado, porcentaje_descuento)
+                VALUES (:codigo, :factura, :proveedor, :usuario, :total, :estado, :descuento_aplicado, :porcentaje_descuento)
             ");
             
             $stmt->execute([
                 ':codigo' => $datos['codigo_compra'],
+                ':factura' => $factura,
                 ':proveedor' => $datos['id_proveedor'],
                 ':usuario' => $datos['id_usuario'],
                 ':total' => $datos['total_compra'],
                 ':estado' => $datos['estado'] ?? 'Pagada',
-                ':descuento_aplicado' => $datos['descuento'] ?? 0, // Cambiar clave aquí
-                ':porcentaje_descuento' => $datos['porcentaje_descuento'] ?? 0 // Agregar esta línea
+                ':descuento_aplicado' => $datos['descuento'] ?? 0,
+                ':porcentaje_descuento' => $datos['porcentaje_descuento'] ?? 0
             ]);
 
             $id_compra = $this->db->lastInsertId();
 
-            // El resto del código se mantiene igual...
+            // Insertar detalles de compra
             foreach ($datos['productos'] as $producto) {
                 // Insertar detalle
                 $stmt = $this->db->prepare("
@@ -134,7 +145,7 @@ class CompraController {
                 $stmt->execute([
                     ':producto' => $producto['id_producto'],
                     ':cantidad' => $producto['cantidad'],
-                    ':descripcion' => "Compra #" . $datos['codigo_compra'],
+                    ':descripcion' => "Compra #" . $datos['codigo_compra'] . " - Factura: " . $factura,
                     ':usuario' => $datos['id_usuario']
                 ]);
             }
@@ -162,6 +173,7 @@ class CompraController {
             return false;
         }
     }
+    
     public function obtenerProveedores() {
         try {
             $stmt = $this->db->query("SELECT id_proveedor, nombre_proveedor FROM proveedores WHERE estado = 1 ORDER BY nombre_proveedor");
