@@ -7,8 +7,12 @@ $proveedores = $proveedorController->listar();
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h1 class="h2"><i class="fas fa-truck me-2"></i>Gestión de Proveedores</h1>
         <div class="btn-toolbar mb-2 mb-md-0">
-            <a href="index.php?page=crear_proveedor" class="btn btn-neon rounded-3 px-3 py-2">
+            <a href="index.php?page=crear_proveedor" class="boton1 text-decoration-none">
+            <div class="boton-top1">
                 <i class="fas fa-plus me-2"></i>Nuevo Proveedor
+            </div>
+            <div class="boton-bottom1"></div>
+            <div class="boton-base1"></div>
             </a>
         </div>
     </div>
@@ -47,8 +51,12 @@ $proveedores = $proveedorController->listar();
                             placeholder="Ciudad...">
                     </div>
                     <div class="col-md-12 d-flex justify-content-start">
-                        <button type="button" id="btnLimpiarFiltrosProveedores" class="btn btn-danger">
-                            <i class="fas fa-undo me-1"></i>Limpiar filtros
+                        <button type="button" id="btnLimpiarFiltrosProveedores" class="boton2">
+                            <div class="boton-top2">
+                                <i class="fas fa-undo me-1"></i>Limpiar filtros
+                            </div>
+                            <div class="boton-bottom2"></div>
+                            <div class="boton-base2"></div>
                         </button>
                     </div>
                 </form>
@@ -85,13 +93,24 @@ $proveedores = $proveedorController->listar();
                             <td><?= $proveedor['ciudad'] ?></td>
                             <td>
                                 <div class="btn-group btn-group-sm">
+                                    <!-- Botón Editar - Amarillo -->
                                     <a href="index.php?page=editar_proveedor&id=<?= $proveedor['id_proveedor'] ?>" 
-                                       class="btn btn-warning" title="Editar">
-                                        <i class="fas fa-edit"></i>
+                                    class="boton4" title="Editar" style="min-width: auto !important;">
+                                        <div class="boton-top4">
+                                            <i class="fas fa-edit"></i>
+                                        </div>
+                                        <div class="boton-bottom4"></div>
+                                        <div class="boton-base4"></div>
                                     </a>
+                                    
+                                    <!-- Botón Eliminar - Rojo -->
                                     <a href="index.php?page=eliminar_proveedor&id=<?= $proveedor['id_proveedor'] ?>" 
-                                       class="btn btn-danger btn-delete" title="Eliminar">
-                                        <i class="fas fa-trash"></i>
+                                    class="boton2 btn-delete" title="Eliminar" style="min-width: auto !important;">
+                                        <div class="boton-top2">
+                                            <i class="fas fa-trash"></i>
+                                        </div>
+                                        <div class="boton-bottom2"></div>
+                                        <div class="boton-base2"></div>
                                     </a>
                                 </div>
                             </td>

@@ -6,7 +6,7 @@ $fecha_fin = $_GET['fecha_fin'] ?? date('Y-m-d');
 $reporteController = new ReporteController($db);
 $ventas = $reporteController->generarReporteVentas($fecha_inicio, $fecha_fin);
 $estadisticas = $reporteController->getEstadisticasVentas(30);
-$productosMasVendidos = $reporteController->getProductosMasVendidos(10);
+$productosMasVendidos = $reporteController->getProductosMasVendidos(10000000000000);
 
 // Calcular estadísticas iniciales - SOLO VENTAS ACTIVAS (no anuladas)
 $ventasActivas = array_filter($ventas, fn($v) => $v['estado'] != 'Anulada');
@@ -20,16 +20,28 @@ $ventasPendientes = count(array_filter($ventasActivas, fn($v) => $v['estado'] ==
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom border-light">
         <h1 class="h2"><i class="fas fa-shopping-cart me-2"></i>Reporte de Ventas</h1>
         <div class="btn-toolbar mb-2 mb-md-2">
-            <a href="index.php?page=reportes" class="btn btn-secondary me-2">
-                <i class="fas fa-arrow-left me-2"></i>Volver a Reportes
+            <a href="index.php?page=reportes" class="boton3 me-2 text-decoration-none">
+                <div class="boton-top3">
+                    <i class="fas fa-arrow-left me-2"></i>Volver a Reportes
+                </div>
+                <div class="boton-bottom3"></div>
+                <div class="boton-base3"></div>
             </a>
             <a href="index.php?page=generar_pdf_reporte&tipo=ventas&fecha_inicio=<?= $fecha_inicio ?>&fecha_fin=<?= $fecha_fin ?>" 
-               class="btn btn-danger me-2">
-                <i class="fas fa-file-pdf me-2"></i>PDF
+            class="boton2 me-2 text-decoration-none">
+                <div class="boton-top2">
+                    <i class="fas fa-file-pdf me-2"></i>PDF
+                </div>
+                <div class="boton-bottom2"></div>
+                <div class="boton-base2"></div>
             </a>
             <a href="index.php?page=generar_excel_reporte&tipo=ventas&fecha_inicio=<?= $fecha_inicio ?>&fecha_fin=<?= $fecha_fin ?>" 
-               class="btn btn-success">
-                <i class="fas fa-file-excel me-2"></i>Excel
+            class="boton1 text-decoration-none">
+                <div class="boton-top1">
+                    <i class="fas fa-file-excel me-2"></i>Excel
+                </div>
+                <div class="boton-bottom1"></div>
+                <div class="boton-base1"></div>
             </a>
         </div>
     </div>
@@ -127,8 +139,12 @@ $ventasPendientes = count(array_filter($ventasActivas, fn($v) => $v['estado'] ==
                 </div>
                 <div class="col-md-2">
                     <label class="form-label text-white d-block">&nbsp;</label>
-                    <button type="button" id="btnLimpiarFiltros" class="btn btn-danger w-90">
-                        <i class="fas fa-undo me-1"></i>Limpiar
+                    <button type="button" id="btnLimpiarFiltros" class="boton2">
+                        <div class="boton-top2">
+                            <i class="fas fa-undo me-1"></i>Limpiar
+                        </div>
+                        <div class="boton-bottom2"></div>
+                        <div class="boton-base2"></div>
                     </button>
                 </div>
             </form>
@@ -174,11 +190,30 @@ $ventasPendientes = count(array_filter($ventasActivas, fn($v) => $v['estado'] ==
                                     </td>
                                 </tr>
                                 <?php endforeach; ?>
+                                
+                                <!-- Mensaje cuando no hay resultados inicialmente -->
                                 <?php if (empty($ventas)): ?>
                                 <tr class="no-resultados">
-                                    <td colspan="6" class="text-center text-muted">No hay ventas registradas en este período.</td>
+                                    <td colspan="6" class="text-center text-muted py-4">
+                                        <div class="mb-2">
+                                            <i class="fas fa-search fa-2x text-secondary"></i>
+                                        </div>
+                                        <h5 class="text-dark">No hay ventas registradas</h5>
+                                        <p class="text-dark mb-0">No se encontraron ventas en el período seleccionado.</p>
+                                    </td>
                                 </tr>
                                 <?php endif; ?>
+                                
+                                <!-- Mensaje cuando no hay resultados después de filtrar -->
+                                <tr id="mensajeFiltroNoResultados" class="d-none">
+                                    <td colspan="6" class="text-center text-muted py-4">
+                                        <div class="mb-2">
+                                            <i class="fas fa-search fa-2x text-secondary"></i>
+                                        </div>
+                                        <h5 class="text-dark">No hay coincidencias de búsqueda</h5>
+                                        <p class="text-dark mb-0">Intenta ajustar los filtros para ver más resultados.</p>
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -311,23 +346,30 @@ document.addEventListener('DOMContentLoaded', function() {
         // Actualizar estadísticas con TODAS las ventas filtradas
         actualizarEstadisticas(ventasFiltradas);
         
-        // Mostrar mensaje solo si se han aplicado filtros y no hay coincidencias
-        const tbody = document.getElementById('tbodyVentas');
-        const mensajeNoResultados = tbody.querySelector('.no-resultados');
+        // Manejar mensajes de no resultados
+        const mensajeFiltroNoResultados = document.getElementById('mensajeFiltroNoResultados');
+        const mensajeNoResultadosInicial = document.querySelector('.no-resultados');
         
-        // Verificar si hay filtros activos (excluyendo fechas por defecto)
-        const hayFiltros = hayFiltrosActivos();
+        // Ocultar mensaje inicial si hay ventas
+        if (mensajeNoResultadosInicial && hayCoincidencias) {
+            mensajeNoResultadosInicial.style.display = 'none';
+        } else if (mensajeNoResultadosInicial && !hayCoincidencias) {
+            mensajeNoResultadosInicial.style.display = '';
+        }
         
-        if (!hayCoincidencias && hayFiltros) {
-            if (!mensajeNoResultados) {
-                const tr = document.createElement('tr');
-                tr.className = 'no-resultados';
-                tr.innerHTML = '<td colspan="6" class="text-center text-muted">No se encontraron ventas con los filtros aplicados.</td>';
-                tbody.appendChild(tr);
+        // Mostrar/ocultar mensaje de filtro
+        if (!hayCoincidencias && hayFiltrosActivos()) {
+            mensajeFiltroNoResultados.classList.remove('d-none');
+            // Ocultar mensaje inicial si estamos mostrando el de filtro
+            if (mensajeNoResultadosInicial) {
+                mensajeNoResultadosInicial.style.display = 'none';
             }
-        } else if (mensajeNoResultados && (hayCoincidencias || !hayFiltros)) {
-            // Remover mensaje si hay coincidencias o no hay filtros activos
-            mensajeNoResultados.remove();
+        } else {
+            mensajeFiltroNoResultados.classList.add('d-none');
+            // Mostrar mensaje inicial si no hay ventas y no hay filtros activos
+            if (mensajeNoResultadosInicial && !hayCoincidencias && !hayFiltrosActivos()) {
+                mensajeNoResultadosInicial.style.display = '';
+            }
         }
     }
     
@@ -351,7 +393,7 @@ document.addEventListener('DOMContentLoaded', function() {
         filtrarVentas();
     });
     
-    // NO filtrar automáticamente al cargar la página
-    // Solo mostrar todas las ventas inicialmente
+    // Ejecutar filtrado inicial para configurar mensajes correctamente
+    filtrarVentas();
 });
 </script>

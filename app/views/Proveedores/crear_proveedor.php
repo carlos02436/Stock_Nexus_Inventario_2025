@@ -38,8 +38,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h1 class="h2"><i class="fas fa-plus-circle me-2 text-success"></i>Crear Nuevo Proveedor</h1>
         <div class="btn-toolbar mb-2 mb-md-0">
-            <a href="index.php?page=proveedores" class="btn btn-secondary rounded-3 px-3 py-2">
-                <i class="fas fa-arrow-left me-2"></i>Volver a Proveedores
+            <a href="index.php?page=proveedores" class="boton3 text-decoration-none">
+                <div class="boton-top3">
+                    <i class="fas fa-arrow-left me-2"></i>Volver a Proveedores
+                </div>
+                <div class="boton-bottom3"></div>
+                <div class="boton-base3"></div>
             </a>
         </div>
     </div>
@@ -125,11 +129,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
 
                         <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4 pt-3 border-top">
-                            <button type="submit" class="btn btn-neon px-4">
-                                <i class="fas fa-save me-2"></i>Guardar Proveedor
+                            <!-- Botón Guardar - Verde -->
+                            <button type="submit" class="boton1 text-decoration-none">
+                                <div class="boton-top1">
+                                    <i class="fas fa-save me-2"></i>Guardar Proveedor
+                                </div>
+                                <div class="boton-bottom1"></div>
+                                <div class="boton-base1"></div>
                             </button>
-                            <a href="index.php?page=proveedores" class="btn btn-danger me-2 px-4">
-                                <i class="fas fa-times me-2"></i>Cancelar
+
+                            <!-- Botón Cancelar - Rojo -->
+                            <a href="index.php?page=proveedores" class="boton2 me-2 text-decoration-none">
+                                <div class="boton-top2">
+                                    <i class="fas fa-times me-2"></i>Cancelar
+                                </div>
+                                <div class="boton-bottom2"></div>
+                                <div class="boton-base2"></div>
                             </a>
                         </div>
                     </form>

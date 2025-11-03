@@ -47,8 +47,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h1 class="h2"><i class="fas fa-trash-alt me-2 text-danger"></i>Eliminar Proveedor</h1>
         <div class="btn-toolbar mb-2 mb-md-0">
-            <a href="index.php?page=proveedores" class="btn btn-secondary px-3 py-2">
-                <i class="fas fa-arrow-left me-2"></i>Volver a Proveedores
+            <a href="index.php?page=proveedores" class="boton3 text-decoration-none">
+                <div class="boton-top3">
+                    <i class="fas fa-arrow-left me-2"></i>Volver a Proveedores
+                </div>
+                <div class="boton-bottom3"></div>
+                <div class="boton-base3"></div>
             </a>
         </div>
     </div>
@@ -101,11 +105,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <form method="POST" action="">
                         <div class="d-grid gap-2 d-md-flex justify-content-md-center">
-                            <a href="index.php?page=proveedores" class="btn btn-danger me-2 px-4">
-                                <i class="fas fa-times me-2"></i>Cancelar
+                            <!-- Botón Cancelar - Rojo -->
+                            <a href="index.php?page=proveedores" class="boton2 me-2 text-decoration-none">
+                                <div class="boton-top2">
+                                    <i class="fas fa-times me-2"></i>Cancelar
+                                </div>
+                                <div class="boton-bottom2"></div>
+                                <div class="boton-base2"></div>
                             </a>
-                            <button type="submit" name="confirmar" value="si" class="btn btn-neon px-4">
-                                <i class="fas fa-trash me-2"></i>Eliminar Proveedor
+
+                            <!-- Botón Eliminar - Verde -->
+                            <button type="submit" name="confirmar" value="si" class="boton1 text-decoration-none">
+                                <div class="boton-top1">
+                                    <i class="fas fa-trash me-2"></i>Eliminar Proveedor
+                                </div>
+                                <div class="boton-bottom1"></div>
+                                <div class="boton-base1"></div>
                             </button>
                         </div>
                     </form>
