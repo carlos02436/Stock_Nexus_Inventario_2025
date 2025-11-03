@@ -11,8 +11,12 @@ $icono = $tipo == 'Ingreso' ? 'plus-circle' : 'minus-circle';
             Registrar <?= $tipo ?>
         </h1>
         <div class="d-flex gap-2 mb-md-2">
-            <a href="index.php?page=pagos" class="btn btn-secondary rounded-3 px-3 py-2">
-                <i class="fas fa-arrow-left me-2"></i>Volver a Pagos
+            <a href="index.php?page=pagos" class="boton3 text-decoration-none" style="width: auto; min-width: 160px;">
+                <div class="boton-top3">
+                    <i class="fas fa-arrow-left me-2"></i>Volver a Pagos
+                </div>
+                <div class="boton-bottom3"></div>
+                <div class="boton-base3"></div>
             </a>
         </div>
     </div>
@@ -77,11 +81,22 @@ $icono = $tipo == 'Ingreso' ? 'plus-circle' : 'minus-circle';
                         <input type="hidden" name="id_usuario" value="<?= $_SESSION['usuario_id'] ?>">
 
                         <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4 pt-3 border-top">
-                            <button type="submit" class="btn btn-neon px-4">
-                                <i class="fas fa-save me-2"></i>Registrar <?= $tipo ?>
+                            <!-- Botón Registrar - Verde (button) -->
+                            <button type="submit" class="boton1 text-decoration-none" style="width: auto; min-width: 180px;">
+                                <span class="boton-top1">
+                                    <i class="fas fa-save me-2"></i>Registrar <?= $tipo ?>
+                                </span>
+                                <span class="boton-bottom1"></span>
+                                <span class="boton-base1"></span>
                             </button>
-                            <a href="index.php?page=pagos" class="btn btn-danger me-2">
-                                <i class="fas fa-times me-2"></i>Cancelar
+
+                            <!-- Botón Cancelar - Rojo (boton2) -->
+                            <a href="index.php?page=pagos" class="boton2 text-decoration-none" style="width: auto; min-width: 150px;">
+                                <div class="boton-top2">
+                                    <i class="fas fa-times me-2"></i>Cancelar
+                                </div>
+                                <div class="boton-bottom2"></div>
+                                <div class="boton-base2"></div>
                             </a>
                         </div>
                     </form>

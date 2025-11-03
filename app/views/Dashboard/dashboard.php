@@ -55,12 +55,32 @@ echo "<!-- ================= -->";
         </h1>
         <div class="btn-toolbar mb-2 mb-md-0">
             <div class="btn-group me-2">
-                <a href="index.php?page=dashboard&filtro=hoy" 
-                   class="btn btn-sm <?= ($filtro == 'hoy') ? 'btn-primary' : 'btn-outline-secondary' ?>">Hoy</a>
-                <a href="index.php?page=dashboard&filtro=semana" 
-                   class="btn btn-sm <?= ($filtro == 'semana') ? 'btn-primary' : 'btn-outline-secondary' ?>">Esta semana</a>
-                <a href="index.php?page=dashboard&filtro=mes" 
-                   class="btn btn-sm <?= ($filtro == 'mes') ? 'btn-primary' : 'btn-outline-secondary' ?>">Este mes</a>
+                <!-- Botón Hoy -->
+                <a href="index.php?page=dashboard&filtro=hoy" class="boton1 text-decoration-none btn-sm <?= ($filtro == 'hoy') ? 'active' : '' ?>" style="width: auto; min-width: 80px;">
+                    <span class="boton-top1">
+                        Hoy
+                    </span>
+                    <span class="boton-bottom1"></span>
+                    <span class="boton-base1"></span>
+                </a>
+
+                <!-- Botón Esta semana -->
+                <a href="index.php?page=dashboard&filtro=semana" class="boton1 text-decoration-none btn-sm <?= ($filtro == 'semana') ? 'active' : '' ?>" style="width: auto; min-width: 80px;">
+                    <span class="boton-top1">
+                        Esta semana
+                    </span>
+                    <span class="boton-bottom1"></span>
+                    <span class="boton-base1"></span>
+                </a>
+
+                <!-- Botón Este mes -->
+                <a href="index.php?page=dashboard&filtro=mes" class="boton1 text-decoration-none btn-sm <?= ($filtro == 'mes') ? 'active' : '' ?>" style="width: auto; min-width: 80px;">
+                    <span class="boton-top1">
+                        Este mes
+                    </span>
+                    <span class="boton-bottom1"></span>
+                    <span class="boton-base1"></span>
+                </a>
             </div>
         </div>
     </div>

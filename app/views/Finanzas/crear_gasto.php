@@ -4,8 +4,12 @@
 <div class="container-fluid px-4" style="margin-top: 180px; margin-bottom: 100px;">
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
         <h1 class="h2"><i class="fas fa-plus-circle me-2"></i>Crear Nuevo Gasto</h1>
-        <a href="index.php?page=gastos" class="btn btn-secondary">
-            <i class="fas fa-arrow-left me-2"></i>Volver a Gastos
+        <a href="index.php?page=gastos" class="boton3 text-decoration-none" style="width: auto; min-width: 160px;">
+            <div class="boton-top3">
+                <i class="fas fa-arrow-left me-2"></i>Volver a Gastos
+            </div>
+            <div class="boton-bottom3"></div>
+            <div class="boton-base3"></div>
         </a>
     </div>
 
@@ -62,12 +66,21 @@
                         </div>
 
                         <div class="d-grid gap-2 d-md-flex justify-content-md-center">
-                            <a href="index.php?page=gastos" class="btn btn-danger me-md-2">
-                                <i class="fas fa-times me-2"></i>Cancelar
-                            </a>
-                            <button type="submit" class="btn btn-neon">
-                                <i class="fas fa-save me-2"></i>Guardar Gasto
+                            <button type="submit" class="boton1 text-decoration-none" style="width: auto; min-width: 150px;">
+                                <span class="boton-top1">
+                                    <i class="fas fa-save me-2"></i>Guardar Gasto
+                                </span>
+                                <span class="boton-bottom1"></span>
+                                <span class="boton-base1"></span>
                             </button>
+                            
+                            <a href="index.php?page=gastos" class="boton2 text-decoration-none me-md-2" style="width: auto; min-width: 150px;">
+                                <div class="boton-top2">
+                                    <i class="fas fa-times me-2"></i>Cancelar
+                                </div>
+                                <div class="boton-bottom2"></div>
+                                <div class="boton-base2"></div>
+                            </a>
                         </div>
                     </form>
                 </div>

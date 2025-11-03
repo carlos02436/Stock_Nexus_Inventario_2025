@@ -38,11 +38,22 @@ sort($usuariosUnicos);
          style="margin-top:180px;">
         <h1 class="h2"><i class="fas fa-exchange-alt me-2"></i>Movimientos de Bodega</h1>
         <div class="btn-toolbar mb-2 mb-md-0">
-            <a href="index.php?page=inventario" class="btn btn-secondary me-2">
-                <i class="fas fa-arrow-left me-2"></i>Volver al Inventario
+            <!-- Volver al Inventario - Gris (boton3) -->
+            <a href="index.php?page=inventario" class="boton3 me-2 text-decoration-none" style="width: auto; min-width: 180px;">
+                <div class="boton-top3">
+                    <i class="fas fa-arrow-left me-2"></i>Volver al Inventario
+                </div>
+                <div class="boton-bottom3"></div>
+                <div class="boton-base3"></div>
             </a>
-            <a href="index.php?page=crear_movimiento" class="btn btn-neon">
-                <i class="fas fa-plus me-2"></i>Nuevo Movimiento
+
+            <!-- Nuevo Movimiento - Verde (button) -->
+            <a href="index.php?page=crear_movimiento" class="boton1 text-decoration-none" style="width: auto; min-width: 180px;">
+                <span class="boton-top1">
+                    <i class="fas fa-plus me-2"></i>Nuevo Movimiento
+                </span>
+                <span class="boton-bottom1"></span>
+                <span class="boton-base1"></span>
             </a>
         </div>
     </div>
@@ -85,8 +96,12 @@ sort($usuariosUnicos);
             </div>
             <div class="row mt-3">
                 <div class="col-12">
-                    <button type="button" class="btn btn-danger" id="btnLimpiarFiltros">
-                        <i class="fas fa-undo me-1"></i>Limpiar filtros
+                    <button type="button" class="boton2" id="btnLimpiarFiltros" style="width: auto; min-width: 140px;">
+                        <div class="boton-top2">
+                            <i class="fas fa-undo me-1"></i>Limpiar filtros
+                        </div>
+                        <div class="boton-bottom2"></div>
+                        <div class="boton-base2"></div>
                     </button>
                 </div>
             </div>

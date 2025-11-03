@@ -3,17 +3,30 @@
 require_once __DIR__ . '/../../helpers/PermisoHelper.php';
 ?>
 <div class="container-fluid px-4" style="margin-top: 180px; margin-bottom: 100px;">
-    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h1 class="h2"><i class="fas fa-money-bill-wave me-2"></i>Gastos Operativos</h1>
-        <div>
-            <?php if (PermisoHelper::puede('Finanzas', 'crear')): ?>
-                <a href="index.php?page=finanzas" class="btn btn-secondary rounded-3 py-2 me-2">
-                    <i class="fas fa-arrow-left me-2"></i>Volver a Finanzas
-                </a>
-                <a href="index.php?page=crear_gasto" class="btn btn-neon">
-                    <i class="fas fa-plus me-2"></i>Nuevo Gasto
-                </a>
-            <?php endif; ?>
+        <div class="btn-toolbar mb-2 mb-md-2">
+            <div class="d-flex gap-2">
+                <?php if (PermisoHelper::puede('Finanzas', 'crear')): ?>
+                    <!-- Volver a Finanzas - Gris (boton3) -->
+                    <a href="index.php?page=finanzas" class="boton3 text-decoration-none me-2" style="width: auto; min-width: 160px;">
+                        <div class="boton-top3">
+                            <i class="fas fa-arrow-left me-2"></i>Volver a Finanzas
+                        </div>
+                        <div class="boton-bottom3"></div>
+                        <div class="boton-base3"></div>
+                    </a>
+
+                    <!-- Nuevo Gasto - Verde (button) -->
+                    <a href="index.php?page=crear_gasto" class="boton1 text-decoration-none" style="width: auto; min-width: 150px;">
+                        <span class="boton-top1">
+                            <i class="fas fa-plus me-2"></i>Nuevo Gasto
+                        </span>
+                        <span class="boton-bottom1"></span>
+                        <span class="boton-base1"></span>
+                    </a>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
 
@@ -51,8 +64,12 @@ require_once __DIR__ . '/../../helpers/PermisoHelper.php';
             </div>
             <div class="row mt-3">
                 <div class="col-12 text-start">
-                    <button type="button" class="btn btn-danger" id="btn-limpiar-filtros">
-                        <i class="fas fa-undo me-1"></i>Limpiar filtros
+                    <button type="button" class="boton2" id="btn-limpiar-filtros" style="width: auto; min-width: 140px;">
+                        <div class="boton-top2">
+                            <i class="fas fa-undo me-1"></i>Limpiar filtros
+                        </div>
+                        <div class="boton-bottom2"></div>
+                        <div class="boton-base2"></div>
                     </button>
                 </div>
             </div>
@@ -113,32 +130,49 @@ require_once __DIR__ . '/../../helpers/PermisoHelper.php';
                                     <td>
                                         <div class="btn-group btn-group-sm">
                                             <?php if (PermisoHelper::puede('Finanzas', 'editar')): ?>
+                                                <!-- Botón Editar - Amarillo (boton4) -->
                                                 <a href="index.php?page=editar_gasto&id=<?= $gasto['id_gasto'] ?>" 
-                                                   class="btn btn-warning" title="Editar">
-                                                    <i class="fas fa-edit"></i>
+                                                class="boton4" title="Editar" style="width: auto; min-width: 40px; padding: 0 4px 8px;">
+                                                    <div class="boton-top4" style="padding: 4px 8px;">
+                                                        <i class="fas fa-edit"></i>
+                                                    </div>
+                                                    <div class="boton-bottom4"></div>
+                                                    <div class="boton-base4"></div>
                                                 </a>
                                             <?php endif; ?>
                                             
                                             <?php if (PermisoHelper::puede('Finanzas', 'eliminar')): ?>
                                                 <?php if ($gasto['estado'] == 'Activo'): ?>
+                                                    <!-- Botón Inactivar - Rojo (boton2) -->
                                                     <button type="button" 
-                                                            class="btn btn-danger" 
+                                                            class="boton2" 
                                                             title="Inactivar"
                                                             data-bs-toggle="modal" 
                                                             data-bs-target="#modalInactivarGasto"
                                                             data-gasto-id="<?= $gasto['id_gasto'] ?>"
-                                                            data-gasto-descripcion="<?= htmlspecialchars($gasto['descripcion'] ?? 'Sin descripción') ?>">
-                                                        <i class="fas fa-ban"></i>
+                                                            data-gasto-descripcion="<?= htmlspecialchars($gasto['descripcion'] ?? 'Sin descripción') ?>"
+                                                            style="width: auto; min-width: 40px; padding: 0 4px 8px;">
+                                                        <div class="boton-top2" style="padding: 4px 8px;">
+                                                            <i class="fas fa-ban"></i>
+                                                        </div>
+                                                        <div class="boton-bottom2"></div>
+                                                        <div class="boton-base2"></div>
                                                     </button>
                                                 <?php else: ?>
+                                                    <!-- Botón Activar - Verde (button) -->
                                                     <button type="button" 
-                                                            class="btn btn-success" 
+                                                            class="boton1" 
                                                             title="Activar"
                                                             data-bs-toggle="modal" 
                                                             data-bs-target="#modalActivarGasto"
                                                             data-gasto-id="<?= $gasto['id_gasto'] ?>"
-                                                            data-gasto-descripcion="<?= htmlspecialchars($gasto['descripcion'] ?? 'Sin descripción') ?>">
-                                                        <i class="fas fa-check"></i>
+                                                            data-gasto-descripcion="<?= htmlspecialchars($gasto['descripcion'] ?? 'Sin descripción') ?>"
+                                                            style="width: auto; min-width: 40px; padding: 0 4px 8px;">
+                                                        <span class="boton-top1" style="padding: 4px 8px;">
+                                                            <i class="fas fa-check"></i>
+                                                        </span>
+                                                        <span class="boton-bottom1"></span>
+                                                        <span class="boton-base1"></span>
                                                     </button>
                                                 <?php endif; ?>
                                             <?php endif; ?>
@@ -165,9 +199,6 @@ require_once __DIR__ . '/../../helpers/PermisoHelper.php';
                     <i class="fas fa-search fa-2x mb-2"></i>
                     <h5 class="mb-2">No se encontraron resultados</h5>
                     <p class="mb-0">No hay gastos que coincidan con los filtros aplicados.</p>
-                    <button type="button" class="btn btn-sm btn-outline-secondary mt-2" id="btn-limpiar-filtros-mensaje">
-                        <i class="fas fa-undo me-1"></i>Limpiar filtros
-                    </button>
                 </div>
             <?php endif; ?>
         </div>
@@ -184,7 +215,7 @@ require_once __DIR__ . '/../../helpers/PermisoHelper.php';
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body text-dark">
                 <p>¿Estás seguro de que deseas <strong>inactivar</strong> el siguiente gasto?</p>
                 <div class="alert alert-info">
                     <strong>Descripción:</strong> <span id="gasto-descripcion-inactivar"></span>
@@ -217,7 +248,7 @@ require_once __DIR__ . '/../../helpers/PermisoHelper.php';
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body text-dark">
                 <p>¿Estás seguro de que deseas <strong>activar</strong> el siguiente gasto?</p>
                 <div class="alert alert-info">
                     <strong>Descripción:</strong> <span id="gasto-descripcion-activar"></span>

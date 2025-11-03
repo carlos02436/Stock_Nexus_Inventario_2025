@@ -35,8 +35,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h1 class="h2"><i class="fas fa-plus-circle me-2 text-success"></i>Crear Nueva Categoría</h1>
         <div class="btn-toolbar mb-2 mb-md-0">
-            <a href="index.php?page=categorias" class="btn btn-secondary rounded-3 px-3 py-2">
-                <i class="fas fa-arrow-left me-2"></i>Volver a Categorías
+            <a href="index.php?page=categorias" class="boton3 text-decoration-none" style="width: auto; min-width: 160px;">
+                <div class="boton-top3">
+                    <i class="fas fa-arrow-left me-2"></i>Volver a Categorías
+                </div>
+                <div class="boton-bottom3"></div>
+                <div class="boton-base3"></div>
             </a>
         </div>
     </div>
@@ -94,11 +98,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
 
                         <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4 pt-3 border-top">
-                            <button type="submit" class="btn btn-neon px-4">
-                                <i class="fas fa-save me-2"></i>Guardar Categoría
+                            <!-- Botón Guardar Categoría - Verde (button) -->
+                            <button type="submit" class="boton1 text-decoration-none" style="width: auto; min-width: 160px;">
+                                <span class="boton-top1">
+                                    <i class="fas fa-save me-2"></i>Guardar Categoría
+                                </span>
+                                <span class="boton-bottom1"></span>
+                                <span class="boton-base1"></span>
                             </button>
-                            <a href="index.php?page=categorias" class="btn btn-danger me-2 px-4">
-                                <i class="fas fa-times me-2"></i>Cancelar
+
+                            <!-- Botón Cancelar - Rojo (boton2) -->
+                            <a href="index.php?page=categorias" class="boton2 text-decoration-none me-2" style="width: auto; min-width: 140px;">
+                                <div class="boton-top2">
+                                    <i class="fas fa-times me-2"></i>Cancelar
+                                </div>
+                                <div class="boton-bottom2"></div>
+                                <div class="boton-base2"></div>
                             </a>
                         </div>
                     </form>

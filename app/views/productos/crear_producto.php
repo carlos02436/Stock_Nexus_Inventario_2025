@@ -13,8 +13,12 @@ $ultimosCodigos = $productoController->obtenerUltimosCodigosPorCategoria();
          style="margin-top:180px;">
         <h1 class="h2"><i class="fas fa-plus me-2"></i>Crear Nuevo Producto</h1>
         <div class="btn-toolbar mb-2 mb-md-0">
-            <a href="index.php?page=productos" class="btn btn-secondary">
-                <i class="fas fa-arrow-left me-2"></i>Volver a Productos
+            <a href="index.php?page=productos" class="boton3 text-decoration-none" style="width: auto; min-width: 180px;">
+                <div class="boton-top3">
+                    <i class="fas fa-arrow-left me-2"></i>Volver a Productos
+                </div>
+                <div class="boton-bottom3"></div>
+                <div class="boton-base3"></div>
             </a>
         </div>
     </div>
@@ -117,10 +121,23 @@ $ultimosCodigos = $productoController->obtenerUltimosCodigosPorCategoria();
                         </div>
 
                         <div class="d-grid gap-3 d-md-flex justify-content-md-center">
-                            <button type="submit" class="btn btn-neon">
-                                <i class="fas fa-save me-2"></i>Guardar Producto
+                            <!-- Botón Guardar - Verde (boton1) -->
+                            <button type="submit" class="boton1" style="width: auto; min-width: 180px;">
+                                <span class="boton-top1">
+                                    <i class="fas fa-save me-2"></i>Guardar Producto
+                                </span>
+                                <span class="boton-bottom1"></span>
+                                <span class="boton-base1"></span>
                             </button>
-                            <a href="index.php?page=productos" class="btn btn-danger">Cancelar</a>
+
+                            <!-- Botón Cancelar - Rojo (boton2) -->
+                            <a href="index.php?page=productos" class="boton2 text-decoration-none" style="width: auto; min-width: 150px;">
+                                <div class="boton-top2">
+                                    Cancelar
+                                </div>
+                                <div class="boton-bottom2"></div>
+                                <div class="boton-base2"></div>
+                            </a>
                         </div>
                     </form>
                 </div>

@@ -18,11 +18,22 @@ sort($categoriasUnicas);
          style="margin-top:180px;">
         <h1 class="h2"><i class="fas fa-boxes me-2"></i>Gestión de Productos</h1>
         <div class="btn-toolbar mb-2 mb-md-0">
-            <a href="index.php?page=inventario" class="btn btn-secondary me-2">
-                <i class="fas fa-arrow-left me-2"></i>Volver al Inventario
+            <!-- Volver al Inventario - Gris (boton3) -->
+            <a href="index.php?page=inventario" class="boton3 me-2 text-decoration-none" style="width: auto; min-width: 180px;">
+                <div class="boton-top3">
+                    <i class="fas fa-arrow-left me-2"></i>Volver al Inventario
+                </div>
+                <div class="boton-bottom3"></div>
+                <div class="boton-base3"></div>
             </a>
-            <a href="index.php?page=crear_producto" class="btn btn-neon">
-                <i class="fas fa-plus me-2"></i>Nuevo Producto
+
+            <!-- Nuevo Producto - Verde (button) -->
+            <a href="index.php?page=crear_producto" class="boton1 text-decoration-none" style="width: auto; min-width: 160px;">
+                <span class="boton-top1">
+                    <i class="fas fa-plus me-2"></i>Nuevo Producto
+                </span>
+                <span class="boton-bottom1"></span>
+                <span class="boton-base1"></span>
             </a>
         </div>
     </div>
@@ -72,8 +83,12 @@ sort($categoriasUnicas);
             </div>
             <div class="row mt-3">
                 <div class="col-12">
-                    <button type="button" class="btn btn-danger" id="btnLimpiarFiltros">
-                        <i class="fas fa-undo me-1"></i>Limpiar filtros
+                    <button type="button" class="boton2" id="btnLimpiarFiltros" style="width: auto; min-width: 140px;">
+                        <div class="boton-top2">
+                            <i class="fas fa-undo me-1"></i>Limpiar filtros
+                        </div>
+                        <div class="boton-bottom2"></div>
+                        <div class="boton-base2"></div>
                     </button>
                 </div>
             </div>
@@ -124,13 +139,24 @@ sort($categoriasUnicas);
                             </td>
                             <td>
                                 <div class="btn-group btn-group-sm">
+                                    <!-- Botón Editar - Amarillo (boton4) -->
                                     <a href="index.php?page=editar_producto&id=<?= $producto['id_producto'] ?>" 
-                                       class="btn btn-warning" title="Editar">
-                                        <i class="fas fa-edit"></i>
+                                    class="boton4" title="Editar" style="width: auto; min-width: 40px; padding: 0 4px 8px;">
+                                        <div class="boton-top4" style="padding: 4px 8px;">
+                                            <i class="fas fa-edit"></i>
+                                        </div>
+                                        <div class="boton-bottom4"></div>
+                                        <div class="boton-base4"></div>
                                     </a>
+
+                                    <!-- Botón Eliminar - Rojo (boton2) -->
                                     <a href="index.php?page=eliminar_producto&id=<?= $producto['id_producto'] ?>" 
-                                       class="btn btn-danger btn-delete" title="Eliminar">
-                                        <i class="fas fa-trash"></i>
+                                    class="boton2 btn-delete" title="Eliminar" style="width: auto; min-width: 40px; padding: 0 4px 8px;">
+                                        <div class="boton-top2" style="padding: 4px 8px;">
+                                            <i class="fas fa-trash"></i>
+                                        </div>
+                                        <div class="boton-bottom2"></div>
+                                        <div class="boton-base2"></div>
                                     </a>
                                 </div>
                             </td>

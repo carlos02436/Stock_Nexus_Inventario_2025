@@ -22,11 +22,22 @@ sort($categoriasUnicas);
             style="margin-top:180px;">
         <h1 class="h2"><i class="fas fa-warehouse me-2"></i>Gestión de Inventario</h1>
         <div class="btn-toolbar mb-2 mb-md-0">
-            <a href="index.php?page=crear_producto" class="btn btn-neon me-2">
-                <i class="fas fa-plus me-2"></i>Nuevo Producto
+            <!-- Botón Nuevo Producto -->
+            <a href="index.php?page=crear_producto" class="boton1 text-decoration-none me-2" style="width: auto; min-width: 150px;">
+                <div class="boton-top1">
+                    <i class="fas fa-plus me-2"></i>Nuevo Producto
+                </div>
+                <div class="boton-bottom1"></div>
+                <div class="boton-base1"></div>
             </a>
-            <a href="index.php?page=movimientos" class="btn btn-warning">
-                <i class="fas fa-exchange-alt me-2"></i>Ver Movimientos
+
+            <!-- Botón Ver Movimientos -->
+            <a href="index.php?page=movimientos" class="boton3 text-decoration-none" style="width: auto; min-width: 150px;">
+                <div class="boton-top3">
+                    <i class="fas fa-exchange-alt me-2"></i>Ver Movimientos
+                </div>
+                <div class="boton-bottom3"></div>
+                <div class="boton-base3"></div>
             </a>
         </div>
     </div>
@@ -192,9 +203,13 @@ sort($categoriasUnicas);
                 </div>
             </div>
             <div class="row mt-3">
-                <div class="col-12">
-                    <button type="button" class="btn btn-danger" id="btnLimpiarFiltros">
-                        <i class="fas fa-undo me-1"></i>Limpiar filtros
+                <div class="col-12 d-flex justify-content-start">
+                    <button type="button" class="boton2" id="btnLimpiarFiltros" style="width: auto; min-width: 140px;">
+                        <div class="boton-top2">
+                            <i class="fas fa-undo me-1"></i>Limpiar filtros
+                        </div>
+                        <div class="boton-bottom2"></div>
+                        <div class="boton-base2"></div>
                     </button>
                 </div>
             </div>
@@ -249,19 +264,30 @@ sort($categoriasUnicas);
                                 </span>
                             </td>
                             <td>
-                                <div class="btn-group btn-group-sm">
-                                    <a href="index.php?page=editar_producto&id=<?= $producto['id_producto'] ?>" 
-                                    class="btn btn-warning" title="Editar">
+                            <div class="btn-group btn-group-sm">
+                                <!-- Botón Editar - Amarillo (boton4) -->
+                                <a href="index.php?page=editar_producto&id=<?= $producto['id_producto'] ?>" 
+                                class="boton4" title="Editar" style="width: auto; min-width: 40px; padding: 0 4px 8px;">
+                                    <div class="boton-top4" style="padding: 4px 8px;">
                                         <i class="fas fa-edit"></i>
-                                    </a>
-                                    <!-- CAMBIA ESTE BOTÓN -->
-                                    <button type="button" class="btn btn-danger btn-eliminar" 
-                                            data-id="<?= $producto['id_producto'] ?>" 
-                                            data-nombre="<?= htmlspecialchars($producto['nombre_producto']) ?>"
-                                            title="Eliminar Permanentemente">
+                                    </div>
+                                    <div class="boton-bottom4"></div>
+                                    <div class="boton-base4"></div>
+                                </a>
+
+                                <!-- Botón Eliminar - Rojo (boton3) -->
+                                <button type="button" class="boton3 btn-eliminar" 
+                                        data-id="<?= $producto['id_producto'] ?>" 
+                                        data-nombre="<?= htmlspecialchars($producto['nombre_producto']) ?>"
+                                        title="Eliminar Permanentemente"
+                                        style="width: auto; min-width: 40px; padding: 0 4px 8px;">
+                                    <div class="boton-top3" style="padding: 4px 8px;">
                                         <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
+                                    </div>
+                                    <div class="boton-bottom3"></div>
+                                    <div class="boton-base3"></div>
+                                </button>
+                            </div>
                             </td>
                         </tr>
                         <?php endforeach; ?>

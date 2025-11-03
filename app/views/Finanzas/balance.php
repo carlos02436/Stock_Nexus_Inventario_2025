@@ -150,11 +150,23 @@ try {
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom no-print">
         <h1 class="h2"><i class="fas fa-balance-scale me-2"></i>Balance General</h1>
         <div class="btn-toolbar mb-2 mb-md-2 gap-3">
-            <a href="index.php?page=finanzas" class="btn btn-secondary">
-                <i class="fas fa-arrow-left me-2"></i>Volver a Finanzas
+
+            <!-- Volver a Finanzas - Gris (boton3) -->
+            <a href="index.php?page=finanzas" class="boton3 text-decoration-none me-2" style="width: auto; min-width: 160px;">
+                <div class="boton-top3">
+                    <i class="fas fa-arrow-left me-2"></i>Volver a Finanzas
+                </div>
+                <div class="boton-bottom3"></div>
+                <div class="boton-base3"></div>
             </a>
-            <a href="index.php?page=generar_pdf_balance" class="btn btn-neon">
-                <i class="fas fa-file-pdf me-2"></i>Descargar PDF
+
+            <!-- Descargar PDF - Verde (boton) -->
+            <a href="index.php?page=generar_pdf_balance" class="boton1 text-decoration-none" style="width: auto; min-width: 150px;">
+                <div class="boton-top1">
+                    <i class="fas fa-file-pdf me-2"></i>Descargar PDF
+                </div>
+                <span class="boton-bottom1"></span>
+                <span class="boton-base1"></span>
             </a>
         </div>
     </div>
@@ -223,8 +235,12 @@ try {
                             <input type="text" class="form-control" id="filtroMes" placeholder="Ej: Enero, Febrero, Marzo...">
                         </div>
                         <div class="col-md-2">
-                            <button class="btn btn-danger mt-4" onclick="limpiarFiltros()">
-                                <i class="fas fa-undo me-1"></i>Limpiar filtros
+                            <button class="boton2 mt-4" onclick="limpiarFiltros()" style="width: auto; min-width: 140px;">
+                                <div class="boton-top2">
+                                    <i class="fas fa-undo me-1"></i>Limpiar filtros
+                                </div>
+                                <div class="boton-bottom2"></div>
+                                <div class="boton-base2"></div>
                             </button>
                         </div>
                     </div>

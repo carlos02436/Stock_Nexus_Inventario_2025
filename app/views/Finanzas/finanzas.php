@@ -67,17 +67,40 @@ try {
         <h1 class="h2"><i class="fas fa-chart-line me-2"></i>Panel Financiero</h1>
         <div class="btn-toolbar mb-2 mb-md-2">
             <div class="d-flex gap-2">
-                <a href="index.php?page=pagos" class="btn btn-warning rounded-3 px-3 py-2 text-center">
-                    <i class="fas fa-credit-card me-2"></i>Pagos
+                <!-- Pagos - Amarillo (boton4) -->
+                <a href="index.php?page=pagos" class="boton4 text-decoration-none" style="width: auto; min-width: 120px;">
+                    <div class="boton-top4">
+                        <i class="fas fa-credit-card me-2"></i>Pagos
+                    </div>
+                    <div class="boton-bottom4"></div>
+                    <div class="boton-base4"></div>
                 </a>
-                <a href="index.php?page=gastos" class="btn btn-danger rounded-3 px-3 py-2 text-center">
-                    <i class="fas fa-credit-card me-2"></i>Gastos
+
+                <!-- Gastos - Rojo (boton2) -->
+                <a href="index.php?page=gastos" class="boton2 text-decoration-none" style="width: auto; min-width: 120px;">
+                    <div class="boton-top2">
+                        <i class="fas fa-credit-card me-2"></i>Gastos
+                    </div>
+                    <div class="boton-bottom2"></div>
+                    <div class="boton-base2"></div>
                 </a>
-                <a href="index.php?page=estado_resultado" class="btn btn-success rounded-3 px-3 py-2 text-center">
-                    <i class="fas fa-file-invoice-dollar me-2"></i>Estado de Resultados
+
+                <!-- Estado de Resultados - Verde (button) -->
+                <a href="index.php?page=estado_resultado" class="boton1 text-decoration-none" style="width: auto; min-width: 180px;">
+                    <span class="boton-top1">
+                        <i class="fas fa-file-invoice-dollar me-2"></i>Estado de Resultados
+                    </span>
+                    <span class="boton-bottom1"></span>
+                    <span class="boton-base1"></span>
                 </a>
-                <a href="index.php?page=balance" class="btn btn-danger rounded-3 px-3 py-2 text-center">
-                    <i class="fas fa-balance-scale me-2"></i>Balance General
+
+                <!-- Balance General - Rojo (boton2) -->
+                <a href="index.php?page=balance" class="boton2 text-decoration-none" style="width: auto; min-width: 150px;">
+                    <div class="boton-top2">
+                        <i class="fas fa-balance-scale me-2"></i>Balance General
+                    </div>
+                    <div class="boton-bottom2"></div>
+                    <div class="boton-base2"></div>
                 </a>
             </div>
         </div>

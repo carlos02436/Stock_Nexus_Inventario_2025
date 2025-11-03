@@ -12,14 +12,31 @@ $metodosUnicos = array_unique(array_column($pagos, 'metodo_pago'));
         <h1 class="h2"><i class="fas fa-money-bill-wave me-2"></i>Registro de Pagos</h1>
         <div class="btn-toolbar mb-2 mb-md-2">
             <div class="d-flex gap-2">
-                <a href="index.php?page=finanzas" class="btn btn-secondary rounded-3 px-3 py-2">
-                    <i class="fas fa-arrow-left me-2"></i>Volver a Finanzas
+                <!-- Volver a Finanzas - Gris (boton3) -->
+                <a href="index.php?page=finanzas" class="boton3 text-decoration-none" style="width: auto; min-width: 160px;">
+                    <div class="boton-top3">
+                        <i class="fas fa-arrow-left me-2"></i>Volver a Finanzas
+                    </div>
+                    <div class="boton-bottom3"></div>
+                    <div class="boton-base3"></div>
                 </a>
-                <a href="index.php?page=crear_pago&tipo=Ingreso" class="btn btn-neon rounded-3 px-3 py-2">
-                    <i class="fas fa-plus me-2"></i>Nuevo Ingreso
+
+                <!-- Nuevo Ingreso - Verde (button) -->
+                <a href="index.php?page=crear_pago&tipo=Ingreso" class="boton1 text-decoration-none" style="width: auto; min-width: 150px;">
+                    <span class="boton-top1">
+                        <i class="fas fa-plus me-2"></i>Nuevo Ingreso
+                    </span>
+                    <span class="boton-bottom1"></span>
+                    <span class="boton-base1"></span>
                 </a>
-                <a href="index.php?page=crear_pago&tipo=Egreso" class="btn btn-danger rounded-3 px-3 py-2">
-                    <i class="fas fa-minus me-2"></i>Nuevo Egreso
+
+                <!-- Nuevo Egreso - Rojo (boton2) -->
+                <a href="index.php?page=crear_pago&tipo=Egreso" class="boton2 text-decoration-none" style="width: auto; min-width: 150px;">
+                    <div class="boton-top2">
+                        <i class="fas fa-minus me-2"></i>Nuevo Egreso
+                    </div>
+                    <div class="boton-bottom2"></div>
+                    <div class="boton-base2"></div>
                 </a>
             </div>
         </div>
@@ -73,8 +90,12 @@ $metodosUnicos = array_unique(array_column($pagos, 'metodo_pago'));
             <div class="row mt-3">
                 <div class="col-12">
                     <div class="d-flex gap-2 justify-content-start">
-                        <button type="button" id="btnLimpiarFiltros" class="btn btn-danger rounded-3 px-3 py-2">
-                            <i class="fas fa-undo me-1"></i>Limpiar filtros
+                        <button type="button" id="btnLimpiarFiltros" class="boton2" style="width: auto; min-width: 140px;">
+                            <div class="boton-top2">
+                                <i class="fas fa-undo me-1"></i>Limpiar filtros
+                            </div>
+                            <div class="boton-bottom2"></div>
+                            <div class="boton-base2"></div>
                         </button>
                     </div>
                 </div>

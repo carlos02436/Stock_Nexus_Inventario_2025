@@ -10,8 +10,12 @@ $estadosUnicos = array_unique(array_column($categorias, 'estado'));
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h1 class="h2"><i class="fas fa-tags me-2"></i>Gestión de Categorías</h1>
         <div class="btn-toolbar mb-2 mb-md-0">
-            <a href="index.php?page=crear_categoria" class="btn btn-neon rounded-3 px-3 py-2">
-                <i class="fas fa-plus me-2"></i>Nueva Categoría
+            <a href="index.php?page=crear_categoria" class="boton1 text-decoration-none" style="width: auto; min-width: 160px;">
+                <span class="boton-top1">
+                    <i class="fas fa-plus me-2"></i>Nueva Categoría
+                </span>
+                <span class="boton-bottom1"></span>
+                <span class="boton-base1"></span>
             </a>
         </div>
     </div>
@@ -53,8 +57,12 @@ $estadosUnicos = array_unique(array_column($categorias, 'estado'));
             <div class="row mt-3">
                 <div class="col-12">
                     <div class="d-flex gap-2 justify-content-start">
-                        <button type="button" id="btnLimpiarFiltros" class="btn btn-danger rounded-3 px-3 py-2">
-                            <i class="fas fa-undo me-1"></i>Limpiar filtros
+                        <button type="button" id="btnLimpiarFiltros" class="boton2" style="width: auto; min-width: 140px;">
+                            <div class="boton-top2">
+                                <i class="fas fa-undo me-1"></i>Limpiar filtros
+                            </div>
+                            <div class="boton-bottom2"></div>
+                            <div class="boton-base2"></div>
                         </button>
                     </div>
                 </div>
@@ -99,13 +107,24 @@ $estadosUnicos = array_unique(array_column($categorias, 'estado'));
                             </td>
                             <td>
                                 <div class="btn-group btn-group-sm">
+                                    <!-- Botón Editar - Amarillo (boton4) -->
                                     <a href="index.php?page=editar_categoria&id=<?= $categoria['id_categoria'] ?>" 
-                                       class="btn btn-warning" title="Editar">
-                                        <i class="fas fa-edit"></i>
+                                    class="boton4" title="Editar" style="width: auto; min-width: 40px; padding: 0 4px 8px;">
+                                        <div class="boton-top4" style="padding: 4px 8px;">
+                                            <i class="fas fa-edit"></i>
+                                        </div>
+                                        <div class="boton-bottom4"></div>
+                                        <div class="boton-base4"></div>
                                     </a>
+
+                                    <!-- Botón Eliminar - Rojo (boton2) -->
                                     <a href="index.php?page=eliminar_categoria&id=<?= $categoria['id_categoria'] ?>" 
-                                       class="btn btn-danger btn-delete" title="Eliminar">
-                                        <i class="fas fa-trash"></i>
+                                    class="boton2 btn-delete" title="Eliminar" style="width: auto; min-width: 40px; padding: 0 4px 8px;">
+                                        <div class="boton-top2" style="padding: 4px 8px;">
+                                            <i class="fas fa-trash"></i>
+                                        </div>
+                                        <div class="boton-bottom2"></div>
+                                        <div class="boton-base2"></div>
                                     </a>
                                 </div>
                             </td>
@@ -115,15 +134,12 @@ $estadosUnicos = array_unique(array_column($categorias, 'estado'));
                 </table>
                 
                 <!-- Mensaje cuando no hay resultados -->
-                <div id="mensajeNoResultados" class="text-center py-5 d-none">
+                <div id="mensajeNoResultados" class="text-center bg-white py-5 d-none rounded-3">
                     <div class="mb-3">
                         <i class="fas fa-search fa-3x text-muted"></i>
                     </div>
-                    <h4 class="text-white">No hay coincidencias de búsqueda</h4>
-                    <p class="text-white">Intenta ajustar los filtros para ver más resultados.</p>
-                    <button type="button" id="btnLimpiarDesdeMensaje" class="btn btn-danger mt-2">
-                        <i class="fas fa-broom me-2"></i>Limpiar todos los filtros
-                    </button>
+                    <h4 class="text-dark">No hay coincidencias de búsqueda</h4>
+                    <p class="text-dark">Intenta ajustar los filtros para ver más resultados.</p>
                 </div>
             </div>
         </div>

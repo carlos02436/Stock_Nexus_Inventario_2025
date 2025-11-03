@@ -219,10 +219,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </a>
             </div>
 
-            <!-- Botón -->
-            <button type="submit" class="btn-neon w-100 py-2 rounded-3">
-                <i class="bi bi-box-arrow-in-right me-2"></i>Ingresar al Sistema
-            </button>
+            <!-- Botón centrado en el formulario -->
+            <div class="d-flex justify-content-center">
+                <button type="submit" class="boton1" style="width:400px;">
+                    <span class="boton-top1">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Ingresar al Sistema
+                    </span>
+                    <span class="boton-bottom1"></span>
+                    <span class="boton-base1"></span>
+                </button>
+            </div>
         </form>
 
         <div class="text-center mt-4">

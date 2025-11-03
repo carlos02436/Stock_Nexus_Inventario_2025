@@ -123,15 +123,27 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 </div>
             </div>
 
-            <!-- Botón Enviar Instrucciones -->
-            <button type="submit" class="btn-neon w-100 py-2 mb-3 rounded-3">
-                <i class="bi bi-send me-2"></i>Enviar Instrucciones
-            </button>
+            <!-- Botón centrado en el formulario -->
+            <div class="d-flex justify-content-center">
+                <button type="submit" class="boton1" style="width:400px;">
+                    <span class="boton-top1">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Enviar Correo Electrónico
+                    </span>
+                    <span class="boton-bottom1"></span>
+                    <span class="boton-base1"></span>
+                </button>
+            </div>
 
-            <!-- Botón Volver al Login -->
-            <button type="button" class="btn btn-secondary w-100 py-2 mb-3 rounded-3" onclick="window.location.href='index.php?page=login'">
-                <i class="bi bi-arrow-left me-2"></i>Volver al Login
-            </button>
+            <!-- Botón volver al login -->
+            <div class="d-flex justify-content-center py-2">
+                <button type="button" class="boton2" style="width:400px;" onclick="window.location.href='index.php?page=login'">
+                    <span class="boton-top2">
+                        <i class="bi bi-arrow-left me-2"></i>Volver al Login
+                    </span>
+                    <span class="boton-bottom2"></span>
+                    <span class="boton-base2"></span>
+                </button>
+            </div>
         </form>
 
         <div class="text-center mt-4">
