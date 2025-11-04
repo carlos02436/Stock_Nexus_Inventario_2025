@@ -27,26 +27,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
-
 <body>
     <div class="container-fluid px-4 mb-5" style="margin-top:180px;">
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-            <h1 class="h2"><i class="fas fa-plus-circle me-2"></i>Crear Nuevo Módulo</h1>
+            <h1 class="h2 text-white"><i class="fas fa-plus-circle me-2"></i>Crear Nuevo Módulo</h1>
             <div class="btn-toolbar mb-2 mb-md-0">
-                <a href="index.php?page=modulos" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left me-2"></i>Volver a Módulos
+                <a href="index.php?page=modulos" class="boton3 text-decoration-none">
+                    <div class="boton-top3"><i class="fas fa-arrow-left me-2"></i>Volver a Módulos</div>
+                    <div class="boton-bottom3"></div>
+                    <div class="boton-base3"></div>
                 </a>
             </div>
         </div>
 
         <div class="row justify-content-center">
             <div class="col-md-8">
-                <div class="card">
-                    <div class="card-header text-white py-3">
-                        <h5 class="card-title mb-0">
-                            <i class="fas fa-cube me-2"></i>Información del Módulo
-                        </h5>
-                    </div>
+                <div class="card py-3">
                     <div class="card-body">
                         <?php if (isset($error)): ?>
                             <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -58,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <form method="POST" id="formCrearModulo">
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label for="nombre_modulo" class="form-label text-white">Nombre del Módulo <span class="text-danger">*</span></label>
+                                    <label for="nombre_modulo" class="form-label text-white">Nombre del Módulo <span class="text-white">*</span></label>
                                     <input type="text" class="form-control" id="nombre_modulo" name="nombre_modulo" 
                                            value="<?= isset($_POST['nombre_modulo']) ? htmlspecialchars($_POST['nombre_modulo']) : '' ?>" 
                                            required maxlength="100">
@@ -66,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 </div>
 
                                 <div class="col-md-6">
-                                    <label for="icono" class="form-label text-white">Icono <span class="text-danger">*</span></label>
+                                    <label for="icono" class="form-label text-white">Icono <span class="text-white">*</span></label>
                                     <input type="text" class="form-control" id="icono" name="icono" 
                                            value="<?= isset($_POST['icono']) ? htmlspecialchars($_POST['icono']) : '' ?>" 
                                            required maxlength="50">
@@ -96,12 +92,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                                 <div class="col-12">
                                     <hr class="text-white">
-                                    <div class="d-flex justify-content-center gap-3">
-                                        <a href="index.php?page=modulos" class="btn btn-danger">
-                                            <i class="fas fa-times me-2"></i>Cancelar
+                                    <div class="d-flex justify-content-center">
+                                        <a href="index.php?page=modulos" class="boton2 me-3 text-decoration-none">
+                                            <div class="boton-top2"><i class="fas fa-times me-2"></i>Cancelar</div>
+                                            <div class="boton-bottom2"></div>
+                                            <div class="boton-base2"></div>
                                         </a>
-                                        <button type="submit" class="btn btn-neon">
-                                            <i class="fas fa-save me-2"></i>Crear Módulo
+                                        <button type="submit" class="boton1 text-decoration-none">
+                                            <div class="boton-top1"><i class="fas fa-save me-2"></i>Crear Módulo</div>
+                                            <div class="boton-bottom1"></div>
+                                            <div class="boton-base1"></div>
                                         </button>
                                     </div>
                                 </div>
@@ -110,6 +110,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                 </div>
             </div>
+        </div>
+
+        <!-- Mensaje "sin resultados" - OCULTO POR DEFECTO -->
+        <div id="mensajeSinResultados" class="text-center bg-white rounded-3 text-dark fw-bold py-4 mt-4" style="display: none;">
+            <i class="fas fa-search fa-2x text-muted mb-3"></i>
+            <h5 class="text-dark mb-2">No se encontraron resultados</h5>
+            <p class="text-muted mb-0">Intenta ajustar los filtros de búsqueda</p>
         </div>
     </div>
 

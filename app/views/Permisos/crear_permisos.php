@@ -41,20 +41,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
             <h1 class="h2"><i class="fas fa-plus-circle me-2"></i>Crear Nuevo Permiso</h1>
             <div class="btn-toolbar mb-2 mb-md-0">
-                <a href="index.php?page=permisos" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left me-2"></i>Volver a Permisos
+                <a href="index.php?page=permisos" class="boton3 text-decoration-none">
+                    <div class="boton-top3"><i class="fas fa-arrow-left me-2"></i>Volver a Permisos</div>
+                    <div class="boton-bottom3"></div>
+                    <div class="boton-base3"></div>
                 </a>
             </div>
         </div>
 
         <div class="row justify-content-center">
             <div class="col-md-8">
-                <div class="card">
-                    <div class="card-header text-white py-3">
-                        <h5 class="card-title mb-0">
-                            <i class="fas fa-key me-2"></i>Información del Permiso
-                        </h5>
-                    </div>
+                <div class="card py-3">
                     <div class="card-body">
                         <?php if (isset($error)): ?>
                             <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -66,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <form method="POST" id="formCrearPermiso">
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label for="id_rol" class="form-label text-white">Rol <span class="text-danger">*</span></label>
+                                    <label for="id_rol" class="form-label text-white">Rol <span class="text-white">*</span></label>
                                     <select class="form-select" id="id_rol" name="id_rol" required>
                                         <option value="">Seleccionar rol...</option>
                                         <?php foreach ($roles as $rol): ?>
@@ -78,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 </div>
 
                                 <div class="col-md-6">
-                                    <label for="id_modulo" class="form-label text-white">Módulo <span class="text-danger">*</span></label>
+                                    <label for="id_modulo" class="form-label text-white">Módulo <span class="text-white">*</span></label>
                                     <select class="form-select" id="id_modulo" name="id_modulo" required>
                                         <option value="">Seleccionar módulo...</option>
                                         <?php foreach ($modulos as $modulo): ?>
@@ -148,12 +145,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                                 <div class="col-12">
                                     <hr class="text-white">
-                                    <div class="d-flex justify-content-between">
-                                        <a href="index.php?page=permisos" class="btn btn-danger">
-                                            <i class="fas fa-times me-2"></i>Cancelar
+                                    <div class="d-flex justify-content-center">
+                                        <a href="index.php?page=permisos" class="boton2 me-3 text-decoration-none">
+                                            <div class="boton-top2"><i class="fas fa-times me-2"></i>Cancelar</div>
+                                            <div class="boton-bottom2"></div>
+                                            <div class="boton-base2"></div>
                                         </a>
-                                        <button type="submit" class="btn btn-neon">
-                                            <i class="fas fa-save me-2"></i>Crear Permiso
+                                        <button type="submit" class="boton1 text-decoration-none">
+                                            <div class="boton-top1"><i class="fas fa-save me-2"></i>Crear Permiso</div>
+                                            <div class="boton-bottom1"></div>
+                                            <div class="boton-base1"></div>
                                         </button>
                                     </div>
                                 </div>

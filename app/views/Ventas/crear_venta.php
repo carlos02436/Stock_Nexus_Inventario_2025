@@ -130,8 +130,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
         <h1 class="h2"><i class="fas fa-plus me-2"></i>Registrar Nueva Venta</h1>
         <div class="btn-toolbar mb-2 mb-md-0">
-            <a href="index.php?page=ventas" class="btn btn-secondary">
-                <i class="fas fa-arrow-left me-2"></i>Volver a Ventas
+            <a href="index.php?page=ventas" class="boton3 text-decoration-none">
+                <div class="boton-top3"><i class="fas fa-arrow-left me-2"></i>Volver a Ventas</div>
+                <div class="boton-bottom3"></div>
+                <div class="boton-base3"></div>
             </a>
         </div>
     </div>
@@ -202,19 +204,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="col-md-3">
                             <input type="text" class="form-control subtotal" readonly placeholder="$0,00">
                         </div>
-                        <div class="col-md-1 d-flex justify-content-center">
-                            <button type="button" class="btn btn-danger btn-sm eliminar-producto">
-                                <i class="fas fa-trash"></i>
+                        <div class="col-md-1 px-2">
+                            <button type="button" class="boton2 eliminar-producto" style="min-width:auto;">
+                                <div class="boton-top2"><i class="fas fa-trash"></i></div>
+                                <div class="boton-bottom2"></div>
+                                <div class="boton-base2"></div>
                             </button>
                         </div>
                     </div>
                 </div>
 
-                <button type="button" id="agregar-producto" class="btn btn-neon btn-sm mt-2">
-                    <i class="fas fa-plus"></i> Agregar Producto
+                <button type="button" id="agregar-producto" class="boton1 btn-sm mt-2">
+                    <div class="boton-top1"><i class="fas fa-plus"></i> Agregar Producto</div>
+                    <div class="boton-bottom1"></div>
+                    <div class="boton-base1"></div>
                 </button>
-                <button type="button" id="limpiar-formulario" class="btn btn-danger btn-sm mt-2">
-                    <i class="fas fa-undo me-1"></i>Limpiar
+
+                <button type="button" id="limpiar-formulario" class="boton2 btn-sm mt-2">
+                    <div class="boton-top2"><i class="fas fa-undo me-1"></i>Limpiar</div>
+                    <div class="boton-bottom2"></div>
+                    <div class="boton-base2"></div>
                 </button>
             </div>
 
@@ -278,8 +287,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div> 
 
             <div class="text-center mt-4">
-                <button type="submit" class="btn btn-neon btn-lg px-5">
-                    <i class="fas fa-save me-2"></i>Registrar Venta
+                <button type="submit" class="boton1">
+                    <div class="boton-top1" style="padding: 12px 24px;">
+                        <i class="fas fa-save me-2"></i>Registrar Venta
+                    </div>
+                    <div class="boton-bottom1"></div>
+                    <div class="boton-base1"></div>
                 </button>
             </div>
         </form>

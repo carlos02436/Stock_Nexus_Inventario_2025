@@ -58,12 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <div class="row justify-content-center">
         <div class="col-12 col-lg-8 col-xl-6">
-            <div class="card shadow-sm">
-                <div class="card-header text-white">
-                    <h5 class="card-title mb-0">
-                        <i class="fas fa-info-circle me-2"></i>Información del Proveedor
-                    </h5>
-                </div>
+            <div class="card shadow-sm py-3">
                 <div class="card-body p-4">
                     <form method="POST" action="">
                         <div class="row">

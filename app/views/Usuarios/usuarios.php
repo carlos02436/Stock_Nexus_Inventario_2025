@@ -13,8 +13,10 @@ $usuarios = $usuarioController->listar();
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h1 class="h2"><i class="fas fa-user-cog me-2"></i>Gestión de Usuarios</h1>
         <div class="btn-toolbar mb-2 mb-md-0">
-            <a href="index.php?page=crear_usuario" class="btn btn-neon">
-                <i class="fas fa-plus me-2"></i>Nuevo Usuario
+            <a href="index.php?page=crear_usuario" class="boton1 text-decoration-none">
+                <div class="boton-top1"><i class="fas fa-plus me-2"></i>Nuevo Usuario</div>
+                <div class="boton-bottom1"></div>
+                <div class="boton-base1"></div>
             </a>
         </div>
     </div>
@@ -64,8 +66,10 @@ $usuarios = $usuarioController->listar();
                         <small class="text-white" id="contadorResultados">
                             Mostrando <?= count($usuarios) ?> usuario(s)
                         </small>
-                        <button type="button" class="btn btn-danger" id="btnLimpiarFiltros">
-                            <i class="fas fa-undo me-1"></i>Limpiar filtros
+                        <button type="button" class="boton2" id="btnLimpiarFiltros">
+                            <div class="boton-top2"><i class="fas fa-undo me-1"></i>Limpiar filtros</div>
+                            <div class="boton-bottom2"></div>
+                            <div class="boton-base2"></div>
                         </button>
                     </div>
                 </div>
@@ -122,17 +126,23 @@ $usuarios = $usuarioController->listar();
                             <td>
                                 <div class="btn-group btn-group-sm">
                                     <a href="index.php?page=editar_usuario&id=<?= $usuario['id_usuario'] ?>" 
-                                       class="btn btn-warning" title="Editar">
-                                        <i class="fas fa-edit"></i>
+                                    class="boton4" style="min-width:auto;" title="Editar">
+                                        <div class="boton-top4"><i class="fas fa-edit"></i></div>
+                                        <div class="boton-bottom4"></div>
+                                        <div class="boton-base4"></div>
                                     </a>
                                     <?php if ($usuario['id_usuario'] != $_SESSION['usuario_id']): ?>
-                                    <button type="button" class="btn btn-danger btn-inactivar" 
+                                    <button type="button" style="min-width:auto;" class="<?= $usuario['estado'] == 'Activo' ? 'boton2' : 'boton1' ?> btn-inactivar" 
                                             data-bs-toggle="modal" data-bs-target="#modalInactivar"
                                             data-usuario-id="<?= $usuario['id_usuario'] ?>"
                                             data-usuario-nombre="<?= htmlspecialchars($usuario['nombre_completo']) ?>"
                                             data-usuario-estado="<?= htmlspecialchars($usuario['estado']) ?>"
                                             title="<?= $usuario['estado'] == 'Activo' ? 'Inactivar Usuario' : 'Activar Usuario' ?>">
-                                        <i class="fas <?= $usuario['estado'] == 'Activo' ? 'fa-user-slash' : 'fa-user-check' ?>"></i>
+                                        <div class="<?= $usuario['estado'] == 'Activo' ? 'boton-top2' : 'boton-top1' ?>">
+                                            <i class="fas <?= $usuario['estado'] == 'Activo' ? 'fa-user-slash' : 'fa-user-check' ?>"></i>
+                                        </div>
+                                        <div class="<?= $usuario['estado'] == 'Activo' ? 'boton-bottom2' : 'boton-bottom1' ?>"></div>
+                                        <div class="<?= $usuario['estado'] == 'Activo' ? 'boton-base2' : 'boton-base1' ?>"></div>
                                     </button>
                                     <?php endif; ?>
                                 </div>
@@ -141,9 +151,9 @@ $usuarios = $usuarioController->listar();
                         <?php endforeach; ?>
                         
                         <!-- Mensaje cuando no hay resultados -->
-                        <tr id="mensajeSinResultados" style="display: none;">
+                        <tr id="mensajeSinResultados" class="rounded-3 bg-white" style="display: none;">
                             <td colspan="7" class="text-center py-4">
-                                <div class="text-muted">
+                                <div class="text-dark">
                                     <i class="fas fa-search fa-2x mb-3"></i>
                                     <h5>No se encontraron usuarios</h5>
                                     <p>No hay resultados que coincidan con los filtros aplicados.</p>

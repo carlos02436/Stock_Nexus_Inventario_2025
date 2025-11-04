@@ -61,7 +61,7 @@ sort($usuariosUnicos);
     <!-- Filtros de Búsqueda -->
     <div class="card mb-4">
         <div class="card-header">
-            <h6 class="card-title mb-0 text-white">
+            <h6 class="card-title mb-0 text-white py-3">
                 <i class="fas fa-filter me-2"></i>Filtros de Búsqueda
             </h6>
         </div>
@@ -110,7 +110,7 @@ sort($usuariosUnicos);
 
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="card-title mb-0">
+            <h5 class="card-title mb-0 text-white py-3">
                 <i class="fas fa-list me-2"></i>Historial de Movimientos
             </h5>
             <div class="text-muted small" id="contadorMovimientos">

@@ -7,8 +7,10 @@ $clientesInactivos = $clienteController->listarInactivos();
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
         <h1 class="h2"><i class="fas fa-archive me-2"></i>Clientes Inactivos</h1>
         <div class="btn-toolbar mb-2 mb-md-0">
-            <a href="index.php?page=clientes" class="btn btn-secondary">
-                <i class="fas fa-arrow-left me-2"></i>Volver a Clientes
+            <a href="index.php?page=clientes" class="boton3 text-decoration-none">
+                <div class="boton-top3"><i class="fas fa-arrow-left me-2"></i>Volver a Clientes</div>
+                <div class="boton-bottom3"></div>
+                <div class="boton-base3"></div>
             </a>
         </div>
     </div>
@@ -58,8 +60,10 @@ $clientesInactivos = $clienteController->listarInactivos();
                     <input type="text" class="form-control" id="filtroCiudad" placeholder="Ciudad...">
                 </div>
                 <div class="col-md-12 text-start">
-                    <button type="button" class="btn btn-danger" id="limpiarFiltros">
-                        <i class="fas fa-undo me-1"></i>Limpiar Filtros
+                    <button type="button" class="boton2" id="limpiarFiltros">
+                        <div class="boton-top2"><i class="fas fa-undo me-1"></i>Limpiar filtros</div>
+                        <div class="boton-bottom2"></div>
+                        <div class="boton-base2"></div>
                     </button>
                 </div>
             </div>
@@ -76,7 +80,7 @@ $clientesInactivos = $clienteController->listarInactivos();
         </div>
         <div class="card-body">
             <?php if (empty($clientesInactivos)): ?>
-                <div class="alert alert-info text-center">
+                <div class="alert bg-white text-center">
                     <i class="fas fa-info-circle me-2"></i>
                     <strong>No hay clientes inactivos</strong>
                     <br>
@@ -127,9 +131,11 @@ $clientesInactivos = $clienteController->listarInactivos();
                                 <td>
                                     <div class="btn-group btn-group-sm">
                                         <a href="index.php?page=activar_cliente&id=<?= $cliente['id_cliente'] ?>" 
-                                           class="btn btn-success btn-activar" 
-                                           title="Activar Cliente">                                           
-                                            <i class="fas fa-redo me-1"></i>Activar
+                                        class="boton1 btn-activar text-decoration-none" style="min-width:auto;" 
+                                        title="Activar Cliente">
+                                            <div class="boton-top1"><i class="fas fa-redo me-1"></i>Activar</div>
+                                            <div class="boton-bottom1"></div>
+                                            <div class="boton-base1"></div>
                                         </a>
                                     </div>
                                 </td>
@@ -137,14 +143,6 @@ $clientesInactivos = $clienteController->listarInactivos();
                             <?php endforeach; ?>
                         </tbody>
                     </table>
-                </div>
-
-                <!-- Mensaje cuando no hay resultados en la búsqueda -->
-                <div id="mensajeSinResultados" class="alert alert-warning text-center d-none mt-3">
-                    <i class="fas fa-search me-2"></i>
-                    <strong>No se encontraron clientes inactivos</strong> que coincidan con los filtros aplicados.
-                    <br>
-                    <small class="text-muted">Intenta ajustar los filtros o limpialos para ver todos los clientes inactivos.</small>
                 </div>
             <?php endif; ?>
         </div>

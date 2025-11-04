@@ -23,16 +23,26 @@ $productosSinStock = count(array_filter($productosActivos, fn($p) => $p['stock_a
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom border-light">
         <h1 class="h2"><i class="fas fa-boxes me-2"></i>Reporte de Inventario</h1>
         <div class="btn-toolbar mb-2 mb-md-2">
-            <a href="index.php?page=reportes" class="btn btn-secondary me-2">
-                <i class="fas fa-arrow-left me-2"></i>Volver a Reportes
+            <a href="index.php?page=reportes" class="boton3 me-2 text-decoration-none">
+                <div class="boton-top3">
+                    <i class="fas fa-arrow-left me-2"></i>Volver a Reportes
+                </div>
+                <div class="boton-bottom3"></div>
+                <div class="boton-base3"></div>
             </a>
-            <a href="index.php?page=generar_pdf_inventario&tipo=inventario&fecha_inicio=<?= $fecha_inicio ?>&fecha_fin=<?= $fecha_fin ?>" 
-               class="btn btn-danger me-2">
-                <i class="fas fa-file-pdf me-2"></i>PDF
+            <a href="index.php?page=generar_pdf_inventario&tipo=inventario&fecha_inicio=<?= $fecha_inicio ?>&fecha_fin=<?= $fecha_fin ?>" class="boton2 me-2 text-decoration-none">
+                <div class="boton-top2">
+                    <i class="fas fa-file-pdf me-2"></i>PDF
+                </div>
+                <div class="boton-bottom2"></div>
+                <div class="boton-base2"></div>
             </a>
-            <a href="index.php?page=generar_excel_inventario&tipo=inventario&fecha_inicio=<?= $fecha_inicio ?>&fecha_fin=<?= $fecha_fin ?>" 
-               class="btn btn-success">
-                <i class="fas fa-file-excel me-2"></i>Excel
+            <a href="index.php?page=generar_excel_inventario&tipo=inventario&fecha_inicio=<?= $fecha_inicio ?>&fecha_fin=<?= $fecha_fin ?>" class="boton1 me-2 text-decoration-none">
+                <div class="boton-top1">
+                    <i class="fas fa-file-excel me-2"></i>Excel
+                </div>
+                <div class="boton-bottom1"></div>
+                <div class="boton-base1"></div>
             </a>
         </div>
     </div>
@@ -143,10 +153,14 @@ $productosSinStock = count(array_filter($productosActivos, fn($p) => $p['stock_a
                         <option value="NORMAL">Normal Stock</option>
                     </select>
                 </div>
+                
                 <div class="col-md-2">
-                    <label class="form-label text-white d-block">&nbsp;</label>
-                    <button type="button" id="btnLimpiarFiltros" class="btn btn-danger w-100">
-                        <i class="fas fa-undo me-1"></i>Limpiar
+                    <button type="button" id="btnLimpiarFiltros" class="boton2">
+                        <div class="boton-top2">
+                            <i class="fas fa-undo me-1"></i>Limpiar
+                        </div>
+                        <div class="boton-bottom2"></div>
+                        <div class="boton-base2"></div>
                     </button>
                 </div>
             </form>

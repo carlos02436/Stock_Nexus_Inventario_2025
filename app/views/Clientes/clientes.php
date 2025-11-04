@@ -7,11 +7,16 @@ $clientes = $clienteController->listar(); // Esto ahora solo trae clientes activ
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
         <h1 class="h2"><i class="fas fa-users me-2"></i>Gestión de Clientes</h1>
         <div class="btn-toolbar mb-2 mb-md-0">
-            <a href="index.php?page=crear_cliente" class="btn btn-neon">
-                <i class="fas fa-plus me-2"></i>Nuevo Cliente
+            <a href="index.php?page=crear_cliente" class="boton1 text-decoration-none">
+                <div class="boton-top1"><i class="fas fa-plus me-2"></i>Nuevo Cliente</div>
+                <div class="boton-bottom1"></div>
+                <div class="boton-base1"></div>
             </a>
-            <a href="index.php?page=clientes_inactivos" class="btn btn-warning ms-2">
-                <i class="fas fa-archive me-2"></i>Clientes Inactivos
+
+            <a href="index.php?page=clientes_inactivos" class="boton4 ms-2 text-decoration-none">
+                <div class="boton-top4"><i class="fas fa-archive me-2"></i>Clientes Inactivos</div>
+                <div class="boton-bottom4"></div>
+                <div class="boton-base4"></div>
             </a>
         </div>
     </div>
@@ -61,8 +66,10 @@ $clientes = $clienteController->listar(); // Esto ahora solo trae clientes activ
                     <input type="text" class="form-control" id="filtroCiudad" placeholder="Ciudad...">
                 </div>
                 <div class="col-md-12 text-start">
-                    <button type="button" class="btn btn-danger" id="limpiarFiltros">
-                        <i class="fas fa-undo me-1"></i>Limpiar filtros
+                    <button type="button" class="boton2" id="limpiarFiltros">
+                        <div class="boton-top2"><i class="fas fa-undo me-1"></i>Limpiar filtros</div>
+                        <div class="boton-bottom2"></div>
+                        <div class="boton-base2"></div>
                     </button>
                 </div>
             </div>
@@ -111,13 +118,17 @@ $clientes = $clienteController->listar(); // Esto ahora solo trae clientes activ
                             <td>
                                 <div class="btn-group btn-group-sm">
                                     <a href="index.php?page=editar_cliente&id=<?= $cliente['id_cliente'] ?>" 
-                                       class="btn btn-warning" title="Editar">
-                                        <i class="fas fa-edit"></i>
+                                    class="boton4" style="min-width:auto;" title="Editar">
+                                        <div class="boton-top4"><i class="fas fa-edit"></i></div>
+                                        <div class="boton-bottom4"></div>
+                                        <div class="boton-base4"></div>
                                     </a>
-                                    <button type="button" class="btn btn-danger btn-eliminar" 
+                                    <button type="button" class="boton2 btn-eliminar" style="min-width:auto;" 
                                             title="Desactivar Cliente" 
                                             data-cliente-id="<?= $cliente['id_cliente'] ?>">
-                                        <i class="fas fa-trash"></i>
+                                        <div class="boton-top2"><i class="fas fa-trash"></i></div>
+                                        <div class="boton-bottom2"></div>
+                                        <div class="boton-base2"></div>
                                     </button>
                                 </div>
                             </td>
@@ -127,7 +138,7 @@ $clientes = $clienteController->listar(); // Esto ahora solo trae clientes activ
                 </table>
                 
                 <!-- Mensaje cuando no hay resultados -->
-                <div id="mensajeSinResultados" class="alert alert-info text-center d-none">
+                <div id="mensajeSinResultados" class="alert bg-white text-center d-none">
                     <i class="fas fa-search me-2"></i>
                     <strong>No se encontraron clientes</strong> que coincidan con los criterios de búsqueda.
                     <br>

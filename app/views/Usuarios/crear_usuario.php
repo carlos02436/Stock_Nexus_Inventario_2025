@@ -10,20 +10,17 @@ if ($_SESSION['usuario_rol'] !== 'Administrador') {
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h1 class="h2"><i class="fas fa-plus me-2"></i>Crear Nuevo Usuario</h1>
         <div class="btn-toolbar mb-2 mb-md-0">
-            <a href="index.php?page=usuarios" class="btn btn-secondary">
-                <i class="fas fa-arrow-left me-2"></i>Volver a Usuarios
+            <a href="index.php?page=usuarios" class="boton3 text-decoration-none">
+                <div class="boton-top3"><i class="fas fa-arrow-left me-2"></i>Volver a Usuarios</div>
+                <div class="boton-bottom3"></div>
+                <div class="boton-base3"></div>
             </a>
         </div>
     </div>
 
     <div class="row justify-content-center">
         <div class="col-lg-8 col-xl-6">
-            <div class="card">
-                <div class="card-header text-white">
-                    <h5 class="card-title mb-0">
-                        <i class="fas fa-user-plus me-2"></i>Información del Usuario
-                    </h5>
-                </div>
+            <div class="card py-3">
                 <div class="card-body">
                     <form method="POST" action="index.php?page=crear_usuario">
                         <div class="row">
@@ -108,11 +105,15 @@ if ($_SESSION['usuario_rol'] !== 'Administrador') {
                         </div>
 
                         <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4">
-                            <button type="submit" class="btn btn-neon">
-                                <i class="fas fa-save me-2"></i>Guardar Usuario
+                            <button type="submit" class="boton1 text-decoration-none">
+                                <div class="boton-top1"><i class="fas fa-save me-2"></i>Guardar Usuario</div>
+                                <div class="boton-bottom1"></div>
+                                <div class="boton-base1"></div>
                             </button>
-                            <a href="index.php?page=usuarios" class="btn btn-danger me-2">
-                                <i class="fas fa-times me-2"></i>Cancelar
+                            <a href="index.php?page=usuarios" class="boton2 me-2 text-decoration-none">
+                                <div class="boton-top2"><i class="fas fa-times me-2"></i>Cancelar</div>
+                                <div class="boton-bottom2"></div>
+                                <div class="boton-base2"></div>
                             </a>
                         </div>
                     </form>

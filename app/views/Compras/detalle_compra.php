@@ -19,8 +19,10 @@ if (!$compra) {
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
         <h1 class="h2 text-white"><i class="fas fa-eye me-2"></i>Detalle de Compra</h1>
         <div class="btn-toolbar mb-2 mb-md-0">
-            <a href="index.php?page=compras" class="btn btn-secondary">
-                <i class="fas fa-arrow-left me-2"></i>Volver a Compras
+            <a href="index.php?page=compras" class="boton3 text-decoration-none">
+                <div class="boton-top3"><i class="fas fa-arrow-left me-2"></i>Volver a Compras</div>
+                <div class="boton-bottom3"></div>
+                <div class="boton-base3"></div>
             </a>
         </div>
     </div>

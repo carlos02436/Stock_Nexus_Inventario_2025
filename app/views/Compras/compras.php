@@ -21,8 +21,10 @@ $estados = ['Todos' => '', 'Pagada' => 'Pagada', 'Pendiente' => 'Pendiente', 'An
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom border-light">
         <h1 class="h2 text-white"><i class="fas fa-shopping-cart me-2"></i>Gestión de Compras</h1>
         <div class="btn-toolbar mb-2 mb-md-0">
-            <a href="index.php?page=crear_compra" class="btn btn-neon">
-                <i class="fas fa-plus me-2"></i>Nueva Compra
+            <a href="index.php?page=crear_compra" class="boton1 text-decoration-none">
+                <div class="boton-top1"><i class="fas fa-plus me-2"></i>Nueva Compra</div>
+                <div class="boton-bottom1"></div>
+                <div class="boton-base1"></div>
             </a>
         </div>
     </div>
@@ -62,8 +64,10 @@ $estados = ['Todos' => '', 'Pagada' => 'Pagada', 'Pendiente' => 'Pendiente', 'An
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <button id="btn-limpiar" class="btn btn-danger btn-sm w-90" title="Limpiar todos los filtros">
-                        <i class="fas fa-undo me-1"></i>Limpiar filtros
+                    <button id="btn-limpiar" class="boton2" title="Limpiar todos los filtros">
+                        <div class="boton-top2"><i class="fas fa-undo me-1"></i>Limpiar</div>
+                        <div class="boton-bottom2"></div>
+                        <div class="boton-base2"></div>
                     </button>
                 </div>
             </div>
@@ -110,43 +114,52 @@ $estados = ['Todos' => '', 'Pagada' => 'Pagada', 'Pendiente' => 'Pendiente', 'An
                                 </span>
                             </td>
                             <td>
-                                <div class="btn-group btn-group-sm">
-                                    <a href="index.php?page=detalle_compra&id=<?= $compra['id_compra'] ?>" 
-                                       class="btn btn-info" title="Ver Detalle">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    <?php if ($compra['estado'] == 'Pendiente'): ?>
-                                    <button type="button" 
-                                            class="btn btn-success btnMarcarCompraPagada" 
-                                            data-id="<?= $compra['id_compra'] ?>"
-                                            data-codigo="<?= $compra['codigo_compra'] ?>"
-                                            data-proveedor="<?= $compra['nombre_proveedor'] ?>"
-                                            title="Marcar como Pagada">
-                                        <i class="fas fa-check"></i>
-                                    </button>
-                                    <?php endif; ?>
-                                    
-                                    <?php if ($compra['estado'] != 'Anulada'): ?>
-                                    <button type="button" 
-                                            class="btn btn-danger btnAnularCompra" 
-                                            data-id="<?= $compra['id_compra'] ?>"
-                                            data-codigo="<?= $compra['codigo_compra'] ?>"
-                                            data-proveedor="<?= $compra['nombre_proveedor'] ?>"
-                                            title="Anular Compra">
-                                        <i class="fas fa-ban"></i>
-                                    </button>
-                                    <?php else: ?>
-                                    <button type="button" 
-                                            class="btn btn-success btnReanudarCompra" 
-                                            data-id="<?= $compra['id_compra'] ?>"
-                                            data-codigo="<?= $compra['codigo_compra'] ?>"
-                                            data-proveedor="<?= $compra['nombre_proveedor'] ?>"
-                                            title="Reanudar Compra">
-                                        <i class="fas fa-redo"></i>
-                                    </button>
-                                    <?php endif; ?>
-                                </div>
-                            </td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="index.php?page=detalle_compra&id=<?= $compra['id_compra'] ?>" 
+                                class="boton6" style="min-width:auto;" title="Ver Detalle">
+                                    <div class="boton-top6"><i class="fas fa-eye"></i></div>
+                                    <div class="boton-bottom6"></div>
+                                    <div class="boton-base6"></div>
+                                </a>
+                                
+                                <?php if ($compra['estado'] == 'Pendiente'): ?>
+                                <button type="button" 
+                                        class="boton1 btnMarcarCompraPagada" style="min-width:auto;" 
+                                        data-id="<?= $compra['id_compra'] ?>"
+                                        data-codigo="<?= $compra['codigo_compra'] ?>"
+                                        data-proveedor="<?= $compra['nombre_proveedor'] ?>"
+                                        title="Marcar como Pagada">
+                                    <div class="boton-top1"><i class="fas fa-check"></i></div>
+                                    <div class="boton-bottom1"></div>
+                                    <div class="boton-base1"></div>
+                                </button>
+                                <?php endif; ?>
+                                
+                                <?php if ($compra['estado'] != 'Anulada'): ?>
+                                <button type="button" 
+                                        class="boton2 btnAnularCompra" style="min-width:auto;" 
+                                        data-id="<?= $compra['id_compra'] ?>"
+                                        data-codigo="<?= $compra['codigo_compra'] ?>"
+                                        data-proveedor="<?= $compra['nombre_proveedor'] ?>"
+                                        title="Anular Compra">
+                                    <div class="boton-top2"><i class="fas fa-ban"></i></div>
+                                    <div class="boton-bottom2"></div>
+                                    <div class="boton-base2"></div>
+                                </button>
+                                <?php else: ?>
+                                <button type="button" 
+                                        class="boton4 btnReanudarCompra" style="min-width:auto;" 
+                                        data-id="<?= $compra['id_compra'] ?>"
+                                        data-codigo="<?= $compra['codigo_compra'] ?>"
+                                        data-proveedor="<?= $compra['nombre_proveedor'] ?>"
+                                        title="Reanudar Compra">
+                                    <div class="boton-top4"><i class="fas fa-redo"></i></div>
+                                    <div class="boton-bottom4"></div>
+                                    <div class="boton-base4"></div>
+                                </button>
+                                <?php endif; ?>
+                            </div>
+                        </td>
                         </tr>
                         <?php endforeach; ?>
                         <?php if (empty($compras)): ?>

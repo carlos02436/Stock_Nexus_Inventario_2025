@@ -14,8 +14,10 @@ $roles = $rolController->listar();
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
             <h1 class="h2"><i class="fas fa-user-shield me-2"></i>Gestión de Roles</h1>
             <div class="btn-toolbar mb-2 mb-md-0">
-                <a href="index.php?page=crear_rol" class="btn btn-neon">
-                    <i class="fas fa-plus me-2"></i>Nuevo Rol
+                <a href="index.php?page=crear_rol" class="boton1 text-decoration-none">
+                <div class="boton-top1"><i class="fas fa-plus me-2"></i>Nuevo Rol</div>
+                <div class="boton-bottom1"></div>
+                <div class="boton-base1"></div>
                 </a>
             </div>
         </div>
@@ -51,8 +53,10 @@ $roles = $rolController->listar();
                             <small class="text-white" id="contadorResultados">
                                 Mostrando <?= count($roles) ?> rol(es)
                             </small>
-                            <button type="button" class="btn btn-danger" id="btnLimpiarFiltros">
-                                <i class="fas fa-undo me-1"></i>Limpiar filtros
+                            <button type="button" class="boton2" id="btnLimpiarFiltros">
+                                <div class="boton-top2"><i class="fas fa-undo me-1"></i>Limpiar filtros</div>
+                                <div class="boton-bottom2"></div>
+                                <div class="boton-base2"></div>
                             </button>
                         </div>
                     </div>
@@ -90,17 +94,23 @@ $roles = $rolController->listar();
                                     <td>
                                         <div class="btn-group btn-group-sm">
                                             <a href="index.php?page=editar_rol&id=<?= $rol['id_rol'] ?>" 
-                                               class="btn btn-warning" title="Editar">
-                                                <i class="fas fa-edit"></i>
+                                            class="boton4" style="min-width:auto;" title="Editar">
+                                                <div class="boton-top4"><i class="fas fa-edit"></i></div>
+                                                <div class="boton-bottom4"></div>
+                                                <div class="boton-base4"></div>
                                             </a>
-                                            <button type="button" 
-                                                    class="btn btn-<?= $rol['estado'] == 1 ? 'danger' : 'success' ?> btnModalEstado" 
+                                            <button type="button"  style="min-width:auto;"
+                                                    class="<?= $rol['estado'] == 1 ? 'boton2' : 'boton1' ?> btnModalEstado" 
                                                     data-bs-toggle="modal" 
                                                     data-bs-target="#modalConfirmar" 
                                                     data-id="<?= $rol['id_rol'] ?>"
                                                     data-nombre="<?= htmlspecialchars($rol['nombre_rol']) ?>"
                                                     data-accion="<?= $rol['estado'] == 1 ? 'inactivar' : 'activar' ?>">
-                                                <i class="fas <?= $rol['estado'] == 1 ? 'fa-ban' : 'fa-check' ?>"></i>
+                                                <div class="<?= $rol['estado'] == 1 ? 'boton-top2' : 'boton-top1' ?>">
+                                                    <i class="fas <?= $rol['estado'] == 1 ? 'fa-ban' : 'fa-check' ?>"></i>
+                                                </div>
+                                                <div class="<?= $rol['estado'] == 1 ? 'boton-bottom2' : 'boton-bottom1' ?>"></div>
+                                                <div class="<?= $rol['estado'] == 1 ? 'boton-base2' : 'boton-base1' ?>"></div>
                                             </button>
                                         </div>
                                     </td>

@@ -185,7 +185,7 @@ echo "<!-- ================= -->";
         <!-- Ventas Recientes -->
         <div class="col-lg-6 mb-4">
             <div class="card h-100">
-                <div class="card-header">
+                <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-white">
                         <i class="fas fa-shopping-cart me-2"></i>Ventas Recientes
                     </h6>
@@ -232,7 +232,7 @@ echo "<!-- ================= -->";
         <!-- Alertas de Stock -->
         <div class="col-lg-6 mb-4">
             <div class="card h-100">
-                <div class="card-header">
+                <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-warning">
                         <i class="fas fa-exclamation-triangle me-2"></i><strong>Alertas de Stock Bajo</strong>
                     </h6>
@@ -277,7 +277,7 @@ echo "<!-- ================= -->";
     <div class="row">
         <div class="col-lg-12">
             <div class="card">
-                <div class="card-header">
+                <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-white">
                         <i class="fas fa-chart-line me-2"></i>Productos Más Vendidos
                     </h6>

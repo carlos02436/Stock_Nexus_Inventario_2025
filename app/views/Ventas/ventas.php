@@ -16,8 +16,10 @@ $ventas = $ventaController->listar();
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h1 class="h2"><i class="fas fa-cash-register me-2"></i>Gestión de Ventas</h1>
         <div class="btn-toolbar mb-2 mb-md-2">
-            <a href="index.php?page=crear_venta" class="btn btn-neon">
-                <i class="fas fa-plus me-2"></i>Nueva Venta
+            <a href="index.php?page=crear_venta" class="boton1 text-decoration-none">
+                <div class="boton-top1"><i class="fas fa-plus me-2"></i>Nueva Venta</div>
+                <div class="boton-bottom1"></div>
+                <div class="boton-base1"></div>
             </a>
         </div>
     </div>
@@ -71,8 +73,10 @@ $ventas = $ventaController->listar();
                     </select>
                 </div>
                 <div class="col-md-3 d-flex align-items-end">
-                    <button type="button" id="btnLimpiarFiltros" class="btn btn-danger mt-2">
-                        <i class="fas fa-undo me-1"></i>Limpiar filtros
+                    <button type="button" id="btnLimpiarFiltros" class="boton2 mt-2">
+                        <div class="boton-top2"><i class="fas fa-undo me-1"></i>Limpiar filtros</div>
+                        <div class="boton-bottom2"></div>
+                        <div class="boton-base2"></div>
                     </button>
                 </div>
             </div>
@@ -125,35 +129,41 @@ $ventas = $ventaController->listar();
                                 <div class="btn-group btn-group-sm">
                                     <!-- Ver detalle -->
                                     <a href="index.php?page=detalle_venta&id=<?= $venta['id_venta'] ?>" 
-                                    class="btn btn-info" title="Ver Detalle">
-                                        <i class="fas fa-eye"></i>
+                                    class="boton6" style="min-width:auto;" title="Ver Detalle">
+                                        <div class="boton-top6"><i class="fas fa-eye"></i></div>
+                                        <div class="boton-bottom6"></div>
+                                        <div class="boton-base6"></div>
                                     </a>
 
                                     <!-- Marcar como pagada -->
                                     <?php if ($venta['estado'] == 'Pendiente'): ?>
                                         <button type="button" 
-                                                class="btn btn-success btnMarcarPagada" 
+                                                class="boton1 btnMarcarPagada" style="min-width:auto;" 
                                                 data-id="<?= $venta['id_venta'] ?>"
                                                 data-codigo="<?= $venta['codigo_venta'] ?>"
                                                 data-factura="<?= $venta['factura'] ?? 'N/A' ?>"
                                                 data-cliente="<?= $venta['nombre_cliente'] ?: 'Cliente General' ?>"
                                                 data-total="$<?= number_format($venta['total_venta'], 2, ',', '.') ?>"
                                                 title="Marcar como Pagada">
-                                            <i class="fas fa-check"></i>
+                                            <div class="boton-top1"><i class="fas fa-check"></i></div>
+                                            <div class="boton-bottom1"></div>
+                                            <div class="boton-base1"></div>
                                         </button>
                                     <?php endif; ?>
 
                                     <!-- Anular venta -->
                                     <?php if ($venta['estado'] != 'Anulada'): ?>
                                         <button type="button" 
-                                                class="btn btn-danger btnAnularVenta" 
+                                                class="boton2 btnAnularVenta" style="min-width:auto;" 
                                                 data-id="<?= $venta['id_venta'] ?>"
                                                 data-codigo="<?= $venta['codigo_venta'] ?>"
                                                 data-factura="<?= $venta['factura'] ?? 'N/A' ?>"
                                                 data-cliente="<?= $venta['nombre_cliente'] ?: 'Cliente General' ?>"
                                                 data-total="$<?= number_format($venta['total_venta'], 2, ',', '.') ?>"
                                                 title="Anular Venta">
-                                            <i class="fas fa-ban"></i>
+                                            <div class="boton-top2"><i class="fas fa-ban"></i></div>
+                                            <div class="boton-bottom2"></div>
+                                            <div class="boton-base2"></div>
                                         </button>
                                     <?php endif; ?>
 
@@ -164,14 +174,16 @@ $ventas = $ventaController->listar();
                                         stripos(trim($_SESSION['rol']), 'admin') !== false
                                     ): ?>
                                         <button type="button" 
-                                                class="btn btn-warning btnRevertirAnulacion" 
+                                                class="boton4 btnRevertirAnulacion" style="min-width:auto;" 
                                                 data-id="<?= $venta['id_venta'] ?>"
                                                 data-codigo="<?= $venta['codigo_venta'] ?>"
                                                 data-factura="<?= $venta['factura'] ?? 'N/A' ?>"
                                                 data-cliente="<?= $venta['nombre_cliente'] ?: 'Cliente General' ?>"
                                                 data-total="$<?= number_format($venta['total_venta'], 2, ',', '.') ?>"
                                                 title="Revertir Anulación">
-                                            <i class="fas fa-undo"></i>
+                                            <div class="boton-top4"><i class="fas fa-undo"></i></div>
+                                            <div class="boton-bottom4"></div>
+                                            <div class="boton-base4"></div>
                                         </button>
                                     <?php endif; ?>
                                 </div>

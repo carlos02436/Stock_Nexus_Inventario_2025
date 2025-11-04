@@ -12,8 +12,10 @@ $modulos = $moduloController->listarTodos();
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
             <h1 class="h2"><i class="fas fa-cubes me-2"></i>Gestión de Módulos del Sistema</h1>
             <div class="btn-toolbar mb-2 mb-md-0">
-                <a href="index.php?page=crear_modulo" class="btn btn-neon">
-                    <i class="fas fa-plus me-2"></i>Nuevo Módulo
+                <a href="index.php?page=crear_modulo" class="boton3 text-decoration-none">
+                    <div class="boton-top3"><i class="fas fa-plus me-2"></i>Nuevo Módulo</div>
+                    <div class="boton-bottom3"></div>
+                    <div class="boton-base3"></div>
                 </a>
             </div>
         </div>
@@ -51,8 +53,10 @@ $modulos = $moduloController->listarTodos();
                 </div>
                 <div class="row mt-3">
                     <div class="col-md-12 text-start">
-                        <button id="btnLimpiarFiltros" class="btn btn-danger btn-sm">
-                            <i class="fas fa-undo me-1"></i>Limpiar filtros
+                        <button id="btnLimpiarFiltros" class="boton2 btn-sm">
+                            <div class="boton-top2"><i class="fas fa-undo me-1"></i>Limpiar filtros</div>
+                            <div class="boton-bottom2"></div>
+                            <div class="boton-base2"></div>
                         </button>
                     </div>
                 </div>
@@ -98,15 +102,22 @@ $modulos = $moduloController->listarTodos();
                                     <td>
                                         <div class="btn-group btn-group-sm">
                                             <a href="index.php?page=editar_modulo&id=<?= $modulo['id_modulo'] ?>" 
-                                               class="btn btn-warning" title="Editar">
-                                                <i class="fas fa-edit"></i>
+                                            class="boton4" style="min-width:auto;" title="Editar Módulo">
+                                                <div class="boton-top4"><i class="fas fa-edit"></i></div>
+                                                <div class="boton-bottom4"></div>
+                                                <div class="boton-base4"></div>
                                             </a>
-                                            <button type="button" 
-                                                    class="btn btn-<?= $modulo['estado'] == 'Activo' ? 'danger' : 'success' ?> btnCambiarEstado" 
+                                            <button type="button" style="min-width:auto;"
+                                                    class="<?= $modulo['estado'] == 'Activo' ? 'boton2' : 'boton1' ?> btnCambiarEstado" 
                                                     data-id="<?= $modulo['id_modulo'] ?>"
                                                     data-nombre="<?= htmlspecialchars($modulo['nombre_modulo']) ?>"
-                                                    data-accion="<?= $modulo['estado'] == 'Activo' ? 'inactivar' : 'activar' ?>">
-                                                <i class="fas <?= $modulo['estado'] == 'Activo' ? 'fa-ban' : 'fa-check' ?>"></i>
+                                                    data-accion="<?= $modulo['estado'] == 'Activo' ? 'inactivar' : 'activar' ?>"
+                                                    title="<?= $modulo['estado'] == 'Activo' ? 'Inactivar Módulo' : 'Activar Módulo' ?>">
+                                                <div class="<?= $modulo['estado'] == 'Activo' ? 'boton-top2' : 'boton-top1' ?>">
+                                                    <i class="fas <?= $modulo['estado'] == 'Activo' ? 'fa-ban' : 'fa-check' ?>"></i>
+                                                </div>
+                                                <div class="<?= $modulo['estado'] == 'Activo' ? 'boton-bottom2' : 'boton-bottom1' ?>"></div>
+                                                <div class="<?= $modulo['estado'] == 'Activo' ? 'boton-base2' : 'boton-base1' ?>"></div>
                                             </button>
                                         </div>
                                     </td>

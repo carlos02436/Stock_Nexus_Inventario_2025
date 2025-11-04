@@ -147,7 +147,7 @@ document.addEventListener('DOMContentLoaded', function() {
     mensajeNoResultados.innerHTML = `
         <td colspan="${columnCount}" style="text-align: center; padding: 20px;
             font-size: 16px; font-weight: bold; color: #666;
-            background-color: #f9f9f9; border: 1px solid #ddd;">
+            background-color: #ffffffff; border: 1px solid #ddd;">
             No hay resultados para la Búsqueda
         </td>
     `;
